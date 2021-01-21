@@ -1,0 +1,11 @@
+/// Sets the desired :hover, :active, and :focus state for an element.
+/// @example
+/// haf() { color: color(action); }
+/// // &:hover, &:active, &:focus { color: red; }
+@mixin haf() {
+	&:hover,
+	&:active,
+	&:focus {
+		@content;
+	}
+}

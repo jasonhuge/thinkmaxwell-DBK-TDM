@@ -1,0 +1,58 @@
+header {
+	position: absolute;
+	top: 18px;
+	width: 100%;
+	background-image: url("../img/content/header-background.png");
+	background-color: aqua;	
+	background-repeat: no-repeat;
+	background-size: cover;
+	opacity: 0;
+	
+	.visible {
+		opacity: 1;
+	}
+	
+	.hidden {
+		opacity: 0;
+	}
+	
+	#bar {
+		
+		width: 100%;
+		padding: 0 12px 6px 12px;
+		
+		#header-logo, #header-title {
+			display: inline-block;
+		}
+		
+		#header-logo {
+			width: 23%;
+			margin-right: 6px;
+			img {
+				width: 100%;
+			}
+		}
+		
+		#header-title {
+			position: absolute;
+			margin-top: 3%;
+			height: calc(100% - 14%);
+			margin-left: 6px;
+			background: blue;
+			
+			span {
+				font-size: 1.4em;
+				color: white;
+				font-weight: bold;
+				font-style: italic;
+				height: 100%;
+				margin: 0;
+				padding: 0;
+				display: flex;
+				justify-content: center;
+				align-content: center;
+				flex-direction: column;
+			}
+		}
+	}
+}

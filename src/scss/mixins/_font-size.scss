@@ -1,0 +1,11 @@
+// @category mixins
+
+// @mixin font-size
+// Outputs the desired font-size in rems with a px fallback.
+// @param $size {Number} The desired font-size in pixels or its integer equivalent.  [px|integer]
+// @usage
+// =font-size(12)
+@mixin font-size($size) {
+	font-size: parseInt($size) + px;
+	font-size: rem($size);
+}

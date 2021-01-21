@@ -1,0 +1,18 @@
+// @category mixins
+
+// @mixin placeholder
+// Adds styling control ability across major browsers for placeholder attribute.
+// @usage
+// =
+//	[type=text]{
+//		@include placeholder() {
+//			color: black;
+//			font-style: italic;
+//		}
+//	}
+@mixin placeholder() {
+	&::-webkit-input-placeholder 	{ @content } /* WebKit browsers */
+	&:-moz-placeholder 				{ @content } /* Mozilla Firefox 4 to 18 */
+	&::-moz-placeholder 			{ @content } /* Mozilla Firefox 19+ */
+	&:-ms-input-placeholder 		{ @content } /* Internet Explorer 10+ */
+}

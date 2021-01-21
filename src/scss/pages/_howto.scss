@@ -1,0 +1,22 @@
+#how-to {
+	font-weight: bold;
+	font-style: italic;
+	background: red;
+	.cta {
+		position: relative;
+		margin-top: 27px;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+	
+	.cta-image {
+		width: 100%;
+		height: auto;
+		
+		img {
+			width: 100%;
+			height: auto;
+		}
+	}
+}

@@ -1,0 +1,64 @@
+{ 
+	"game": {
+		"sandwiches": [
+			{
+				"name": "Bombtastic Breakfast Bagel",
+				"thumbnail": "",
+				"top": "",
+				"middle": "",
+				"bottom": ""
+			},
+			{
+				"name": "Eggcelent English Muffin",
+				"thumbnail": "",
+				"top": "",
+				"middle": "",
+				"bottom": ""
+			},
+			{
+				"name": "Bold Burger",
+				"thumbnail": "",
+				"top": "",
+				"middle": "",
+				"bottom": ""
+			},
+			{
+				"name": "Classic Club Sando",
+				"thumbnail": "",
+				"top": "",
+				"middle": "",
+				"bottom": ""
+			}
+			
+		],
+		"levels": [
+			{
+				"id": 1,
+				"title": "Beginner",
+				"duration": 0,
+				"delay": 0,
+				"experation_date": null,
+				"max_num_participants": null,
+				"list_id": "19f888674a"
+			},
+			{
+				"id": 2,
+				"title": "Moderate",
+				"duration": 0,
+				"delay": 0,
+				"experation_date": null,
+				"max_num_participants": 200,
+				"list_id": "19f888674a"
+			},
+			{
+				"id": 3,
+				"title": "Advanced",
+				"duration": 0,
+				"delay": 0,
+				"experation_date": null,
+				"max_num_participants": null,
+				"list_id": "19f888674a"
+			}
+		]
+	}
+}

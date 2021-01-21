@@ -1,0 +1,50 @@
+#intro {	
+	.hero-title {
+		width: 100%;
+		height: auto;
+		
+		img {
+			width: 100%;
+		}
+	}
+	
+	.hero-content {
+		padding: 0 17px 0 17px;
+		
+		.logo, .play-button {
+			display: inline-block;
+		}
+		
+		.logo {
+			width: calc(42% - 3px);
+			margin-right: 3px;
+			img {
+				width: 100%;
+			}
+		}
+		.play-button {
+			width: calc(58% - 3px);
+			cursor: pointer;
+			margin-left: 3px;
+			
+			img {
+				width: 100%;
+			}
+		}
+	}
+	
+	.terms {
+		position: absolute;
+		bottom: 15px;
+		text-align: center;
+		width: 100%;
+		
+		a {
+			color: #A98C00;
+			font-size: 14px;
+			font-weight: bold;
+			text-decoration: none;
+			border-bottom: 2px solid #A98C00;
+		}
+	}
+}
