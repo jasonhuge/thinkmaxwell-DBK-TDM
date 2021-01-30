@@ -2,7 +2,6 @@ footer {
 	position: absolute;
 	bottom: 0;
 	width: 100%;
-	opacity: 0;
 	
 	nav {
 		text-align: center;
@@ -12,13 +11,41 @@ footer {
 			display: inline-block;
 		}
 		
+		#nav-divider {
+			width: 35px;
+			height: auto;
+			margin: 0 15px 0 15px;
+			img {
+				width: 100%;
+				height: auto;
+			}
+		}
+		
 		.nav-button {
-			padding: 5px 20px 5px 20px;
+			position: relative;
+			padding: 10px 20px 5px 20px;
 			color: white;
-			background: black;
-			border: 2px solid white;
+			
 			font-weight: bold;
 			cursor: pointer;
+			
+			h4 {
+				margin: 0;
+				padding: 0;
+			}
+			
+			img, h4 {
+				display: inline-block;
+				vertical-align: top;
+			}
+			
+			img {
+				width: 23px;
+			}
+		}
+		
+		#spacer-button {
+			opacity: 0;
 		}
 	}
 }

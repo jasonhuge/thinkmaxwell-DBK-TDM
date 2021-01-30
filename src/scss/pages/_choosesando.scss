@@ -1,0 +1,22 @@
+#choose-sando {
+	ul {
+		margin: 0;
+		padding: 0;
+		position: absolute;
+		top: 50%;
+		transform: translate(0,-50%);
+		width: 100%;
+		
+		li {
+			display: inline-block;
+			vertical-align: top;
+			width: 50%;
+			vertical-align: top;
+			cursor: pointer;
+			img {
+				width: 100%;
+				
+			}
+		}
+	}
+}

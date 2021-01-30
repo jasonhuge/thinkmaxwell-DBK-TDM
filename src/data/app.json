@@ -1,63 +1,124 @@
-{ 
+{
 	"game": {
-		"sandwiches": [
-			{
-				"name": "Bombtastic Breakfast Bagel",
-				"thumbnail": "",
-				"top": "",
-				"middle": "",
-				"bottom": ""
+		"steps": [{
+				"id": 0,
+				"page-id": "intro",
+				"title": "TOTAL DAY MAKER",
+				"template": "templates/intro.php"
 			},
-			{
-				"name": "Eggcelent English Muffin",
-				"thumbnail": "",
-				"top": "",
-				"middle": "",
-				"bottom": ""
-			},
-			{
-				"name": "Bold Burger",
-				"thumbnail": "",
-				"top": "",
-				"middle": "",
-				"bottom": ""
-			},
-			{
-				"name": "Classic Club Sando",
-				"thumbnail": "",
-				"top": "",
-				"middle": "",
-				"bottom": ""
-			}
-			
-		],
-		"levels": [
 			{
 				"id": 1,
-				"title": "Beginner",
-				"duration": 0,
-				"delay": 0,
-				"experation_date": null,
-				"max_num_participants": null,
-				"list_id": "19f888674a"
+				"page-id": "choose-level",
+				"title": "CHOOSE YOUR<br/>DIFFICULTY",
+				"template": "templates/chooselevel.php"
 			},
 			{
 				"id": 2,
-				"title": "Moderate",
+				"page-id": "choose-sando",
+				"title": "CHOOSE YOUR<br/>SANDO MATCH",
+				"template": "templates/chooselevel.php"
+			},
+			{
+				"id": 3,
+				"page-id": "gameplay",
+				"title": "MATCH THIS<br/>SANDO",
+				"template": "templates/game.php"
+			},
+			{
+				"id": 4,
+				"page-id": "contact-info",
+				"title": "ENTER YOUR<br/>CONTACT INFO",
+				"template": "templates/contactinfo.php"
+			},
+			{
+				"id": 5,
+				"page-id": "print-coupon",
+				"title": "PRINT YOUR<br/>COUPON",
+				"template": "templates/contactinfo.php"
+			},
+			{
+				"id": 6,
+				"page-id": "recipe",
+				"title": "PRINT YOUR<br/>Recipe",
+				"template": "templates/contactinfo.php"
+			}
+		],
+		"sandwiches": [{
+				"id": 1,
+				"name": "Bombtastic Breakfast Bagel",
+				"hero": "img/content/sando-1-hero.jpg",
+				"thumbnail": "img/content/sand-1-header.png",
+				"top": "img/content/sando-1-top.jpg",
+				"middle": "img/content/sando-1-middle.jpg",
+				"bottom": "img/content/sando-1-bottom.jpg"
+			},
+			{
+				"id": 2,
+				"name": "Eggcelent English Muffin",
+				"hero": "img/content/sando-2-hero.jpg",
+				"thumbnail": "img/content/sand-1-header.png",
+				"top": "img/content/sando-2-top.jpg",
+				"middle": "img/content/sando-2-middle.jpg",
+				"bottom": "img/content/sando-2-bottom.jpg"
+			},
+			{
+				"id": 3,
+				"name": "Bold Burger",
+				"hero": "img/content/sando-3-hero.jpg",
+				"thumbnail": "img/content/sand-1-header.png",
+				"top": "img/content/sando-3-top.jpg",
+				"middle": "img/content/sando-3-middle.jpg",
+				"bottom": "img/content/sando-3-bottom.jpg"
+			},
+			{
+				"id": 4,
+				"name": "Classic Club Sando",
+				"hero": "img/content/sando-4-hero.jpg",
+				"thumbnail": "img/content/sand-1-header.png",
+				"top": "img/content/sando-4-top.jpg",
+				"middle": "img/content/sando-4-middle.jpg",
+				"bottom": "img/content/sando-4-bottom.jpg"
+			}
+
+		],
+		"levels": [{
+				"id": 1,
+				"title": "NOVICE",
+				"desc": "Win your favorite bread!",
+				"button": "",
+				"speed": 1,
+				"list_id": null,
+				"sandwich_ids": [
+					1, 4, 3, 2
+				]
+			},
+			{
+				"id": 2,
+				"title": "SKILLED",
+				"desc": "A chance to win<br/>a year's supply!",
+				"button": "",
 				"duration": 0,
 				"delay": 0,
 				"experation_date": null,
 				"max_num_participants": 200,
-				"list_id": "19f888674a"
+				"list_id": "19f888674a",
+				"sandwich_ids": [
+					2, 3, 1, 4
+				]
 			},
 			{
 				"id": 3,
-				"title": "Advanced",
+				"title": "EXPERT",
+				"desc": "A chance to win $5,000<br/>(the other kind of bread)",
+				"button": "",
 				"duration": 0,
 				"delay": 0,
 				"experation_date": null,
 				"max_num_participants": null,
-				"list_id": "19f888674a"
+				"list_id": "19f888674a",
+				"sandwich_ids": [
+					4, 3, 2, 1
+				]
 			}
 		]
 	}

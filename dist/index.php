@@ -1,3 +1,7 @@
+<?php
+	$file = file_get_contents("data/app.json");
+	$json = json_decode($file, true);
+?>
 <!doctype html>
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang=""> <![endif]-->
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8" lang=""> <![endif]-->
@@ -48,74 +52,31 @@
 			        	<div id="header-logo">
 				        	<img src="img/content/header-logo.png" alt="Daves Bread"/>
 			        	</div>
-			        	<div id="header-title">
-				        	<span class="visible" id="how-to">HOW TO PLAY:</span>
-				        	<span class="hidden" id="choose-level">CHOOSE YOUR<br/>DIFFICULTY:</span>
-				        	<span class="hidden" id="choose-sandwich">CHOOSE YOUR<br/>SANDO MATCH:</span>
-				        	<span class="hidden" id="game-play">MATCH THIS<br/>SANDO</span>
-				        	<span class="hidden" id="contact-info">ENTER YOUR<br/>CONTACT INFO</span>
-				        	<span class="hidden" id="print-coupon">PRINT YOUR<br/>COUPON</span>
-							<span class="hidden" id="perfect-match">WHAT A PERFECT<br/>MATCH!</span>
-							<span class="hidden" id="enter-confirmation">YOUR ENTERED,<br/>GOOD LUCK!</span>
+			        	<ul id="header-title">
+				        	<li class="transitional-title"></li>
+				        	<li class="title"></li>
+			        	</ul>
+			        	<div id="sando-thumb">
 			        	</div>
 		        	</div>
 	        	</header>
 	        	<div class="page-container">
 		        	<div class="page-slider">
-			        	<div class="page" id="intro">
-				        	<div class="hero-title">
-				        		<img src="img/content/home-hero.png" alt="Total Day Maker"/>
-				        	</div>
-				        	<div class="hero-content">
-					        	<div class="logo">
-						        	<img src="img/content/daves-logo.png" alt="Daves Bread"/>
-					        	</div><!---
-					        	---><div class="play-button">
-						        	<img src="img/content/home-play-btn.png" alt="Play for Bread"/>
-					        	</div>
-				        	</div>
-				        	<div class="terms">
-					        	<a href="">TERMS AND CONDITIONS</a>
-				        	</div>
-			        	</div><!--
-			        	--><div class="page" id="how-to">
-				        	<div class="cta">
-					        	<p>MATCH THE SLIDING PANELS TO BUILD<br/>THE PERFECT SANDO!</p>
-				        	</div>
-				        	<div class="cta-image">
-					        	<img src="img/content/step-1-hero.png" alt="Match the Sandwich"/>
-				        	</div>
-							<ul class="instructions">
-								<li>Stop each row with will-timed taps</li>
-								<li>Win a prize when all three rows match up correctly!</li>
-								<li>Don't get it the first time? No worries, keep trying until you win! (one prized per difficulty, per person)</li>
-							</ul>
-			        	</div><!--
-			        	--><div class="page" id="choose-level">
-				        	
-			        	</div><!--
-			        	--><div class="page" id="choose-sandwich">
-				        	
-			        	</div><!--
-			        	--><div class="page" id="game-play">
-				        	
-			        	</div><!--
-			        	--><div class="page" id="contact-info">
-				        	
-			        	</div>
-			        	
+					
 		        	</div>
 	        	</div>
 	        	<footer id="app-footer">
 		        	<nav id="game-nav">
-			        	<div class="nav-button" id="back-button">
-				        	BACK
+			        	<div class="nav-button button" id="back-button">
+				        	<img src="img/content/nav-back-arrow.png" alt="back-arrow"/>
+				        	<h4>BACK</h4>
 			        	</div>
 			        	<div id="nav-divider">
 				        	<img src="img/content/nav-house.png" alt="image of a house" />
 			        	</div>
-				        <div class="nav-button" id="next-button">
-				        	NEXT
+				        <div class="nav-button button" id="spacer-button">
+				        	<h4></h4>
+				        	<img src="" alt="next-arrow"/>
 			        	</div>
 		        	</nav>
 	        	</footer>
@@ -142,12 +103,25 @@
 		
 		<script   src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0="   crossorigin="anonymous"></script>
         
-		<script src="https://cdn.jsdelivr.net/npm/tsparticles"></script>
-		<script src="https://cdn.jsdelivr.net/npm/jquery-particles"></script>
+		<!--<script src="https://cdn.jsdelivr.net/npm/tsparticles"></script>
+		<script src="https://cdn.jsdelivr.net/npm/jquery-particles"></script>-->
 		
 
         <script src="js/Vendor.js"></script>
         <script src="js/App.js"></script>
+        
+        <script type="text/javascript">
+	        $(document).ready(function(){
+				var mobileDetect =  new MobileDetect(window.navigator.userAgent);
+				
+				if (mobileDetect.phone()) {
+					var app = new App();
+					app.init("phone");
+				} else {
+					
+				}
+			});
+		</script>
         
     </body>
 </html>

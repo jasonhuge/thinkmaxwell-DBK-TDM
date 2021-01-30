@@ -1,0 +1,56 @@
+#gameplay {
+	.page-content {
+		margin: 0;
+		padding: 0;
+		position: absolute;
+		top: 50%;
+		transform: translate(0,-50%);
+		width: 100%;
+		
+		p {
+			text-align: center;
+		}
+		
+		.carousel {
+			position: relative;
+			width: 100%;
+			overflow: hidden;
+			
+			#top {
+				height: 75px;
+				background: red;
+			}
+			
+			#middle {
+				height: 120px;
+				background: blue;
+			}
+			
+			#bottom {
+				height: 60px;
+				background: green;
+			}
+			
+			
+			ul {
+				margin: 0;
+				padding: 0;
+				position: absolute;
+				left: 0;
+				li {
+					display: inline-block;
+					img {
+						width: 100%;
+					}
+				}
+			}
+			
+			.divider {
+				background: white;
+				width: 100%;
+				display: block;
+				height: 8px;
+			}
+		}
+	}
+}

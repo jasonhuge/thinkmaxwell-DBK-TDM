@@ -7,8 +7,6 @@
 		this._preloader;
 		this._data;
 		this._game;
-		this._header;
-		this._footer;
 		
 		this.loadScripts = function(e){
 			var context = this;
@@ -24,37 +22,32 @@
 		this.loadGame = function() {
 			var context = this;
 			
-			this._header = new HeaderViewController();
-			this._header.init($("#app-header"));
+			var header = new HeaderViewController();
+			header.init($("#app-header"));
 			
-			this._footer = new FooterViewController();
-			this._footer.init($("#app-footer"));
-			
+			var footer = new FooterViewController();
+			footer.init($("#app-footer"));
 			
 			$(".page-slider").find(".page").each(function(){
 				if ($(this).is("#intro") === false) {
-					var headerHeight = context._header._view.height();
-					var footerHeight = context._header._view.height();
+					var headerHeight = header._view.outerHeight() + header._top;
+					var footerHeight = header._view.outerHeight();
+					var containerHeight = $(".page-container").height() - headerHeight - footerHeight;
+					console.log(containerHeight);
 					$(this).css({
+						"margin-top": headerHeight,
+						"height": containerHeight
+					});
+					/*$(this).css({
 						"padding-top": headerHeight,
 						"padding-bottom": footerHeight
-					}); 
+					});*/
 				}
 			});
     		
     		this._game = new GameCoordinator();
-    		this._game.init($(".page-container"), this._deviceType);
-    		
-    		this._game._presentNavigationClosure = function() {
-	    		context._header.intro();
-	    		context._footer.intro();
-    		}
-    		
-    		this._game._hideNavigationClosure = function() {
-	    		context._header.exit();
-	    		context._footer.exit();
-    		}
-    		    		
+    		this._game.init($(".page-container"), this._deviceType, header, footer);
+    	    		    		
     		this._game.load(function() {
 	    		context.loadContent();
     		});
@@ -120,83 +113,6 @@
 	window.App = App;
 }(window));
 
-$(document).ready(function(){
-	
-	var mobileDetect =  new MobileDetect(window.navigator.userAgent);
-	
-	var deviceType;
-		
-	if(mobileDetect.phone()){
-		deviceType = "phone";
-
-	}else{
-		
-		if(mobileDetect.tablet()) {
-			deviceType = "tablet"
-		}else{
-			deviceType = "desktop";
-		}
-		
-		$(".wrapper").addClass("desktop");
-	}
-	
-	var outOfDate = false;
-	
-	if(deviceType === "desktop"){
-		if(bowser.safari){
-			if(bowser.version < 6){
-				outOfDate = true;
-			}
-		}else if(bowser.firefox){
-			if(bowser.version < 45){
-				outOfDate = true;
-			}
-			
-		}else if(bowser.chrome){
-			if(bowser.version < 49){
-				outOfDate = true;
-			}
-			
-		}else if(bowser.msie){
-    		$(".content").css("overflow", "auto");
-			if(bowser.version < 10){
-				outOfDate = true;
-			}
-		}
-	}
-	
-	/*$("#tsparticles")
-	.particles()
-	.ajax("data/particles.json", function (container) {
-		console.log(container);
-    // container is the particles container where you can play/pause or stop/start.
-    // the container is already started, you don't need to start it manually.
-  	});*/
-	
-    /*if(deviceType === "desktop") {
-        $(".rotate-message").remove();
-    } else if (deviceType === "tablet") {
-        //$(".rotate-message").addClass("rotate-tablet");
-         $(".rotate-message").remove();
-    } else if (deviceType === "phone") {
-        $(".rotate-message").addClass("rotate-phone"); 
-    }*/
-				
-	/*if(outOfDate){
-		if(bowser.msie && bowser.version < 9){
-			$("#ood").css("display", "block");
-		}else{
-			$("#broswer-ood").css("display", "block");
-		}
-				
-		return;
-		
-	}*/
-
-	var app = new App();
-	app.init(deviceType);
-
-});
 
 // Avoid `console` errors in browsers that lack a console.
 
@@ -311,14 +227,39 @@ $(document).ready(function(){
 	
 	function ChooseLevelViewController(){
 		this._view;
-		this._pageContent;
-		this._deviceType;
+		this._container;
 		this._model;
+		this.selectLevelListener;
 		
-		this.baseSetup = function(target, model, deviceType) {
-			this._view = $(target);
+		this.setup = function() {
+			var context = this;
+			var pageId = this._model['page-id'];
+			var template = '<div class="page" id="' + pageId + '"><div class="page-content"><ul></ul></div></div>';
+			
+			this._container.append(template);
+			
+			this._view = $("#" + pageId);
+			
+		}
+		
+		this.setupLevels = function(levels) {
+			var context = this;
+			var content = $(this._view.find("ul"));
+			
+			levels.forEach(function(level) {
+				var template = '<li class="level"><div class="level-content"><h3>' + level.desc + '</h3><div class="level-button button" data-id="' + level.id + '">' + level.title + '<img src="img/content/level-select-arrow.png" alt=""/></div></div></li>';
+				content.append(template);
+			});
+			
+			$(this._view.find(".level-button")).on("click", function() {
+				context.selectLevelListener($(this).data("id"));
+			})
+		}
+		
+		this.init = function(model, container) {
 			this._model = model;
-			this._deviceType = deviceType;
+			this._container = container;
+			this.setup();
 		}
 	}
 	
@@ -332,14 +273,41 @@ $(document).ready(function(){
 	
 	function ChooseSandwichViewController(){
 		this._view;
-		this._pageContent;
-		this._deviceType;
+		this._container;
 		this._model;
+				
+		this.didSelectSandwich;
 		
-		this.baseSetup = function(target, model, deviceType) {
-			this._view = $(target);
+		this.update = function(sandwiches) {
+			var context = this;
+			
+			var list = $(this._view.find("ul"));
+			list.empty();
+						
+			sandwiches.forEach(function(sandwich) {
+				var template = '<li class="sando-button" data-id="'+sandwich.id+'"><img src="'+sandwich.hero+'" alt="'+sandwich.name+'"/></li><!-- -->';				
+				list.append(template);
+			});
+			
+			$(list.find("li")).on("click", function() {
+				context.didSelectSandwich($(this).data("id"));
+			})
+		}
+		
+		this.setup = function() {
+			var context = this;
+			var pageId = this._model['page-id'];
+			var template = '<div class="page" id="' + pageId + '"><div class="page-content"><ul></ul></div></div>';
+			
+			this._container.append(template);
+			
+			this._view = $("#" + pageId);
+		}
+		
+		this.init = function(model, container) {
 			this._model = model;
-			this._deviceType = deviceType;
+			this._container = container;
+			this.setup();
 		}
 	}
 	
@@ -354,17 +322,41 @@ $(document).ready(function(){
 	function FooterViewController(){
 		this._view;
 		
-		this.setup = function() {
+		this.nextClosure;
+		this.backClosure;
+		
+		this.update = function(step) {
 			
 		}
 		
-		this.intro = function() {
-			this._view.css("opacity", 1);
+		this.setup = function() {
+			var context = this;
+			$(this._view.find("#back-button")).on("click", function() {
+				context.backClosure();
+			});
+			
+			$(this._view.find("#next-button")).on("click", function() {
+				context.nextClosure();
+			});
 		}
 		
-		this.baseSetup = function(target) {
+		this.intro = function(animated) {
+			var duration = (animated === true) ? 0.25 : 0;			
+			TweenMax.to(this._view, duration, {css:{opacity:1, bottom: 0, hidden: false}, ease:Sine.easeIn});
+		}
+		
+		this.exit = function(animated) {
+			var duration = (animated === true) ? 0.25 : 0;
+			var bottom = -(this._view.height() / 4);
+			TweenMax.to(this._view, duration, {css:{opacity:0, bottom: bottom, hidden: true}, ease:Sine.easeIn});
+		}	
+			
+		this.baseSetup = function(target, nextListener, backListener) {
 			this._view = $(target);
+			this._nextListener = nextListener;
+			this._backListener = backListener;
 			this.setup();
+			this.exit(false);
 		}
 	}
 
@@ -379,43 +371,124 @@ $(document).ready(function(){
 		this._deviceType;
 		this._model;
 		
-		this._viewControllers;
+		this._viewControllers = [];
 		this._currentStep;
+
+		this._header;
+		this._footer;
 		
-		this._presentNavigationClosure;
-		this._hideNavigationClosure;
+		this._game = {
+			"level": null,
+			"sandwiches": null,
+			"sandwich": null,
+			"randomMiddle": null,
+			"randomTop": null,
+			"randomBottom": null
+		}
+		
+		this.levelForId = function(id) {
+			var levels = this._model.levels;
+			return levels.find(level => {
+				return level.id === id;
+			});
+		}
+		
+		this.sandwichesForLevel = function() {
+			if (this._game.level === null) return null;
+			var context = this;
+			var sandwichIds = this._game.level.sandwich_ids;
+			
+			var sandwiches = [];
+			
+			sandwichIds.forEach(function(sandwichId) {
+				var sandwich = context._model.sandwiches.find(sando => { return sando.id === sandwichId});
+				sandwiches.push(sandwich);
+			});
+
+			return sandwiches;
+		}
+		
+		this.sandwichWithId = function(sandwichId) {
+			return this._game.sandwiches.find(sando => { return sando.id === sandwichId});
+		}
+		
+		this.selectLevel = function(levelId) {
+			this._game.level = this.levelForId(levelId);
+			this._game.sandwiches = this.sandwichesForLevel();
+		}
+		
+		this.selectSandwich = function(sandwichId) {
+			this._game.sandwich = this.sandwichWithId(sandwichId);
+		}
+		
+		this.beginGamePlay = function() {
+			var context = this;
+			
+			var gameVc = this._viewControllers.find(vc => { return vc instanceof GameViewController});
+			// need to populate random tops middles and bottoms
+			
+			var sandwichId = this._game.sandwich.id;
+									
+			gameVc.update(this._game);
+			
+			this.onNextButtonTap();
+		}
 	
 		this.setup = function() {
 			var context = this;
 			
+			this._footer.nextClosure = function() {
+				context.onNextButtonTap();
+			}
+			
+			this._footer.backClosure = function() {
+				context.onBackButtonTap();
+			}
+			
 			this._slider = $(this._view.find(".page-slider"));
 			this._currentStep = 0;
 			
-			var intro = new IntroViewController();
-			intro.init($(this._view.find("#intro")), function() {
-				context.onNextButtonTap();
+			var steps = this._model.steps;
+			var levels = this._model.levels;
+			
+			steps.forEach(function(step){
+				switch(step["page-id"]) {
+					case "intro":
+						var vc = new IntroViewController();
+						vc.init(step, context._slider);
+						vc.playButtonListener = function() {
+							context.onNextButtonTap();
+						}
+						
+						context._viewControllers.push(vc);
+						break;
+					case "choose-level":
+						var vc = new ChooseLevelViewController();
+						vc.init(step, context._slider);
+						vc.setupLevels(levels);
+						vc.selectLevelListener = function(levelId) {
+							context.selectLevel(levelId);
+							context.onNextButtonTap();
+						}
+						
+						context._viewControllers.push(vc);
+						break;
+					case "choose-sando":
+						var vc = new ChooseSandwichViewController();
+						vc.init(step, context._slider);
+						vc.didSelectSandwich = function(sandwichId) {
+							context.selectSandwich(sandwichId);
+							context.beginGamePlay();
+						}
+						context._viewControllers.push(vc);
+						break;
+					case "gameplay":
+						var vc = new GameViewController();
+						vc.init(step, context._slider);
+						context._viewControllers.push(vc);
+						break;
+				}
 			});
-			
-			var howTo = new HowToViewController();
-			howTo.init($(this._view.find("#how-to")), this._deviceType);
-			
-			var chooseLevel = new ChooseLevelViewController();
-			chooseLevel.init($(this._view.find("#choose-level")), this._deviceType);
-			
-			var chooseSandwich = new ChooseSandwichViewController();
-			chooseSandwich.init($(this._view.find("#choose-sandwich")), this._deviceType);
-			
-			var game = new GameViewController();
-			game.init($(this._view.find("#game-play")), this._deviceType);
-			
-			this._viewControllers = [
-				intro,
-				howTo,
-				chooseLevel,
-				chooseSandwich,
-				game
-			];
-			
 		}
 		
 		this.onNextButtonTap = function() {
@@ -427,16 +500,28 @@ $(document).ready(function(){
 			
 			var vc = this._viewControllers[this._currentStep];
 			
+			if (vc instanceof ChooseSandwichViewController) {
+				vc.update(this._game.sandwiches);
+			}
+			
 			var left = -(this._view.width() * this._currentStep);
 			
-			console.log(this._view)
-			
+			preVC.exit();
 			vc.intro();
 			
 			if (this._currentStep > 0) {
-				this._presentNavigationClosure();
+				this._header.intro(true);
+				this._footer.intro(true);
 			}
 			
+			var sandwichThumb = null;
+			
+			if (vc instanceof GameViewController) {
+				sandwichThumb = this._game.sandwich.thumbnail;
+			}
+			
+			this._header.update(this._model.steps[this._currentStep], sandwichThumb);
+
 			TweenMax.to(this._slider, 0.35, {css:{left:left}, ease:Sine.easeInOut});
 		}
 		
@@ -449,14 +534,18 @@ $(document).ready(function(){
 			
 			var vc = this._viewControllers[this._currentStep];
 			
-			vc.exit();
+			preVC.exit();
+			vc.intro();
 			
 			var left = -(this._view.width() * this._currentStep);
 			
 			if (this._currentStep == 0) {
-				this._hideNavigationClosure();s
+				this._header.exit(true);
+				this._footer.exit(true);
 			}
 			
+			this._header.update(this._model.steps[this._currentStep], null);
+
 			TweenMax.to(this._slider, 0.35, {css:{left:left}, ease:Sine.easeInOut});
 		}
 		
@@ -470,13 +559,15 @@ $(document).ready(function(){
 
 		this.loadJSON = function(completion) {
 			var context = this;
-			
+			console.log("load json")
 			$.ajax({
 				url: "data/app.json",
 				type: "GET",
 				dataType: "json",
 				success: function(response) {
-					context._model = response;
+					console.log(response);
+					context._model = response.game;
+					context.setup();
 					context.loadStats(completion);
 				}
 			});
@@ -484,7 +575,7 @@ $(document).ready(function(){
 		
 		this.loadStats = function(completion) {
 			var context = this;
-			var game = this._model.game;
+			var game = this._model;
 			var loadCount = game.levels.length;
 			
 			game.levels.forEach(function(level){
@@ -513,10 +604,8 @@ $(document).ready(function(){
 			});
 		}
 		
-		this.loadCookies = function(completion) {
-			var game = this._model.game;
-			
-			game.levels.forEach(function(level) {
+		this.loadCookies = function(completion) {			
+			this._model.levels.forEach(function(level) {
 				var name = level.id + "_completed";
 				level.completed = $.cookie(name) ?? false;
 			});
@@ -526,10 +615,11 @@ $(document).ready(function(){
 	}
 	
 	GameCoordinator.prototype = {
-		init:function(target, deviceType){
+		init:function(target, deviceType, header, footer){
 			this._view = $(target);
 			this._deviceType = deviceType;
-			this.setup();
+			this._header = header;
+			this._footer = footer;
 		},
 		load: function(completion) {
 			this.loadJSON(completion);
@@ -537,10 +627,9 @@ $(document).ready(function(){
 		gameImages: function() {
 			if (this._model == null) { return; }
 			
-			var game = this._model.game;
 			var images = [];
 			
-			game.sandwiches.forEach(function(sandwich){
+			this._model.sandwiches.forEach(function(sandwich){
 				images.push(sandwich.thumbnail);
 				images.push(sandwich.top);
 				images.push(sandwich.middle);
@@ -571,17 +660,211 @@ $(document).ready(function(){
 		this._pageContent;
 		this._deviceType;
 		this._model;
+		this._game;
+		this._timer;
+		this._rows = [];
 		
-		this.baseSetup = function(target, model, deviceType) {
-			this._view = $(target);
+		this.start = function() {
+			var context = this;
+			var bottom = $("#bottom ul");
+			
+			this._timer = setInterval(function() {
+				context._rows.forEach(function(row){
+					row.animate();
+				});
+			},1/100);
+		}
+				
+		this.update = function(game) {
+			this._game = game;
+			var speed = this._game.level.speed;
+			var sandwiches = this._game.sandwiches;
+			
+			this._rows.forEach(function(row){
+				switch(row._id) {
+					case "top":
+					var items = sandwiches.map(function(a){
+						return {"image": a.top, "id": a.id, "type": "sando"}
+					});
+					row.update(items, "left", speed);
+					break;
+					case "middle":
+					var items = sandwiches.map(function(a){
+						return {"image": a.middle, "id": a.id, "type": "sando"}
+					});
+					row.update(items, "right", speed);
+					break;
+					case "bottom":
+					var items = sandwiches.map(function(a){
+						return {"image": a.bottom, "id": a.id, "type": "sando"}
+					});
+					row.update(items, "left", speed);
+					break;
+				}
+			});
+			
+			this.start();
+		}
+
+		this.setup = function() {
+			var context = this;
+			
+			var pageId = this._model['page-id'];
+			
+			var template = '<div class="page" id="' + pageId + '"><div class="page-content"><p>tap any tile to stop. No Match, no worries! Play again!</p><div id="game-carousel" class="carousel"></div></div></div>';
+			
+			this._container.append(template);
+			
+			this._view = $("#" + pageId);
+			
+			var carousel = $("#game-carousel");
+			
+			["top", "middle", "bottom"].forEach(function(identifier){
+				var view = new GameRow();
+				view.init(carousel, identifier);
+				context._rows.push(view);
+				
+				if (identifier != "bottom") {
+					carousel.append('<span class="divider"></span>');
+				}
+			});
+		}
+		
+		this.init = function(model, container) {
 			this._model = model;
-			this._deviceType = deviceType;
+			this._container = container;
+			this.setup();
 		}
 	}
 	
 	
 	window.GameViewController = GameViewController;
 }(window));
+
+(function(window){
+	function GameRow() {
+		this._container;
+		this._view;
+		this._items;
+		this._id;
+		this._direction;
+		this._speed;
+		this._contentWidth;
+		this._itemWidth;
+		this._hasClicked = false;
+		
+		this.update = function(items, direction, speed) {
+			var context = this;
+			var slider = $(this._view.find("ul"));
+			slider.empty();
+			
+			items.forEach(function(item) {
+				switch(item.type) {
+					case "sando":
+					slider.append('<li style="width: '+context._itemWidth+'px;" class="tile" data-id="'+item.id+'"><img src="'+item.image+'"/></li><!-- -->');
+					break;
+					case "text":
+					break;
+					case "sticker":
+					break
+				}
+			});
+			
+			this._direction = direction;
+			this._speed = speed;
+			this._contentWidth = this._itemWidth * items.length;
+			
+			slider.css({"width": this._contentWidth});
+			
+			if (direction === "right") {
+				slider.css({"left": -(this._contentWidth - this._itemWidth)});
+			}
+		}
+		
+		this.onItemClicked = function(){
+			console.log("clicked");
+			this._hasClicked = true;
+		}
+		
+		this.animate = function() {
+			if (this._hasClicked) {
+				this._speed -= 0.00245;
+				if (this._speed < 0) { this._speed = 0 }
+			}
+			
+			switch(this._direction) {
+				case "left":
+				this.animateLeft();
+				break;
+				case "right":
+				this.animateRight();
+				break;
+			}
+		}
+		
+		this.animateLeft = function() {
+			var context = this;
+			var slider = $(this._view.find("ul"));
+			
+			var left = slider.position().left;
+			slider.css({"left": left -= this._speed});
+			
+			slider.find("li").each(function() {
+				var item = $(this);
+				
+				if (item.offset().left <= -(context._itemWidth)) {
+					item.remove();
+					slider.append(item);
+					slider.css({"left": 0});
+				}
+			});
+		}
+		
+		this.animateRight = function() {
+			var context = this;
+			var slider = $(this._view.find("ul"));
+			var maxX = this._contentWidth - this._itemWidth;
+			
+			var left = slider.position().left;
+			slider.css({"left": left += this._speed});
+			
+			slider.find("li").each(function() {
+				var item = $(this);
+				if (item.offset().left >= (context._itemWidth)) {
+					item.remove();
+					slider.prepend(item);
+					slider.css({"left": -(maxX)});
+				}
+			})
+		}
+		
+		this.setup = function() {
+			var context = this;
+			var template = '<div id="'+this._id+'"><ul></ul></div>';
+			
+			this._container.append(template);
+			
+			this._view = $("#" + this._id);
+			
+			this._itemWidth = this._view.width();
+			
+			$(this._view.find("ul")).on("click", function(){
+				context.onItemClicked();
+			});
+
+		}
+		
+		this.init = function(container, rowId) {
+			this._container = container;
+			this._id = rowId;
+			this.setup();
+		}
+	}
+	window.GameRow = GameRow;
+}(window));
+
+
+
 /*GENERIC  VIEW CONTROLLER*/
 (function(window){
 	HeaderViewController.prototype = new BaseViewController();
@@ -589,19 +872,58 @@ $(document).ready(function(){
 	
 	function HeaderViewController(){
 		this._view;
+		this._activeTitle;
 		this._playClosure;
+		this._top = 18;
+		
+		this.update = function(step, sandwichThumb) {
+			var prevTitle = this._activeTitle;
+			var title = "";
+			
+			title = step.title
+						
+			var transitionalLabel = $(this._view.find(".transitional-title"));
+			transitionalLabel.css({opacity: 1});
+			transitionalLabel.html(prevTitle);
+			
+			var titleLabel = $(this._view.find(".title"));
+			titleLabel.css({opacity: 0});
+			titleLabel.html(title);
+			
+			var sandoThumb = $(this._view.find("#sando-thumb"));
+						
+			if (sandwichThumb !== null) {
+				sandoThumb.html('<img src="'+sandwichThumb+'"/>');
+				TweenMax.to(sandoThumb, 0.25, {css:{opacity:1}, ease:Sine.easeIn});
+			} else {
+				TweenMax.to(sandoThumb, 0.25, {css:{opacity:0}, ease:Sine.easeIn});
+			}
+						
+			TweenMax.to(transitionalLabel, 0.25, {css:{opacity:0}, ease:Sine.easeIn});
+			TweenMax.to(titleLabel, 0.25, {css:{opacity:1}, ease:Sine.easeIn});
+			
+			this._activeTitle = title;
+		}
 		
 		this.setup = function() {
 			
 		}
 		
-		this.intro = function() {
-			this._view.css("opacity", 1);
+		this.intro = function(animated) {
+			var duration = (animated === true) ? 0.25 : 0;			
+			TweenMax.to(this._view, duration, {css:{opacity:1, top: this._top, hidden: false}, ease:Sine.easeIn});
+		}
+		
+		this.exit = function(animated) {
+			var duration = (animated === true) ? 0.25 : 0;
+			var top = -(this._view.height() / 4);
+			TweenMax.to(this._view, duration, {css:{opacity:0, top: top, hidden: true}, ease:Sine.easeIn});
 		}
 		
 		this.baseSetup = function(target) {
 			this._view = $(target);
 			this.setup();
+			this.exit(false);
 		}
 	}
 
@@ -635,18 +957,28 @@ $(document).ready(function(){
 	
 	function IntroViewController(){
 		this._view;
-		this._playClosure;
+		this.playButtonListener;
+		this._model;
+		this._container;
 		
 		this.setup = function() {
 			var context = this;
+			var pageId = this._model['page-id'];
+			var template = '<div class="page" id="' + pageId + '"><div class="page-content"><div class="hero-title"><img src="img/content/home-hero.png" alt="Total Day Maker"/></div><div class="hero-content"><div class="logo"><img src="img/content/daves-logo.png" alt="Daves Bread"/></div><!------><div class="play-button"><img src="img/content/home-play-btn.png" alt="Play for Bread"/></div></div><div class="terms"><a href="">TERMS AND CONDITIONS</a></div></div></div>';
+			
+			this._container.append(template);
+			
+			this._view = $("#" + pageId);
+			
+			
 			$(this._view.find(".play-button")).on("click", function() {
-				context._playClosure();
+				context.playButtonListener();
 			});
 		}
 		
-		this.baseSetup = function(target, playClosure) {
-			this._view = $(target);
-			this._playClosure = playClosure;
+		this.init = function(model, container) {
+			this._model = model;
+			this._container = container;
 			this.setup();
 		}
 	}
