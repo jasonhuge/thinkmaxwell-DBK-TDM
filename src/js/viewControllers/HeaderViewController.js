@@ -7,7 +7,7 @@
 		this._view;
 		this._activeTitle;
 		this._playClosure;
-		this._top = 18;
+		this._top = 18
 		
 		this.update = function(step, sandwichThumb) {
 			var prevTitle = this._activeTitle;

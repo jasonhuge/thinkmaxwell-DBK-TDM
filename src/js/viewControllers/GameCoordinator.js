@@ -3,13 +3,10 @@
 	function GameCoordinator(){
 		this._view;
 		this._slider;
-		
 		this._deviceType;
 		this._model;
-		
 		this._viewControllers = [];
 		this._currentStep;
-
 		this._header;
 		this._footer;
 		
@@ -24,9 +21,7 @@
 		
 		this.levelForId = function(id) {
 			var levels = this._model.levels;
-			return levels.find(level => {
-				return level.id === id;
-			});
+			return levels.find(level => { return level.id === id; });
 		}
 		
 		this.sandwichesForLevel = function() {
@@ -68,6 +63,14 @@
 			gameVc.update(this._game);
 			
 			this.onNextButtonTap();
+		}
+		
+		this.endGamePlay = function(success) {
+			if (success) {
+				this.presentSuccessMessage();
+			} else {
+				this.presentFailureMessage();
+			}
 		}
 	
 		this.setup = function() {
@@ -121,10 +124,24 @@
 					case "gameplay":
 						var vc = new GameViewController();
 						vc.init(step, context._slider);
+						vc.didFinishGameListener = function(success) {
+							context.endGamePlay(success);
+						}
 						context._viewControllers.push(vc);
 						break;
 				}
 			});
+		}
+		
+		this.presentSuccessMessage = function() {
+			var modal = $(".modal");
+			modal.css({"display": "block", "opacity": 0});
+			
+			TweenMax.to(modal, 0.25, {alpha: 1});
+		}
+		
+		this.presentFailureMessage = function() {
+			console.log("you've lost!!")
 		}
 		
 		this.onNextButtonTap = function() {
@@ -140,8 +157,6 @@
 				vc.update(this._game.sandwiches);
 			}
 			
-			var left = -(this._view.width() * this._currentStep);
-			
 			preVC.exit();
 			vc.intro();
 			
@@ -154,11 +169,32 @@
 			
 			if (vc instanceof GameViewController) {
 				sandwichThumb = this._game.sandwich.thumbnail;
+				this.presentCountdown()
+			} else {
+				this.presentNextScreen();
+			}
+		}
+		
+		this.presentNextScreen = function() {
+			var sandwichThumb = (this._game.sandwich !== null) ? this._game.sandwich.thumbnail : null;
+			var left = -(this._view.width() * this._currentStep);
+			this._header.update(this._model.steps[this._currentStep], sandwichThumb);
+			TweenMax.to(this._slider, 0.35, {css:{left:left}, ease:Sine.easeInOut});
+		}
+		
+		this.presentCountdown = function() {
+			var context = this;
+			var vc = new CountdownViewController();
+			vc.init($("#game-countdown"));
+			vc.introCompleteListener = function() {
+				context.presentNextScreen();
+			}
+			vc.exitCompleteListener = function() {
+				
 			}
 			
-			this._header.update(this._model.steps[this._currentStep], sandwichThumb);
-
-			TweenMax.to(this._slider, 0.35, {css:{left:left}, ease:Sine.easeInOut});
+			
+			vc.intro();
 		}
 		
 		this.onBackButtonTap = function() {

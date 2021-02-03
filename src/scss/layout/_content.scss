@@ -100,6 +100,12 @@ textarea {
 	content: "";
 }
 
+ul {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
 .button {
 	color: white;
 	cursor: pointer;
@@ -111,20 +117,41 @@ textarea {
     height: 100%; 
 }
 
-.modal {
+
+.countdown {
+	display: none;
 	position: fixed;
 	left: 0;
 	top: 0;
 	width: 100%;
 	height: 100%;
-	background: rgba(0, 0, 0, 0.5);
-	z-index: 9000;
+	background: $yellow;
+	z-index: 8000;
 	
-	#tsparticles {
-		position: fixed;
-		width: 100%;
-		height: 100%;
-		z-index: -1;
+	ul {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		
+		li {
+			position: absolute;
+			opacity: 0;
+			left: 50%;
+			top: 50%;
+			transform: translate(-50%,-50%);
+			img {
+				width: 100%;
+			}
+		}
+		#count-one {
+			width: 91px;
+		}
+		#count-two {
+			width: 135px;
+		}
+		#count-three {
+			width: 132px;
+		}
 	}
 }
 
