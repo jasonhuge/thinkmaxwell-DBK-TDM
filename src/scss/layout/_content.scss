@@ -173,17 +173,22 @@ ul {
 			margin: 0;
 			
 			.page-slider {
-			    position: absolute;
+				width: 100%;
+			    //position: absolute;
 			    left: 0;
 			    top: 0;
 			    height: 100%;
-			    width: calc(100% * 6);
+			    //width: calc(100% * 6);
 			    box-sizing: border-box;
 			    -moz-box-sizing: border-box;
 			    
 			    .page {
-				    
-				    width: calc(100% / 6);
+				    left: 0;
+				    top: 0;
+				    position: absolute;		
+				    visibility: hidden;		    
+				    width: 100%;
+				    //width: calc(100% / 6);
 				    vertical-align: top;
 				    opacity: 0;
 				    

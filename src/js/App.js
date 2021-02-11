@@ -5,56 +5,104 @@
 		
 		this._deviceType;
 		this._preloader;
-		this._data;
-		this._game;
+		this._model;
+		
+		this._header;
+		this._footer;
+		
+		this._introCoordinator;
+		this._gameCoordinator;
+		this._completionCoordinator;
 		
 		this.loadScripts = function(e){
 			var context = this;
 			
 			$.getScript("https://code.createjs.com/preloadjs-0.6.2.min.js", function(){
 				$.getScript("https://code.createjs.com/createjs-2015.11.26.min.js", function(){
-					context.loadGame();
+					context.loadModel();
 				});
 			});
 			
 		};
 		
-		this.loadGame = function() {
+		this.loadModel = function() {
 			var context = this;
-			
-			var header = new HeaderViewController();
-			header.init($("#app-header"));
-			
-			var footer = new FooterViewController();
-			footer.init($("#app-footer"));
-			
-			$(".page-slider").find(".page").each(function(){
-				if ($(this).is("#intro") === false) {
-					var headerHeight = header._view.outerHeight() + header._top;
-					var footerHeight = header._view.outerHeight();
-					var containerHeight = $(".page-container").height() - headerHeight - footerHeight;
-					console.log(containerHeight);
-					$(this).css({
-						"margin-top": headerHeight,
-						"height": containerHeight
-					});
-					/*$(this).css({
-						"padding-top": headerHeight,
-						"padding-bottom": footerHeight
-					});*/
+			$.ajax({
+				url: "data/app.json",
+				type: "GET",
+				dataType: "json",
+				success: function(response) {
+					context._model = response;
+					context.setup();
+				},
+				error: function(error) {
+					console.log(error);
 				}
 			});
-    		
-    		this._game = new GameCoordinator();
-    		this._game.init($(".page-container"), this._deviceType, header, footer);
-    	    		    		
-    		this._game.load(function() {
-	    		context.loadContent();
-    		});
 		}
+				
+		this.setup = function() {
+			var context = this;
+			
+			this._header = new HeaderViewController();
+			this._header.init($("#app-header"))
+			
+			this._footer = new FooterViewController();
+			this._footer.init($("#app-footer"));
+			
+			this._footer.didSelectNextButton = function() {
+				context._gameCoordinator.presentNextViewController();
+			}
+			
+			this._footer.didSelectBackButton = function() {
+				context._gameCoordinator.presentPrevViewController();
+			}
 
+			
+			this._introCoordinator = new IntroCoordinator();
+			this._introCoordinator.init(this._model.intro, $("#intro-container"));
+			
+			var gameViewModel = new GameViewModel();
+			gameViewModel.init(this._model.game);
+			
+			this._gameCoordinator = new GameCoordinator();
+			this._gameCoordinator.init(gameViewModel, $("#game-container"));
+			
+			this._gameCoordinator.exitBegan = function() {
+				context.hideNavigation();
+			}
+			
+			this._gameCoordinator.exitComplete = function() {
+				context._introCoordinator.intro();
+			}
+			
+			this._gameCoordinator.shouldNavigateToStep = function(headerData, footerData) {
+				console.log("should navigate", headerData, footerData)
+				context._header.update(headerData);
+				context._footer.update(footerData);
+			}
+			
+			this._introCoordinator.exitComplete = function() {
+				context._gameCoordinator.intro();
+				context.showNavigation();
+			}
+
+			this.loadContent();
+		}
+		
+		this.showNavigation = function() {
+			this._header.intro(true);
+			this._footer.intro(true);
+		}
+		
+		this.hideNavigation = function() {
+			this._header.exit(true);
+			this._footer.exit(true);
+		}
+	
 		this.loadContent = function(){
     		var context = this;
+    		var gameImages = this._gameCoordinator.gameImages();
     		
 			this._preloader = new PreloadViewController();
 			this._preloader.init($(".preloader"));
@@ -62,27 +110,27 @@
             $(this._preloader).on("onExitComplete", function(e){ context.onPreloaderExitComplete(e); });
              
 			this._preloader.intro(function() {
-				context._preloader.loadContent(context._game.gameImages(), function(e){
+				context._preloader.loadContent(gameImages, function(e){
+					context.onLoadContentComplete(e);
+					
 					context._preloader.exit(function(e) {
-						//context.onLoadContentComplete(e);
+						context.intro();
 					});
 				});
 			});
 		};
 				
-		this.onLoadContentComplete = function(e){
-    		console.log("I have it all now i can start");
-    		
+		this.onLoadContentComplete = function(e){    		
     		this.onWindowResize();
 			           
         };
 		
 		this.onPreloaderExitComplete = function(e){
-    		console.log("preloader exit complete");
+    		this._intro();
 		};
 		
 		this.intro = function(){
-			
+			this._introCoordinator.intro();
 		};
 		
 		this.onOrientationChange = function(e){	
@@ -97,7 +145,6 @@
 	
 	App.prototype = {
 		init:function(deviceType){
-			
 			this._deviceType = deviceType;
 			
 			var context = this;
@@ -106,7 +153,6 @@
 			$(window).on("resize", function(e){ context.onWindowResize(e); });
 																							
 			this.loadScripts();
-	
 		}
 	};
 	

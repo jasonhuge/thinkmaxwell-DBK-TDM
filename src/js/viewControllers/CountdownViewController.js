@@ -5,8 +5,8 @@
 	
 	function CountdownViewController(){
 		this._view;
-		this.introCompleteListener;
-		this.exitCompleteListener;
+		this.onIntroComplete;
+		this.onExitComplete;
 		this._numbers = [];
 		this._index = 0;
 		
@@ -16,17 +16,16 @@
 				"opacity": 0,
 				"display": "block"
 			})
-			TweenMax.to(this._view, 0.25, {alpha: 1, delay:0, onComplete:function(){ 
-				context.introCompleteListener();
+			TweenMax.to(this._view, 0.25, {alpha: 1, onComplete:function(){ 
+				context.onIntroComplete();
 				context.countdown();
 			}});
 		}	
 		
 		this.exit = function() {
 			var context = this;
-			TweenMax.to(this._view, 0.25, {alpha: 0, delay:0, onComplete:function(){ 
+			TweenMax.to(this._view, 0.25, {alpha: 0, onComplete:function(){ 
 				context._view.css({"display": "none"});
-				context.exitCompleteListener();
 			}});
 		}
 		
@@ -35,14 +34,13 @@
 			var tl = new TimelineMax({onComplete: function() {
 				context.exit();
 			}});
-			console.log(tl);
+
 			tl.to($("#count-three"), 0.25, {alpha: 1});
 			tl.to($("#count-three"), 0.25, {alpha: 0},"+=1");
 			tl.to($("#count-two"), 0.25, {alpha: 1});
 			tl.to($("#count-two"), 0.25, {alpha: 0},"+=1");
 			tl.to($("#count-one"), 0.25, {alpha: 1});
 			tl.to($("#count-one"), 0.25, {alpha: 0},"+=1");
-			
 		}	
 		
 		this.setup = function() {

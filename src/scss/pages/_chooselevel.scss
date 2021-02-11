@@ -24,6 +24,7 @@
 				line-height: 1em;
 				margin: 0px;
 				padding: 0px;
+				font-size: 1em;
 			}
 			
 			.level-button {
@@ -44,6 +45,10 @@
 					vertical-align: middle;
 				}
 			}
+		}
+		
+		li:last-child {
+			margin-bottom: 0;
 		}
 	}
 }

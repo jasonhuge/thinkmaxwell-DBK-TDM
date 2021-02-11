@@ -1,55 +1,26 @@
 /*GENERIC  VIEW CONTROLLER*/
 (function(window){
 	function GameCoordinator(){
-		this._view;
-		this._slider;
+		this._presenter;
 		this._deviceType;
-		this._model;
+		this._viewModel;
+		this._game = new Game();
 		this._viewControllers = [];
-		this._currentStep;
-		this._header;
-		this._footer;
+		this._currentStep = 0;
 		
-		this._game = {
-			"level": null,
-			"sandwiches": null,
-			"sandwich": null,
-			"randomMiddle": null,
-			"randomTop": null,
-			"randomBottom": null
-		}
-		
-		this.levelForId = function(id) {
-			var levels = this._model.levels;
-			return levels.find(level => { return level.id === id; });
-		}
-		
-		this.sandwichesForLevel = function() {
-			if (this._game.level === null) return null;
-			var context = this;
-			var sandwichIds = this._game.level.sandwich_ids;
-			
-			var sandwiches = [];
-			
-			sandwichIds.forEach(function(sandwichId) {
-				var sandwich = context._model.sandwiches.find(sando => { return sando.id === sandwichId});
-				sandwiches.push(sandwich);
-			});
+		this.exitBegan;
+		this.exitComplete;
+		this.shouldNavigateToStep;
 
-			return sandwiches;
+		this.gameImages = function() { return this._viewModel.gameImages(); }
+		
+		this.selectLevel = function(id) {
+			this._game.level = this._viewModel.levelForId(id);
+			this._game.sandwiches = this._viewModel.sandwichesForLevel(id);
 		}
 		
-		this.sandwichWithId = function(sandwichId) {
-			return this._game.sandwiches.find(sando => { return sando.id === sandwichId});
-		}
-		
-		this.selectLevel = function(levelId) {
-			this._game.level = this.levelForId(levelId);
-			this._game.sandwiches = this.sandwichesForLevel();
-		}
-		
-		this.selectSandwich = function(sandwichId) {
-			this._game.sandwich = this.sandwichWithId(sandwichId);
+		this.selectSandwich = function(id) {
+			this._game.sandwich = this._viewModel.sandwichWithId(id);
 		}
 		
 		this.beginGamePlay = function() {
@@ -62,7 +33,7 @@
 									
 			gameVc.update(this._game);
 			
-			this.onNextButtonTap();
+			this.presentCountdown();
 		}
 		
 		this.endGamePlay = function(success) {
@@ -72,84 +43,85 @@
 				this.presentFailureMessage();
 			}
 		}
-	
-		this.setup = function() {
-			var context = this;
 			
-			this._footer.nextClosure = function() {
-				context.onNextButtonTap();
-			}
-			
-			this._footer.backClosure = function() {
-				context.onBackButtonTap();
-			}
-			
-			this._slider = $(this._view.find(".page-slider"));
-			this._currentStep = 0;
-			
-			var steps = this._model.steps;
-			var levels = this._model.levels;
-			
-			steps.forEach(function(step){
-				switch(step["page-id"]) {
-					case "intro":
-						var vc = new IntroViewController();
-						vc.init(step, context._slider);
-						vc.playButtonListener = function() {
-							context.onNextButtonTap();
-						}
-						
-						context._viewControllers.push(vc);
-						break;
-					case "choose-level":
-						var vc = new ChooseLevelViewController();
-						vc.init(step, context._slider);
-						vc.setupLevels(levels);
-						vc.selectLevelListener = function(levelId) {
-							context.selectLevel(levelId);
-							context.onNextButtonTap();
-						}
-						
-						context._viewControllers.push(vc);
-						break;
-					case "choose-sando":
-						var vc = new ChooseSandwichViewController();
-						vc.init(step, context._slider);
-						vc.didSelectSandwich = function(sandwichId) {
-							context.selectSandwich(sandwichId);
-							context.beginGamePlay();
-						}
-						context._viewControllers.push(vc);
-						break;
-					case "gameplay":
-						var vc = new GameViewController();
-						vc.init(step, context._slider);
-						vc.didFinishGameListener = function(success) {
-							context.endGamePlay(success);
-						}
-						context._viewControllers.push(vc);
-						break;
-				}
-			});
-		}
-		
 		this.presentSuccessMessage = function() {
 			var modal = $(".modal");
-			modal.css({"display": "block", "opacity": 0});
+			var context = this;
+
+			var vc = new WinnerModalViewController();
+			vc.init(modal);
 			
-			TweenMax.to(modal, 0.25, {alpha: 1});
+			vc.selectNextListener = function() {
+				if (context._game.level.id === 1) {
+					context.presentCoupon();
+				} else {
+					context.presentContactForm();
+				}
+				
+				vc.exit();
+			}
+			
+			vc.intro();
 		}
 		
 		this.presentFailureMessage = function() {
-			console.log("you've lost!!")
+			this.presentSuccessMessage();
+		}
+
+		this.presentCoupon = function() {
+			var viewModel = this._viewModel.couponData();
+			
+			var vc = new CouponViewController();
+			vc.init(viewModel, this._presenter);
+			
+			this._viewControllers.push(vc);
+			
+			//this.presentNextViewController();
 		}
 		
-		this.onNextButtonTap = function() {
-			if (this._currentStep == this._viewControllers.count - 1) { return; }
+		this.presentContactForm = function() {
+			var context = this;
 			
-			var preVC = this._viewControllers[this._currentStep];
+			var viewModel = this._viewModel.contactData();
 			
+			var vc = new ContactViewController();
+			vc.init(viewModel, this._presenter);
+			
+			vc.didSubmitForm = function() {
+				context.presentNextViewController();
+			}
+			
+			this._viewControllers.push(vc);
+			
+			//this.presentNextViewController();
+		}
+
+		this.presentCountdown = function() {
+			var context = this;
+			var vc = new CountdownViewController();
+			vc.init($("#game-countdown"));
+			
+			vc.onIntroComplete = function() {
+				context.presentNextViewController();
+			}
+
+			vc.intro();
+		}
+
+		this.presentNextViewController = function() {
+			//if (this._currentStep == (this._viewControllers.length - 1)) { return; }
+			
+			var prevVc = this._viewControllers[this._currentStep];  
+			
+			if (prevVc && prevVc instanceof ContactViewController && prevVc._hasSubmittedData === false) {
+				
+				prevVc.submit();
+				return;
+			}
+						
 			this._currentStep ++;
+			
+			console.log("current step", this._currentStep)
 			
 			var vc = this._viewControllers[this._currentStep];
 			
@@ -157,168 +129,147 @@
 				vc.update(this._game.sandwiches);
 			}
 			
-			preVC.exit();
-			vc.intro();
-			
-			if (this._currentStep > 0) {
-				this._header.intro(true);
-				this._footer.intro(true);
-			}
-			
-			var sandwichThumb = null;
-			
-			if (vc instanceof GameViewController) {
-				sandwichThumb = this._game.sandwich.thumbnail;
-				this.presentCountdown()
-			} else {
-				this.presentNextScreen();
-			}
+			this.navigateToStep(vc, prevVc);
+
 		}
 		
-		this.presentNextScreen = function() {
-			var sandwichThumb = (this._game.sandwich !== null) ? this._game.sandwich.thumbnail : null;
-			var left = -(this._view.width() * this._currentStep);
-			this._header.update(this._model.steps[this._currentStep], sandwichThumb);
-			TweenMax.to(this._slider, 0.35, {css:{left:left}, ease:Sine.easeInOut});
-		}
-		
-		this.presentCountdown = function() {
-			var context = this;
-			var vc = new CountdownViewController();
-			vc.init($("#game-countdown"));
-			vc.introCompleteListener = function() {
-				context.presentNextScreen();
-			}
-			vc.exitCompleteListener = function() {
-				
+		this.presentPrevViewController = function() {
+			if (this._currentStep == 0) { 
+				this.exit();
+				return; 
 			}
 			
-			
-			vc.intro();
-		}
-		
-		this.onBackButtonTap = function() {
-			if (this._currentStep == 0) { return; }
-			
-			var preVC = this._viewControllers[this._currentStep];
-			
+			var prevVc = this._viewControllers[this._currentStep];
+									
 			this._currentStep --;
 			
 			var vc = this._viewControllers[this._currentStep];
 			
-			preVC.exit();
-			vc.intro();
-			
-			var left = -(this._view.width() * this._currentStep);
-			
-			if (this._currentStep == 0) {
-				this._header.exit(true);
-				this._footer.exit(true);
-			}
-			
-			this._header.update(this._model.steps[this._currentStep], null);
-
-			TweenMax.to(this._slider, 0.35, {css:{left:left}, ease:Sine.easeInOut});
+			this.navigateToStep(vc, prevVc);
 		}
 		
-		this.onStartOverButtonTap = function() {
+		this.navigateToStep = function(currentVc, prevVc) {
+			console.log("current", currentVc);
+			var step = currentVc._model;
+			var headerImage = (currentVc instanceof GameViewController && this._game.sandwich !== null) ? this._game.sandwich.thumbnail : null;
+
+			var headerModel = {
+				title: step.title,
+				image: headerImage
+			}
 			
+			var footerModel = {
+				backTitle: step["back-title"],
+				nextTitle: step["next-title"]
+			}
+			
+			this.shouldNavigateToStep(headerModel, footerModel);
+			
+			if (prevVc) {
+				prevVc.exit(function() {
+					currentVc.intro();
+				});
+			} else {
+				console.log("intro it", currentVc);
+				currentVc.intro();
+			}
 		}
+		
 		
 		this.reset = function() {
 			
 		}
-
-		this.loadJSON = function(completion) {
-			var context = this;
-			console.log("load json")
-			$.ajax({
-				url: "data/app.json",
-				type: "GET",
-				dataType: "json",
-				success: function(response) {
-					console.log(response);
-					context._model = response.game;
-					context.setup();
-					context.loadStats(completion);
-				}
-			});
-		}
 		
-		this.loadStats = function(completion) {
-			var context = this;
-			var game = this._model;
-			var loadCount = game.levels.length;
+		this.setup = function() {
+			var context = this;			
+			var container = this._presenter;
 			
-			game.levels.forEach(function(level){
-				if (level.max_num_participants != null) {
-					$.ajax({
-						url: "api/stats/index.php",
-						data: {
-							'id': level.list_id
-						},
-						type: "GET",
-						dataType: "json",
-						success: function(response) {
-							level.stats = response.stats;
-							loadCount -= 1;
-							if (loadCount === 0) {
-								context.loadCookies(completion);
-							}
-						},
-						error: function (request, error) {
-							//console.log("failed", request, error);
-    					}
-					});
-				} else {
-					loadCount -= 1;
+			
+			this.presentCoupon()
+			
+			this.presentContactForm();
+			
+
+			return;
+			
+			this._viewModel.steps().forEach(function(step) {
+				switch(step.id) {
+					case 0:
+						var vc = new ChooseLevelViewController();
+						vc.init(step, container);
+						vc.setupLevels(context._viewModel.levels());
+						
+						vc.didSelectLevel = function(levelId) {
+							context.selectLevel(levelId);
+							context.presentNextViewController();
+						}
+						
+						context._viewControllers.push(vc);
+						break;
+					case 1:
+						var vc = new ChooseSandwichViewController();
+						vc.init(step, container);
+						
+						vc.didSelectSandwich = function(sandwichId) {
+							context.selectSandwich(sandwichId);
+							context.beginGamePlay();
+						}
+						context._viewControllers.push(vc);
+						break;
+					case 2:
+						var vc = new GameViewController();
+						vc.init(step, container);
+						
+						vc.didFinishGame = function(success) {
+							context.endGamePlay(success);
+						}
+						
+						context._viewControllers.push(vc);
+					break
 				}
-			});
+			});			
 		}
 		
-		this.loadCookies = function(completion) {			
-			this._model.levels.forEach(function(level) {
+		this.loadCookies = function() {				
+			this._viewModel.levels().forEach(function(level) {
 				var name = level.id + "_completed";
 				level.completed = $.cookie(name) ?? false;
 			});
 			
-			completion();
+			this.setup();
+		}
+		
+		this.init = function(viewModel, presenter) {
+			this._viewModel = viewModel;
+			this._presenter = presenter;
+			
+			this.loadCookies();
+		}
+		
+		this.intro = function() {
+			var context = this;
+			
+			TweenMax.to(this._presenter, 0, {autoAlpha: 1, onComplete: function() {
+				console.log(context._viewControllers, context._currentStep);
+				context.navigateToStep(context._viewControllers[context._currentStep], null);
+			}});
+		}	
+		
+		this.exit = function() {
+			var context = this;
+			
+			this.exitBegan();
+			
+			TweenMax.to(this._presenter, 0.5, {autoAlpha: 0, onComplete: function() {
+				context.exitComplete();
+			}});
+		}	
+		
+				
+		this.onWindowResize = function(e) {
+			
 		}
 	}
-	
-	GameCoordinator.prototype = {
-		init:function(target, deviceType, header, footer){
-			this._view = $(target);
-			this._deviceType = deviceType;
-			this._header = header;
-			this._footer = footer;
-		},
-		load: function(completion) {
-			this.loadJSON(completion);
-		},
-		gameImages: function() {
-			if (this._model == null) { return; }
-			
-			var images = [];
-			
-			this._model.sandwiches.forEach(function(sandwich){
-				images.push(sandwich.thumbnail);
-				images.push(sandwich.top);
-				images.push(sandwich.middle);
-				images.push(sandwich.bottom);
-			});
-			
-			return images;
-		},
-		onWindowResize:function(e){
-			
-		},
-		dealloc:function(){
-			this._view = null;
-			this._deviceType = null;
-			this._model = null;
-		}
-	}
-	
+		
 	window.GameCoordinator = GameCoordinator;
 }(window));

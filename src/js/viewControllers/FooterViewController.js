@@ -5,22 +5,43 @@
 	
 	function FooterViewController(){
 		this._view;
+		this._backButton;
+		this._nextButton;
 		
-		this.nextClosure;
-		this.backClosure;
+		this.didSelectNextButton;
+		this.didSelectBackButton;
 		
-		this.update = function(step) {
-			
+		this.update = function(data) {
+			 if (data.backTitle) {
+				 $(this._backButton.find("h4")).text(data.backTitle);
+				 this._backButton.css({opacity: 1});
+			 } else {
+				 this._backButton.css({opacity: 0});
+			 }
+			 
+			 if (data.nextTitle) {
+				 
+				 $(this._nextButton.find("h4")).text(data.nextTitle);
+				 this._nextButton.css({opacity: 1});
+			 } else {
+				 this._nextButton.css({opacity: 0});
+			 }
 		}
 		
-		this.setup = function() {
+		this.setup = function() {  
+			
 			var context = this;
-			$(this._view.find("#back-button")).on("click", function() {
-				context.backClosure();
+			
+			this._backButton = $(this._view.find("#back-button"));
+			this._nextButton = $(this._view.find("#spacer-button"));
+			
+			this._backButton.on("click", function() {
+				context.didSelectBackButton();
 			});
 			
-			$(this._view.find("#next-button")).on("click", function() {
-				context.nextClosure();
+			this._nextButton.on("click", function() {
+				console.log("did select next");
+				context.didSelectNextButton();
 			});
 		}
 		

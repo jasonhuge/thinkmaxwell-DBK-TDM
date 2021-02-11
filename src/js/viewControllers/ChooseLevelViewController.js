@@ -7,17 +7,16 @@
 		this._view;
 		this._container;
 		this._model;
-		this.selectLevelListener;
+		this.didSelectLevel;
 		
 		this.setup = function() {
 			var context = this;
 			var pageId = this._model['page-id'];
 			var template = '<div class="page" id="' + pageId + '"><div class="page-content"><ul></ul></div></div>';
-			
+			 
 			this._container.append(template);
 			
 			this._view = $("#" + pageId);
-			
 		}
 		
 		this.setupLevels = function(levels) {
@@ -30,14 +29,57 @@
 			});
 			
 			$(this._view.find(".level-button")).on("click", function() {
-				context.selectLevelListener($(this).data("id"));
-			})
+				context.didSelectLevel($(this).data("id"));
+			});
+			
+			$(this._view.find("li").each(function() {
+				TweenMax.to(this, 0, {alpha: 0});
+			}));
+			
+			$(this._view.find(".level-button").each(function() {
+				TweenMax.to(this, 0, {right: "50px", alpha: 0});
+			}));
 		}
 		
 		this.init = function(model, container) {
 			this._model = model;
 			this._container = container;
 			this.setup();
+		}
+		
+		this.intro = function(completion) {
+			var timeline = new TimelineMax();
+			
+			timeline.to(this._view, 0, {autoAlpha: 1});
+			
+			$(this._view.find("li").each(function() {
+				timeline.to(this, 0.5, {alpha: 1}, "-=0.40");
+			}));
+			
+			$(this._view.find(".level-button").each(function() {
+				timeline.to(this, 0.5, {right: "25px", alpha: 1}, "-=0.60");
+			}));
+
+			timeline.play();
+		}
+		
+		this.exit = function(completion) {
+			var timeline = new TimelineMax();
+			
+			$(this._view.find("li").toArray().reverse()).each(function() {
+				timeline.to(this, 0.5, {alpha: 0}, "-=0.35");
+			});
+			
+			$(this._view.find(".level-button").toArray().reverse()).each(function() {
+				timeline.to(this, 0, {right: "50px", alpha: 0});
+			});
+			
+			
+			timeline.to(this._view, 0, {autoAlpha: 1, onComplete: function() {
+				if (completion) { completion(); }
+			}});
+			
+			timeline.play();
 		}
 	}
 	

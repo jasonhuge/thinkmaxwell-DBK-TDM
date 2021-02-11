@@ -5,24 +5,15 @@
 		this._view;
 		this._pageContent;
 		this._deviceType;
-		this._model;
 		
 		this.onCloseButtonClick = function(e){
 			this.exit();
 		}
-		
-		this.intro = function(){
-			this._view.css({"opacity" : 1});
-		}
-		
+
 		this.onIntroComplete = function(){
 			$(this).trigger("onIntroComplete");
 		}
-		
-		this.exit = function(){
-			this._view.css({"opacity" : 0});
-		}
-		
+	
 		this.onExitComplete = function(){
 			$(this).trigger("onExitComplete");
 		}
@@ -53,6 +44,20 @@
 			this._view = null;
 			this._deviceType = null;
 			this._model = null;
+		},
+		intro: function(completion) {
+			this._view.css({"opacity" : 1});
+			
+			if (completion) {
+				completion();
+			}
+			
+		},
+		exit: function(completion) {
+			this._view.css({"opacity" : 0});
+			if (completion) {
+				completion();
+			}
 		},
 		removeFromParent:function(){
 			this._view.remove();

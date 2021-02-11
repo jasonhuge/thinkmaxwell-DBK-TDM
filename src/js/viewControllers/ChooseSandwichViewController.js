@@ -21,9 +21,14 @@
 				list.append(template);
 			});
 			
+			$(list.find("li").each(function(){
+				TweenMax.to(this, 0, {scale: 0, alpha: 0});
+			}));
+
+			
 			$(list.find("li")).on("click", function() {
 				context.didSelectSandwich($(this).data("id"));
-			})
+			});
 		}
 		
 		this.setup = function() {
@@ -41,6 +46,39 @@
 			this._container = container;
 			this.setup();
 		}
+		
+		this.intro = function(completion) {
+			var context = this;
+			var timeline = new TimelineMax();
+			var list = $(this._view.find("ul"));
+			
+			timeline.to(this._view, 0, {autoAlpha: 1});
+			
+			$(list.find("li").each(function(){
+				timeline.to(this, 0.25, {scale: 1, alpha: 1, ease:Back.easeOut}, "-=0.20");
+			}));
+			
+			timeline.play();
+		}
+		
+		this.exit = function(completion) {
+			
+			var timeline = new TimelineMax();
+			var list = $(this._view.find("ul"));
+			
+			timeline.to(this._view, 0, {autoAlpha: 1});
+			
+			$(list.find("li").toArray().reverse()).each(function(){
+				timeline.to(this, 0.25, {scale: 0, alpha: 0, ease:Back.easeOut}, "-=0.20");
+			});
+			
+			timeline.to(this._view, 0, {autoAlpha: 0, onComplete: function() {
+				if (completion) { completion(); }
+			}});
+			
+			timeline.play();
+		}
+
 	}
 	
 	

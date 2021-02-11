@@ -18,8 +18,11 @@
 	    	</div>
 		</header>
 		<div class="page-container">
-	    	<div class="page-slider">
-			
+			<div id="intro-container" class="page-slider">
+			</div>
+	    	<div id="game-container" class="page-slider">
+	    	</div>
+	    	<div id="game-completion-container" class="page-slider">
 	    	</div>
 		</div>
 		<footer id="app-footer">
@@ -33,7 +36,7 @@
 	        	</div>
 		        <div class="nav-button button" id="spacer-button">
 		        	<h4></h4>
-		        	<img src="" alt="next-arrow"/>
+		        	<img src="img/content/nav-back-arrow.png" alt="next-arrow"/>
 	        	</div>
 	    	</nav>
 		</footer>
@@ -54,24 +57,7 @@
 	</div>
 	
 	<div class="modal">
-	    <div class="winner">
-	        <div class="particle-bg">
-		        
-	        </div>
-	        <div class="modal-content">
-		        <div class="inner">
-			       	<!--<div class="close-button">X</div>-->
-			       	<p>NAILED IT!<br/>THIS DAY JUST GOT<br/>BREADER!</p>
-				   	<div class="modal-button">
-					   	<span class="button-background"></span>
-					   	<div class="button-content">
-				       		<h4>BREAD THIS WAY</h4>
-					   		<img src="img/content/level-select-arrow.png" alt="next-arrow"/>
-					   	</div>
-			       	</div>
-		       	</div>
-	        </div>
-	    </div>
+	    
 	</div>
 	
 	<div class="rotate-message">
@@ -81,11 +67,9 @@
 	</div>
 </div>
 
-<script   src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0="   crossorigin="anonymous"></script>
-        
+<script   src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0="   crossorigin="anonymous"></script>        
 <!--<script src="https://cdn.jsdelivr.net/npm/tsparticles"></script>
 <script src="https://cdn.jsdelivr.net/npm/jquery-particles"></script>-->
-
 
 <script src="js/Vendor.js"></script>
 <script src="js/App.js"></script>

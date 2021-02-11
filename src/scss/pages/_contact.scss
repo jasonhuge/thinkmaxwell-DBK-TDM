@@ -1,0 +1,101 @@
+.error {
+	outline: red;
+	outline-style: solid;
+}
+
+#contact {
+	.required {
+		outline: red;
+		outline-style: solid;
+	}
+
+	.page-content {
+		margin: 0;
+		padding: 0;
+		position: absolute;
+		top: 50%;
+		transform: translate(0,-50%);
+		width: 100%;
+		
+		padding: 0 20px 0 20px;
+		box-sizing: border-box;
+		
+		form {
+			margin-bottom: 20px;
+		}
+		
+		.input-container {
+			margin-bottom: 5px;
+		}
+		
+		label {
+			display: block;
+		}
+		
+		input {
+			border:none;
+		    background-image:none;
+		    background-color:transparent;
+		    -webkit-box-shadow: none;
+		    -moz-box-shadow: none;
+		    box-shadow: none;
+		    background: white;
+		}
+		
+		select {
+			border: none;
+			border-radius: 0;
+			-webkit-appearance: none;
+			-moz-appearance: none;
+			appearance: none;       /* Remove default arrow */
+			background-image: url(...);   /* Add custom arrow */
+			padding: 3px;
+			box-sizing: border-box;
+		}
+			
+		input[type="text"], input[type="tel"], input[type="email"] {
+			padding: 5px;
+			box-sizing: border-box;
+		}
+		
+		::placeholder, select {
+			color: #eaeaea;
+		}
+		
+		#first-name {
+			margin-right: 10px;
+		}
+		
+		#first-name, #last-name {
+			width: calc(50% - 5px);
+		}
+		
+		#email, #phone, #address {
+			width: 100%;
+		}
+		
+		#address {
+			margin-bottom: 5px;
+		}
+		
+		#city {
+			width: 50%;
+			margin-right: 5px;
+		}
+		
+		#state {
+			width: 45px;
+			margin-right: 5px;
+		}
+		
+		#zipcode {
+			width: calc(50% - 58px);
+			margin: 0;
+		}
+		
+		#newsletter {
+			height: 15px;
+			margin-right: 5px;
+		}
+	}
+}

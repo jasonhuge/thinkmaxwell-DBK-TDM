@@ -9,11 +9,11 @@
 		this._playClosure;
 		this._top = 18
 		
-		this.update = function(step, sandwichThumb) {
+		this.update = function(viewModel) {
 			var prevTitle = this._activeTitle;
 			var title = "";
 			
-			title = step.title
+			title = viewModel.title
 						
 			var transitionalLabel = $(this._view.find(".transitional-title"));
 			transitionalLabel.css({opacity: 1});
@@ -25,8 +25,8 @@
 			
 			var sandoThumb = $(this._view.find("#sando-thumb"));
 						
-			if (sandwichThumb !== null) {
-				sandoThumb.html('<img src="'+sandwichThumb+'"/>');
+			if (viewModel.image !== null) {
+				sandoThumb.html('<img src="'+viewModel.image+'"/>');
 				TweenMax.to(sandoThumb, 0.25, {css:{opacity:1}, ease:Sine.easeIn});
 			} else {
 				TweenMax.to(sandoThumb, 0.25, {css:{opacity:0}, ease:Sine.easeIn});
@@ -62,3 +62,4 @@
 
 	window.HeaderViewController = HeaderViewController;
 }(window));
+

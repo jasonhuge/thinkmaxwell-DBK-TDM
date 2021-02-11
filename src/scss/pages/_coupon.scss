@@ -1,0 +1,44 @@
+#redeem-coupon {
+	overflow: scroll;
+	.scrolling-page-content {
+		width: 100%;
+		
+		padding:  20px 0 20px;
+		box-sizing: border-box;
+		
+		#coupon-container {			
+			iframe {
+				width: 100% !important;
+				-webkit-background-size: contain;
+				-moz-background-size: contain;
+				-o-background-size: contain;
+				background-size: contain;
+			}	
+		}
+		
+		#expiration {
+			text-align: center;
+			font-size: 0.9em;
+			margin: 10px 0 10px 0;
+			padding: 0;
+			color: #886E00;
+		}
+		
+		h4 {
+			margin: 0 0 10px 0;
+			padding: 0 20px 0 20px;
+			font-size: 1.2em;
+		}
+		
+		ul {
+			margin: 0;
+			padding: 0 20px 0 20px;
+			list-style: none;
+			font-size: 0.9em;
+			
+			li {
+				margin-bottom: 10px;
+			}
+		}
+	}
+}

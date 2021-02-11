@@ -5,56 +5,104 @@
 		
 		this._deviceType;
 		this._preloader;
-		this._data;
-		this._game;
+		this._model;
+		
+		this._header;
+		this._footer;
+		
+		this._introCoordinator;
+		this._gameCoordinator;
+		this._completionCoordinator;
 		
 		this.loadScripts = function(e){
 			var context = this;
 			
 			$.getScript("https://code.createjs.com/preloadjs-0.6.2.min.js", function(){
 				$.getScript("https://code.createjs.com/createjs-2015.11.26.min.js", function(){
-					context.loadGame();
+					context.loadModel();
 				});
 			});
 			
 		};
 		
-		this.loadGame = function() {
+		this.loadModel = function() {
 			var context = this;
-			
-			var header = new HeaderViewController();
-			header.init($("#app-header"));
-			
-			var footer = new FooterViewController();
-			footer.init($("#app-footer"));
-			
-			$(".page-slider").find(".page").each(function(){
-				if ($(this).is("#intro") === false) {
-					var headerHeight = header._view.outerHeight() + header._top;
-					var footerHeight = header._view.outerHeight();
-					var containerHeight = $(".page-container").height() - headerHeight - footerHeight;
-					console.log(containerHeight);
-					$(this).css({
-						"margin-top": headerHeight,
-						"height": containerHeight
-					});
-					/*$(this).css({
-						"padding-top": headerHeight,
-						"padding-bottom": footerHeight
-					});*/
+			$.ajax({
+				url: "data/app.json",
+				type: "GET",
+				dataType: "json",
+				success: function(response) {
+					context._model = response;
+					context.setup();
+				},
+				error: function(error) {
+					console.log(error);
 				}
 			});
-    		
-    		this._game = new GameCoordinator();
-    		this._game.init($(".page-container"), this._deviceType, header, footer);
-    	    		    		
-    		this._game.load(function() {
-	    		context.loadContent();
-    		});
 		}
+				
+		this.setup = function() {
+			var context = this;
+			
+			this._header = new HeaderViewController();
+			this._header.init($("#app-header"))
+			
+			this._footer = new FooterViewController();
+			this._footer.init($("#app-footer"));
+			
+			this._footer.didSelectNextButton = function() {
+				context._gameCoordinator.presentNextViewController();
+			}
+			
+			this._footer.didSelectBackButton = function() {
+				context._gameCoordinator.presentPrevViewController();
+			}
 
+			
+			this._introCoordinator = new IntroCoordinator();
+			this._introCoordinator.init(this._model.intro, $("#intro-container"));
+			
+			var gameViewModel = new GameViewModel();
+			gameViewModel.init(this._model.game);
+			
+			this._gameCoordinator = new GameCoordinator();
+			this._gameCoordinator.init(gameViewModel, $("#game-container"));
+			
+			this._gameCoordinator.exitBegan = function() {
+				context.hideNavigation();
+			}
+			
+			this._gameCoordinator.exitComplete = function() {
+				context._introCoordinator.intro();
+			}
+			
+			this._gameCoordinator.shouldNavigateToStep = function(headerData, footerData) {
+				console.log("should navigate", headerData, footerData)
+				context._header.update(headerData);
+				context._footer.update(footerData);
+			}
+			
+			this._introCoordinator.exitComplete = function() {
+				context._gameCoordinator.intro();
+				context.showNavigation();
+			}
+
+			this.loadContent();
+		}
+		
+		this.showNavigation = function() {
+			this._header.intro(true);
+			this._footer.intro(true);
+		}
+		
+		this.hideNavigation = function() {
+			this._header.exit(true);
+			this._footer.exit(true);
+		}
+	
 		this.loadContent = function(){
     		var context = this;
+    		var gameImages = this._gameCoordinator.gameImages();
     		
 			this._preloader = new PreloadViewController();
 			this._preloader.init($(".preloader"));
@@ -62,27 +110,27 @@
             $(this._preloader).on("onExitComplete", function(e){ context.onPreloaderExitComplete(e); });
              
 			this._preloader.intro(function() {
-				context._preloader.loadContent(context._game.gameImages(), function(e){
+				context._preloader.loadContent(gameImages, function(e){
+					context.onLoadContentComplete(e);
+					
 					context._preloader.exit(function(e) {
-						//context.onLoadContentComplete(e);
+						context.intro();
 					});
 				});
 			});
 		};
 				
-		this.onLoadContentComplete = function(e){
-    		console.log("I have it all now i can start");
-    		
+		this.onLoadContentComplete = function(e){    		
     		this.onWindowResize();
 			           
         };
 		
 		this.onPreloaderExitComplete = function(e){
-    		console.log("preloader exit complete");
+    		this._intro();
 		};
 		
 		this.intro = function(){
-			
+			this._introCoordinator.intro();
 		};
 		
 		this.onOrientationChange = function(e){	
@@ -97,7 +145,6 @@
 	
 	App.prototype = {
 		init:function(deviceType){
-			
 			this._deviceType = deviceType;
 			
 			var context = this;
@@ -106,7 +153,6 @@
 			$(window).on("resize", function(e){ context.onWindowResize(e); });
 																							
 			this.loadScripts();
-	
 		}
 	};
 	
@@ -143,6 +189,96 @@
 
 // Place any jQuery/helper plugins in here.
 
+(function(window){	
+	function GameViewModel() {
+		this._data;
+		
+		this.couponData = function() {
+			return this._data.coupon;
+		}
+		
+		this.contactData = function() {
+			return this._data.contact;
+		}
+
+		
+		this.sandwiches = function() {
+			return this._data.sandwiches;
+		}
+		
+		this.levels = function() {
+			return this._data.levels;
+		}
+		
+		this.stepForIndex = function(index) {
+			return this.steps()[index];
+		}
+		
+		this.steps = function() {
+			return this._data.steps;
+		}
+		
+		this.numLevels = function() {
+			return this.levels.length;
+		}
+		
+		this.hasBeatenLevelWithId = function(id) {
+			return leveForId(id).completed;
+		}
+		
+		this.levelForId = function(id) {
+			return this.levels().find(level => { return level.id === id; });
+		}
+		
+		this.sandwichesForLevel = function(id) {
+			var level = this.levelForId(id);	
+			console.log(level, id);		
+			var context = this;
+			var sandwichIds = level.sandwich_ids;
+			
+			var sandwiches = [];
+			
+			sandwichIds.forEach(function(id) {
+				var sandwich = context.sandwiches().find(sando => { return sando.id === id});
+				sandwiches.push(sandwich);
+			});
+
+			return sandwiches;
+		}
+		
+		this.sandwichWithId = function(id) {
+			return this.sandwiches().find(sando => { return sando.id === id});
+		}
+		
+		this.gameImages = function() {			
+			var images = [];
+			
+			this.sandwiches().forEach(function(sandwich){
+				images.push(sandwich.thumbnail);
+				images.push(sandwich.top);
+				images.push(sandwich.middle);
+				images.push(sandwich.bottom);
+			});
+			
+			return images;
+		}
+		
+		this.init = function(data) {
+			this._data = data;
+		}
+	}
+	window.GameViewModel = GameViewModel;
+}(window));
+
+(function(window){	
+	function Game() {
+		this.level;
+		this.sandwiches;
+		this.sandwich;
+		this.randomMiddle;
+	}
+	window.Game = Game;
+}(window));
 /*GENERIC  VIEW CONTROLLER*/
 (function(window){
 	
@@ -150,24 +286,15 @@
 		this._view;
 		this._pageContent;
 		this._deviceType;
-		this._model;
 		
 		this.onCloseButtonClick = function(e){
 			this.exit();
 		}
-		
-		this.intro = function(){
-			this._view.css({"opacity" : 1});
-		}
-		
+
 		this.onIntroComplete = function(){
 			$(this).trigger("onIntroComplete");
 		}
-		
-		this.exit = function(){
-			this._view.css({"opacity" : 0});
-		}
-		
+	
 		this.onExitComplete = function(){
 			$(this).trigger("onExitComplete");
 		}
@@ -199,6 +326,20 @@
 			this._deviceType = null;
 			this._model = null;
 		},
+		intro: function(completion) {
+			this._view.css({"opacity" : 1});
+			
+			if (completion) {
+				completion();
+			}
+			
+		},
+		exit: function(completion) {
+			this._view.css({"opacity" : 0});
+			if (completion) {
+				completion();
+			}
+		},
 		removeFromParent:function(){
 			this._view.remove();
 			this._view = null;
@@ -229,17 +370,16 @@
 		this._view;
 		this._container;
 		this._model;
-		this.selectLevelListener;
+		this.didSelectLevel;
 		
 		this.setup = function() {
 			var context = this;
 			var pageId = this._model['page-id'];
 			var template = '<div class="page" id="' + pageId + '"><div class="page-content"><ul></ul></div></div>';
-			
+			 
 			this._container.append(template);
 			
 			this._view = $("#" + pageId);
-			
 		}
 		
 		this.setupLevels = function(levels) {
@@ -252,14 +392,57 @@
 			});
 			
 			$(this._view.find(".level-button")).on("click", function() {
-				context.selectLevelListener($(this).data("id"));
-			})
+				context.didSelectLevel($(this).data("id"));
+			});
+			
+			$(this._view.find("li").each(function() {
+				TweenMax.to(this, 0, {alpha: 0});
+			}));
+			
+			$(this._view.find(".level-button").each(function() {
+				TweenMax.to(this, 0, {right: "50px", alpha: 0});
+			}));
 		}
 		
 		this.init = function(model, container) {
 			this._model = model;
 			this._container = container;
 			this.setup();
+		}
+		
+		this.intro = function(completion) {
+			var timeline = new TimelineMax();
+			
+			timeline.to(this._view, 0, {autoAlpha: 1});
+			
+			$(this._view.find("li").each(function() {
+				timeline.to(this, 0.5, {alpha: 1}, "-=0.40");
+			}));
+			
+			$(this._view.find(".level-button").each(function() {
+				timeline.to(this, 0.5, {right: "25px", alpha: 1}, "-=0.60");
+			}));
+
+			timeline.play();
+		}
+		
+		this.exit = function(completion) {
+			var timeline = new TimelineMax();
+			
+			$(this._view.find("li").toArray().reverse()).each(function() {
+				timeline.to(this, 0.5, {alpha: 0}, "-=0.35");
+			});
+			
+			$(this._view.find(".level-button").toArray().reverse()).each(function() {
+				timeline.to(this, 0, {right: "50px", alpha: 0});
+			});
+			
+			
+			timeline.to(this._view, 0, {autoAlpha: 1, onComplete: function() {
+				if (completion) { completion(); }
+			}});
+			
+			timeline.play();
 		}
 	}
 	
@@ -289,9 +472,14 @@
 				list.append(template);
 			});
 			
+			$(list.find("li").each(function(){
+				TweenMax.to(this, 0, {scale: 0, alpha: 0});
+			}));
+
+			
 			$(list.find("li")).on("click", function() {
 				context.didSelectSandwich($(this).data("id"));
-			})
+			});
 		}
 		
 		this.setup = function() {
@@ -309,10 +497,163 @@
 			this._container = container;
 			this.setup();
 		}
+		
+		this.intro = function(completion) {
+			var context = this;
+			var timeline = new TimelineMax();
+			var list = $(this._view.find("ul"));
+			
+			timeline.to(this._view, 0, {autoAlpha: 1});
+			
+			$(list.find("li").each(function(){
+				timeline.to(this, 0.25, {scale: 1, alpha: 1, ease:Back.easeOut}, "-=0.20");
+			}));
+			
+			timeline.play();
+		}
+		
+		this.exit = function(completion) {
+			
+			var timeline = new TimelineMax();
+			var list = $(this._view.find("ul"));
+			
+			timeline.to(this._view, 0, {autoAlpha: 1});
+			
+			$(list.find("li").toArray().reverse()).each(function(){
+				timeline.to(this, 0.25, {scale: 0, alpha: 0, ease:Back.easeOut}, "-=0.20");
+			});
+			
+			timeline.to(this._view, 0, {autoAlpha: 0, onComplete: function() {
+				if (completion) { completion(); }
+			}});
+			
+			timeline.play();
+		}
+
 	}
 	
 	
 	window.ChooseSandwichViewController = ChooseSandwichViewController;
+}(window));
+(function(window){
+	ContactViewController.prototype = new BaseViewController();
+	ContactViewController.prototype.constructor = ContactViewController;
+	
+	function ContactViewController(){
+		this._view;
+		this._container;
+		this._model;
+		this.selectLevelListener;
+		this._hasSubmittedData = false;
+		
+		
+		this.validateEmail = function(email) {
+			var regex = /^([a-zA-Z0-9_.+-])+\@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/; 
+			return regex.test(email);
+		}
+		
+		this.validatePhoneNumber = function(phoneNumber) {
+			var regex = /^\+?1?\s*?\(?\d{3}(?:\)|[-|\s])?\s*?\d{3}[-|\s]?\d{4}$/;
+			return regex.test(phoneNumber);
+		}
+		
+		this.vaildate = function(completion) {
+			var context = this;
+			var isReady = true;
+			var form = $(this._view.find("form"));
+			
+			$(form.find("input,select")).each(function() {
+				if (!$(this).val()) {
+					if (isReady) {
+						$(this).focus();
+					}
+					isReady = false
+					$(this).addClass("error");
+					
+				} 
+				
+				if ($(this).attr("name") === "email") {
+					if (!context.validateEmail($(this).val())) {
+						isReady = false;
+						$(this).addClass("error");
+					}
+				}
+				
+				if ($(this).attr("name") === "phone") {
+					if (!context.validatePhoneNumber($(this).val())) {
+						isReady = false;
+						$(this).addClass("error");
+					}
+				}
+			});
+		
+			completion(isReady);
+		}
+		
+		this.setup = function() {
+			var pageId = this._model['page-id'];			
+			this._container.append(this._model.template);	
+			this._view = $("#" + pageId);	
+			
+			var form = $(this._view.find("form"));
+
+			$(form.find("input,select")).each(function() {
+				$(this).keypress(function() {
+					$(this).removeClass("error");
+				});
+				
+				$(this).change(function() {
+					$(this).removeClass("error");
+				})
+			});
+					
+		}
+			
+		this.init = function(model, container) {
+			this._model = model;
+			this._container = container;
+			this.setup();
+		}
+		
+		this.submit = function(level) {
+			var context = this;
+			this.vaildate(function(success){
+				if (success) {
+					var data = $(context._view.find("form")).serializeArray();
+					var url = "api/register/index.php";
+					
+					data.push({name: "id", value: "19f888674a"});
+	
+					$.ajax({
+						type: "POST",
+						url: url,
+						data: data,
+						success: function(data){
+							console.log(data);
+						},
+						error: function(error) {
+							console.log(error.responseText);
+						}
+					});
+				}
+			});
+		}
+		
+		this.intro = function(completion) {
+			console.log("contact intro", this._view);
+			TweenMax.to(this._view, 0.25, {autoAlpha: 1});
+		}
+		
+		this.exit = function(completion) {
+			var context = this;
+			TweenMax.to(this._view, 0.25, {autoAlpha: 0, onComplete: function() {
+				if (completion) { completion(); }
+			}});
+		}
+	}
+	
+	
+	window.ContactViewController = ContactViewController;
 }(window));
 /*GENERIC  VIEW CONTROLLER*/
 (function(window){
@@ -321,8 +662,8 @@
 	
 	function CountdownViewController(){
 		this._view;
-		this.introCompleteListener;
-		this.exitCompleteListener;
+		this.onIntroComplete;
+		this.onExitComplete;
 		this._numbers = [];
 		this._index = 0;
 		
@@ -332,17 +673,16 @@
 				"opacity": 0,
 				"display": "block"
 			})
-			TweenMax.to(this._view, 0.25, {alpha: 1, delay:0, onComplete:function(){ 
-				context.introCompleteListener();
+			TweenMax.to(this._view, 0.25, {alpha: 1, onComplete:function(){ 
+				context.onIntroComplete();
 				context.countdown();
 			}});
 		}	
 		
 		this.exit = function() {
 			var context = this;
-			TweenMax.to(this._view, 0.25, {alpha: 0, delay:0, onComplete:function(){ 
+			TweenMax.to(this._view, 0.25, {alpha: 0, onComplete:function(){ 
 				context._view.css({"display": "none"});
-				context.exitCompleteListener();
 			}});
 		}
 		
@@ -351,14 +691,13 @@
 			var tl = new TimelineMax({onComplete: function() {
 				context.exit();
 			}});
-			console.log(tl);
+
 			tl.to($("#count-three"), 0.25, {alpha: 1});
 			tl.to($("#count-three"), 0.25, {alpha: 0},"+=1");
 			tl.to($("#count-two"), 0.25, {alpha: 1});
 			tl.to($("#count-two"), 0.25, {alpha: 0},"+=1");
 			tl.to($("#count-one"), 0.25, {alpha: 1});
 			tl.to($("#count-one"), 0.25, {alpha: 0},"+=1");
-			
 		}	
 		
 		this.setup = function() {
@@ -380,6 +719,53 @@
 	
 	window.CountdownViewController = CountdownViewController;
 }(window));
+(function(window){
+	CouponViewController.prototype = new BaseViewController();
+	CouponViewController.prototype.constructor = CouponViewController;
+	
+	function CouponViewController(){
+		this._view;
+		this._container;
+		this._model;
+		
+		this.setup = function() {
+			var pageId = this._model['page-id'];			
+			this._container.append(this._model.template);	
+			this._view = $("#" + pageId);	
+			
+			var header = $("header");
+			var footer = $("footer");
+			
+			var headerHeight = header.outerHeight() + Math.abs(header.position().top);
+			var footerHeight = footer.outerHeight();
+			var contentHeight = $(window).innerHeight() - (headerHeight + footerHeight);
+			
+			this._view.css({"top": headerHeight, "height": contentHeight});
+			
+		}
+			
+		this.init = function(model, container) {
+			this._model = model;
+			this._container = container;
+			this.setup();
+		}
+		
+		this.intro = function(completion) {
+			console.log("this. intro", this._view);
+			TweenMax.to(this._view, 0.25, {autoAlpha: 1});
+		}
+		
+		this.exit = function(completion) {
+			var context = this;
+			TweenMax.to(this._view, 0.25, {autoAlpha: 0, onComplete: function() {
+				if (completion) { completion(); }
+			}});
+		}
+	}
+	
+	
+	window.CouponViewController = CouponViewController;
+}(window));
 /*GENERIC  VIEW CONTROLLER*/
 (function(window){
 	FooterViewController.prototype = new BaseViewController();
@@ -387,22 +773,43 @@
 	
 	function FooterViewController(){
 		this._view;
+		this._backButton;
+		this._nextButton;
 		
-		this.nextClosure;
-		this.backClosure;
+		this.didSelectNextButton;
+		this.didSelectBackButton;
 		
-		this.update = function(step) {
-			
+		this.update = function(data) {
+			 if (data.backTitle) {
+				 $(this._backButton.find("h4")).text(data.backTitle);
+				 this._backButton.css({opacity: 1});
+			 } else {
+				 this._backButton.css({opacity: 0});
+			 }
+			 
+			 if (data.nextTitle) {
+				 
+				 $(this._nextButton.find("h4")).text(data.nextTitle);
+				 this._nextButton.css({opacity: 1});
+			 } else {
+				 this._nextButton.css({opacity: 0});
+			 }
 		}
 		
-		this.setup = function() {
+		this.setup = function() {  
+			
 			var context = this;
-			$(this._view.find("#back-button")).on("click", function() {
-				context.backClosure();
+			
+			this._backButton = $(this._view.find("#back-button"));
+			this._nextButton = $(this._view.find("#spacer-button"));
+			
+			this._backButton.on("click", function() {
+				context.didSelectBackButton();
 			});
 			
-			$(this._view.find("#next-button")).on("click", function() {
-				context.nextClosure();
+			this._nextButton.on("click", function() {
+				console.log("did select next");
+				context.didSelectNextButton();
 			});
 		}
 		
@@ -431,55 +838,26 @@
 /*GENERIC  VIEW CONTROLLER*/
 (function(window){
 	function GameCoordinator(){
-		this._view;
-		this._slider;
+		this._presenter;
 		this._deviceType;
-		this._model;
+		this._viewModel;
+		this._game = new Game();
 		this._viewControllers = [];
-		this._currentStep;
-		this._header;
-		this._footer;
+		this._currentStep = 0;
 		
-		this._game = {
-			"level": null,
-			"sandwiches": null,
-			"sandwich": null,
-			"randomMiddle": null,
-			"randomTop": null,
-			"randomBottom": null
-		}
-		
-		this.levelForId = function(id) {
-			var levels = this._model.levels;
-			return levels.find(level => { return level.id === id; });
-		}
-		
-		this.sandwichesForLevel = function() {
-			if (this._game.level === null) return null;
-			var context = this;
-			var sandwichIds = this._game.level.sandwich_ids;
-			
-			var sandwiches = [];
-			
-			sandwichIds.forEach(function(sandwichId) {
-				var sandwich = context._model.sandwiches.find(sando => { return sando.id === sandwichId});
-				sandwiches.push(sandwich);
-			});
+		this.exitBegan;
+		this.exitComplete;
+		this.shouldNavigateToStep;
 
-			return sandwiches;
+		this.gameImages = function() { return this._viewModel.gameImages(); }
+		
+		this.selectLevel = function(id) {
+			this._game.level = this._viewModel.levelForId(id);
+			this._game.sandwiches = this._viewModel.sandwichesForLevel(id);
 		}
 		
-		this.sandwichWithId = function(sandwichId) {
-			return this._game.sandwiches.find(sando => { return sando.id === sandwichId});
-		}
-		
-		this.selectLevel = function(levelId) {
-			this._game.level = this.levelForId(levelId);
-			this._game.sandwiches = this.sandwichesForLevel();
-		}
-		
-		this.selectSandwich = function(sandwichId) {
-			this._game.sandwich = this.sandwichWithId(sandwichId);
+		this.selectSandwich = function(id) {
+			this._game.sandwich = this._viewModel.sandwichWithId(id);
 		}
 		
 		this.beginGamePlay = function() {
@@ -492,7 +870,7 @@
 									
 			gameVc.update(this._game);
 			
-			this.onNextButtonTap();
+			this.presentCountdown();
 		}
 		
 		this.endGamePlay = function(success) {
@@ -502,84 +880,85 @@
 				this.presentFailureMessage();
 			}
 		}
-	
-		this.setup = function() {
-			var context = this;
 			
-			this._footer.nextClosure = function() {
-				context.onNextButtonTap();
-			}
-			
-			this._footer.backClosure = function() {
-				context.onBackButtonTap();
-			}
-			
-			this._slider = $(this._view.find(".page-slider"));
-			this._currentStep = 0;
-			
-			var steps = this._model.steps;
-			var levels = this._model.levels;
-			
-			steps.forEach(function(step){
-				switch(step["page-id"]) {
-					case "intro":
-						var vc = new IntroViewController();
-						vc.init(step, context._slider);
-						vc.playButtonListener = function() {
-							context.onNextButtonTap();
-						}
-						
-						context._viewControllers.push(vc);
-						break;
-					case "choose-level":
-						var vc = new ChooseLevelViewController();
-						vc.init(step, context._slider);
-						vc.setupLevels(levels);
-						vc.selectLevelListener = function(levelId) {
-							context.selectLevel(levelId);
-							context.onNextButtonTap();
-						}
-						
-						context._viewControllers.push(vc);
-						break;
-					case "choose-sando":
-						var vc = new ChooseSandwichViewController();
-						vc.init(step, context._slider);
-						vc.didSelectSandwich = function(sandwichId) {
-							context.selectSandwich(sandwichId);
-							context.beginGamePlay();
-						}
-						context._viewControllers.push(vc);
-						break;
-					case "gameplay":
-						var vc = new GameViewController();
-						vc.init(step, context._slider);
-						vc.didFinishGameListener = function(success) {
-							context.endGamePlay(success);
-						}
-						context._viewControllers.push(vc);
-						break;
-				}
-			});
-		}
-		
 		this.presentSuccessMessage = function() {
 			var modal = $(".modal");
-			modal.css({"display": "block", "opacity": 0});
+			var context = this;
+
+			var vc = new WinnerModalViewController();
+			vc.init(modal);
 			
-			TweenMax.to(modal, 0.25, {alpha: 1});
+			vc.selectNextListener = function() {
+				if (context._game.level.id === 1) {
+					context.presentCoupon();
+				} else {
+					context.presentContactForm();
+				}
+				
+				vc.exit();
+			}
+			
+			vc.intro();
 		}
 		
 		this.presentFailureMessage = function() {
-			console.log("you've lost!!")
+			this.presentSuccessMessage();
+		}
+
+		this.presentCoupon = function() {
+			var viewModel = this._viewModel.couponData();
+			
+			var vc = new CouponViewController();
+			vc.init(viewModel, this._presenter);
+			
+			this._viewControllers.push(vc);
+			
+			//this.presentNextViewController();
 		}
 		
-		this.onNextButtonTap = function() {
-			if (this._currentStep == this._viewControllers.count - 1) { return; }
+		this.presentContactForm = function() {
+			var context = this;
 			
-			var preVC = this._viewControllers[this._currentStep];
+			var viewModel = this._viewModel.contactData();
 			
+			var vc = new ContactViewController();
+			vc.init(viewModel, this._presenter);
+			
+			vc.didSubmitForm = function() {
+				context.presentNextViewController();
+			}
+			
+			this._viewControllers.push(vc);
+			
+			//this.presentNextViewController();
+		}
+
+		this.presentCountdown = function() {
+			var context = this;
+			var vc = new CountdownViewController();
+			vc.init($("#game-countdown"));
+			
+			vc.onIntroComplete = function() {
+				context.presentNextViewController();
+			}
+
+			vc.intro();
+		}
+
+		this.presentNextViewController = function() {
+			//if (this._currentStep == (this._viewControllers.length - 1)) { return; }
+			
+			var prevVc = this._viewControllers[this._currentStep];  
+			
+			if (prevVc && prevVc instanceof ContactViewController && prevVc._hasSubmittedData === false) {
+				
+				prevVc.submit();
+				return;
+			}
+						
 			this._currentStep ++;
+			
+			console.log("current step", this._currentStep)
 			
 			var vc = this._viewControllers[this._currentStep];
 			
@@ -587,169 +966,148 @@
 				vc.update(this._game.sandwiches);
 			}
 			
-			preVC.exit();
-			vc.intro();
-			
-			if (this._currentStep > 0) {
-				this._header.intro(true);
-				this._footer.intro(true);
-			}
-			
-			var sandwichThumb = null;
-			
-			if (vc instanceof GameViewController) {
-				sandwichThumb = this._game.sandwich.thumbnail;
-				this.presentCountdown()
-			} else {
-				this.presentNextScreen();
-			}
+			this.navigateToStep(vc, prevVc);
+
 		}
 		
-		this.presentNextScreen = function() {
-			var sandwichThumb = (this._game.sandwich !== null) ? this._game.sandwich.thumbnail : null;
-			var left = -(this._view.width() * this._currentStep);
-			this._header.update(this._model.steps[this._currentStep], sandwichThumb);
-			TweenMax.to(this._slider, 0.35, {css:{left:left}, ease:Sine.easeInOut});
-		}
-		
-		this.presentCountdown = function() {
-			var context = this;
-			var vc = new CountdownViewController();
-			vc.init($("#game-countdown"));
-			vc.introCompleteListener = function() {
-				context.presentNextScreen();
-			}
-			vc.exitCompleteListener = function() {
-				
+		this.presentPrevViewController = function() {
+			if (this._currentStep == 0) { 
+				this.exit();
+				return; 
 			}
 			
-			
-			vc.intro();
-		}
-		
-		this.onBackButtonTap = function() {
-			if (this._currentStep == 0) { return; }
-			
-			var preVC = this._viewControllers[this._currentStep];
-			
+			var prevVc = this._viewControllers[this._currentStep];
+									
 			this._currentStep --;
 			
 			var vc = this._viewControllers[this._currentStep];
 			
-			preVC.exit();
-			vc.intro();
-			
-			var left = -(this._view.width() * this._currentStep);
-			
-			if (this._currentStep == 0) {
-				this._header.exit(true);
-				this._footer.exit(true);
-			}
-			
-			this._header.update(this._model.steps[this._currentStep], null);
-
-			TweenMax.to(this._slider, 0.35, {css:{left:left}, ease:Sine.easeInOut});
+			this.navigateToStep(vc, prevVc);
 		}
 		
-		this.onStartOverButtonTap = function() {
+		this.navigateToStep = function(currentVc, prevVc) {
+			console.log("current", currentVc);
+			var step = currentVc._model;
+			var headerImage = (currentVc instanceof GameViewController && this._game.sandwich !== null) ? this._game.sandwich.thumbnail : null;
+
+			var headerModel = {
+				title: step.title,
+				image: headerImage
+			}
 			
+			var footerModel = {
+				backTitle: step["back-title"],
+				nextTitle: step["next-title"]
+			}
+			
+			this.shouldNavigateToStep(headerModel, footerModel);
+			
+			if (prevVc) {
+				prevVc.exit(function() {
+					currentVc.intro();
+				});
+			} else {
+				console.log("intro it", currentVc);
+				currentVc.intro();
+			}
 		}
+		
 		
 		this.reset = function() {
 			
 		}
-
-		this.loadJSON = function(completion) {
-			var context = this;
-			console.log("load json")
-			$.ajax({
-				url: "data/app.json",
-				type: "GET",
-				dataType: "json",
-				success: function(response) {
-					console.log(response);
-					context._model = response.game;
-					context.setup();
-					context.loadStats(completion);
-				}
-			});
-		}
 		
-		this.loadStats = function(completion) {
-			var context = this;
-			var game = this._model;
-			var loadCount = game.levels.length;
+		this.setup = function() {
+			var context = this;			
+			var container = this._presenter;
 			
-			game.levels.forEach(function(level){
-				if (level.max_num_participants != null) {
-					$.ajax({
-						url: "api/stats/index.php",
-						data: {
-							'id': level.list_id
-						},
-						type: "GET",
-						dataType: "json",
-						success: function(response) {
-							level.stats = response.stats;
-							loadCount -= 1;
-							if (loadCount === 0) {
-								context.loadCookies(completion);
-							}
-						},
-						error: function (request, error) {
-							//console.log("failed", request, error);
-    					}
-					});
-				} else {
-					loadCount -= 1;
+			
+			this.presentCoupon()
+			
+			this.presentContactForm();
+			
+
+			return;
+			
+			this._viewModel.steps().forEach(function(step) {
+				switch(step.id) {
+					case 0:
+						var vc = new ChooseLevelViewController();
+						vc.init(step, container);
+						vc.setupLevels(context._viewModel.levels());
+						
+						vc.didSelectLevel = function(levelId) {
+							context.selectLevel(levelId);
+							context.presentNextViewController();
+						}
+						
+						context._viewControllers.push(vc);
+						break;
+					case 1:
+						var vc = new ChooseSandwichViewController();
+						vc.init(step, container);
+						
+						vc.didSelectSandwich = function(sandwichId) {
+							context.selectSandwich(sandwichId);
+							context.beginGamePlay();
+						}
+						context._viewControllers.push(vc);
+						break;
+					case 2:
+						var vc = new GameViewController();
+						vc.init(step, container);
+						
+						vc.didFinishGame = function(success) {
+							context.endGamePlay(success);
+						}
+						
+						context._viewControllers.push(vc);
+					break
 				}
-			});
+			});			
 		}
 		
-		this.loadCookies = function(completion) {			
-			this._model.levels.forEach(function(level) {
+		this.loadCookies = function() {				
+			this._viewModel.levels().forEach(function(level) {
 				var name = level.id + "_completed";
 				level.completed = $.cookie(name) ?? false;
 			});
 			
-			completion();
+			this.setup();
+		}
+		
+		this.init = function(viewModel, presenter) {
+			this._viewModel = viewModel;
+			this._presenter = presenter;
+			
+			this.loadCookies();
+		}
+		
+		this.intro = function() {
+			var context = this;
+			
+			TweenMax.to(this._presenter, 0, {autoAlpha: 1, onComplete: function() {
+				console.log(context._viewControllers, context._currentStep);
+				context.navigateToStep(context._viewControllers[context._currentStep], null);
+			}});
+		}	
+		
+		this.exit = function() {
+			var context = this;
+			
+			this.exitBegan();
+			
+			TweenMax.to(this._presenter, 0.5, {autoAlpha: 0, onComplete: function() {
+				context.exitComplete();
+			}});
+		}	
+		
+				
+		this.onWindowResize = function(e) {
+			
 		}
 	}
-	
-	GameCoordinator.prototype = {
-		init:function(target, deviceType, header, footer){
-			this._view = $(target);
-			this._deviceType = deviceType;
-			this._header = header;
-			this._footer = footer;
-		},
-		load: function(completion) {
-			this.loadJSON(completion);
-		},
-		gameImages: function() {
-			if (this._model == null) { return; }
-			
-			var images = [];
-			
-			this._model.sandwiches.forEach(function(sandwich){
-				images.push(sandwich.thumbnail);
-				images.push(sandwich.top);
-				images.push(sandwich.middle);
-				images.push(sandwich.bottom);
-			});
-			
-			return images;
-		},
-		onWindowResize:function(e){
-			
-		},
-		dealloc:function(){
-			this._view = null;
-			this._deviceType = null;
-			this._model = null;
-		}
-	}
-	
+		
 	window.GameCoordinator = GameCoordinator;
 }(window));
 /*GENERIC  VIEW CONTROLLER*/
@@ -767,7 +1125,7 @@
 		this._rows = [];
 		this._selectedIds = [];
 		
-		this.didFinishGameListener;
+		this.didFinishGame;
 		
 		this.start = function() {
 			var context = this;
@@ -829,9 +1187,9 @@
 			var componentsMatch = this._selectedIds.every(id => id === this._selectedIds[0]);
 			
 			if (componentsMatch && this._game.sandwich.id === this._selectedIds[0]) {
-				this.didFinishGameListener(true);
+				this.didFinishGame(true);
 			} else {
-				this.didFinishGameListener(false);
+				this.didFinishGame(false);
 			}
 		}
 
@@ -872,6 +1230,20 @@
 			this._model = model;
 			this._container = container;
 			this.setup();
+		}
+		
+		this.intro = function(completion) {
+			TweenMax.to(this._view, 0, {autoAlpha: 1, onComplete: function() {
+				if (completion) { completion(); }
+			}});
+		}
+		
+		this.exit = function(completion) {
+			var context = this;
+			TweenMax.to(this._view, 0.5, {autoAlpha: 0, onComplete: function() {
+				context.reset();
+				if (completion) { completion(); }
+			}});
 		}
 	}
 	
@@ -1060,11 +1432,11 @@
 		this._playClosure;
 		this._top = 18
 		
-		this.update = function(step, sandwichThumb) {
+		this.update = function(viewModel) {
 			var prevTitle = this._activeTitle;
 			var title = "";
 			
-			title = step.title
+			title = viewModel.title
 						
 			var transitionalLabel = $(this._view.find(".transitional-title"));
 			transitionalLabel.css({opacity: 1});
@@ -1076,8 +1448,8 @@
 			
 			var sandoThumb = $(this._view.find("#sando-thumb"));
 						
-			if (sandwichThumb !== null) {
-				sandoThumb.html('<img src="'+sandwichThumb+'"/>');
+			if (viewModel.image !== null) {
+				sandoThumb.html('<img src="'+viewModel.image+'"/>');
 				TweenMax.to(sandoThumb, 0.25, {css:{opacity:1}, ease:Sine.easeIn});
 			} else {
 				TweenMax.to(sandoThumb, 0.25, {css:{opacity:0}, ease:Sine.easeIn});
@@ -1113,27 +1485,8 @@
 
 	window.HeaderViewController = HeaderViewController;
 }(window));
-/*GENERIC  VIEW CONTROLLER*/
-(function(window){
-	HowToViewController.prototype = new BaseViewController();
-	HowToViewController.prototype.constructor = HowToViewController;
-	
-	function HowToViewController(){
-		this._view;
-		this._pageContent;
-		this._deviceType;
-		this._model;
-		
-		this.baseSetup = function(target, model, deviceType) {
-			this._view = $(target);
-			this._model = model;
-			this._deviceType = deviceType;
-		}
-	}
-	
-	
-	window.HowToViewController = HowToViewController;
-}(window));
+
+
 /*GENERIC  VIEW CONTROLLER*/
 (function(window){
 	IntroViewController.prototype = new BaseViewController();
@@ -1141,34 +1494,123 @@
 	
 	function IntroViewController(){
 		this._view;
-		this.playButtonListener;
 		this._model;
 		this._container;
+		this._hasIntialIntro = false;
+		this._playButton;
 		
 		this.setup = function() {
 			var context = this;
-			var pageId = this._model['page-id'];
-			var template = '<div class="page" id="' + pageId + '"><div class="page-content"><div class="hero-title"><img src="img/content/home-hero.png" alt="Total Day Maker"/></div><div class="hero-content"><div class="logo"><img src="img/content/daves-logo.png" alt="Daves Bread"/></div><!------><div class="play-button"><img src="img/content/home-play-btn.png" alt="Play for Bread"/></div></div><div class="terms"><a href="">TERMS AND CONDITIONS</a></div></div></div>';
-			
-			this._container.append(template);
+			var pageId = this._model['page-id'];			
+			console.log(this._model);
+			this._container.append(this._model.template);
 			
 			this._view = $("#" + pageId);
+						
+			var context = this;
 			
-			
-			$(this._view.find(".play-button")).on("click", function() {
-				context.playButtonListener();
+			var hero = $(this._view.find("#hero-image"));
+			var logo =  $(this._view.find("#intro-logo"));
+			var termsButton = $(this._view.find("#terms-button"));
+			var playButton =  $(this._view.find("#intro-play-button"));
+			console.log(playButton);
+			[hero, logo, playButton, termsButton].forEach(function(view) {
+				TweenMax.to(view, 0, {scale: 0});
 			});
+			
+			this._playButton = playButton;
 		}
-		
+
 		this.init = function(model, container) {
 			this._model = model;
 			this._container = container;
 			this.setup();
 		}
+		
+		this.intro = function(completion) {
+			if (this._hasIntialIntro) {
+				console.log("show it");
+				TweenMax.to(this._view, 0.5, {autoAlpha: 1, onComplete: function() {
+					if (completion) { completion(); }
+				}});
+			} else {
+				//
+				var context = this;
+				var hero = $(this._view.find("#hero-image"));
+				var logo =  $(this._view.find("#intro-logo"));
+				var playButton =  $(this._view.find("#intro-play-button"));
+				var termsButton = $(this._view.find("#terms-button"));
+				
+				var timeline = new TimelineMax();
+				
+				timeline.to(this._view, 0, {autoAlpha: 1});
+				
+				timeline.to(hero, 0.5, {scale: 1, ease:Back.easeOut});
+				timeline.to(logo, 0.25, {scale: 1, ease:Back.easeOut}, "-=0.10");
+				timeline.to(playButton, 0.25, {scale: 1, ease:Back.easeOut},  "-=0.20");
+				timeline.to(termsButton, 0.25, {scale: 1, ease:Back.easeOut, onComplete: function() {
+					context._hasIntialIntro = true;
+					console.log("played");
+					if (completion) { completion(); }
+				}},  "-=0.20");
+				
+				timeline.play();
+			}
+			
+		}
+		
+		this.exit = function(completion) {
+			TweenMax.to(this._view, 0.5, {autoAlpha: 0, onComplete: function() {
+				if (completion) {
+					completion();
+				}
+			}});
+		}
 	}
 
 	window.IntroViewController = IntroViewController;
 }(window));
+
+/*GENERIC  VIEW CONTROLLER*/
+(function(window){
+	function IntroCoordinator(){
+		this._presenter;
+		this._vc;
+		this.exitComplete;
+		
+		this.init = function(model, presenter) {
+			this._presenter = presenter;
+			this._vc = new IntroViewController();
+			this._vc.init(model, presenter);
+			
+			var context = this;
+			
+			this._vc._playButton.on("click", function() {
+				context.exit();
+			});
+		}
+		
+		this.intro = function() {
+			var context = this;
+			
+			TweenMax.to(this._presenter, 0, {autoAlpha: 1, onComplete: function() {
+				context._vc.intro();
+			}});
+		}
+		
+		this.exit = function() {
+			var context = this;
+			
+			TweenMax.to(this._presenter, 0.5, {autoAlpha: 0, onComplete: function() {
+				context.exitComplete();
+			}});
+		}
+	}
+
+	window.IntroCoordinator = IntroCoordinator;
+}(window));
+
+
 /*GENERIC  VIEW CONTROLLER*/
 (function(window){
 	PreloadViewController.prototype = new BaseViewController();
@@ -1292,4 +1734,53 @@
 	}
 	
 	window.PreloadViewController = PreloadViewController;
+}(window));
+
+/*GENERIC  VIEW CONTROLLER*/
+(function(window){
+	WinnerModalViewController.prototype = new BaseViewController();
+	WinnerModalViewController.prototype.constructor = WinnerModalViewController;
+	
+	function WinnerModalViewController(){
+		this._view;
+		this._container;
+		this.selectNextListener;
+		
+		this.setup = function() {
+			var context = this;
+			this._container.empty();
+			this._container.load("templates/winner-modal.html", function() {
+				context.onLoad();
+			});
+		}
+		
+		this.onLoad = function() {
+			var context = this;
+			this._view = $(this._container.find(".winner"));
+			this._view.find("#winner-next-button").on("click", function() {
+				context.selectNextListener();
+				context.exit();
+			});
+		}
+			
+		this.init = function(container) {
+			this._container = container;
+			this.setup();
+		}
+		
+		this.intro = function(completion) {
+			this._container.css({"display": "block"})
+			TweenMax.to(this._container, 0.25, {alpha: 1});
+		}
+		
+		this.exit = function(completion) {
+			var context = this;
+			TweenMax.to(this._container, 0.25, {autoAlpha: 0, onComplete: function() {
+				context._container.empty();
+			}});
+		}
+	}
+	
+	
+	window.WinnerModalViewController = WinnerModalViewController;
 }(window));

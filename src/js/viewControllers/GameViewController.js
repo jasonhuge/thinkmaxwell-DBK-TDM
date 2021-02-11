@@ -13,7 +13,7 @@
 		this._rows = [];
 		this._selectedIds = [];
 		
-		this.didFinishGameListener;
+		this.didFinishGame;
 		
 		this.start = function() {
 			var context = this;
@@ -75,9 +75,9 @@
 			var componentsMatch = this._selectedIds.every(id => id === this._selectedIds[0]);
 			
 			if (componentsMatch && this._game.sandwich.id === this._selectedIds[0]) {
-				this.didFinishGameListener(true);
+				this.didFinishGame(true);
 			} else {
-				this.didFinishGameListener(false);
+				this.didFinishGame(false);
 			}
 		}
 
@@ -118,6 +118,20 @@
 			this._model = model;
 			this._container = container;
 			this.setup();
+		}
+		
+		this.intro = function(completion) {
+			TweenMax.to(this._view, 0, {autoAlpha: 1, onComplete: function() {
+				if (completion) { completion(); }
+			}});
+		}
+		
+		this.exit = function(completion) {
+			var context = this;
+			TweenMax.to(this._view, 0.5, {autoAlpha: 0, onComplete: function() {
+				context.reset();
+				if (completion) { completion(); }
+			}});
 		}
 	}
 	
