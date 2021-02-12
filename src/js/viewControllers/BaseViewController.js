@@ -35,11 +35,11 @@
 		onWindowResize:function(e){
 			
 		},
-		dealloc:function(){
-			if(this._pageContent){
-				this._pageContent.remove();
-			}
+		reset: function() {
 			
+		},
+		dealloc:function(){
+			this._view.remove();			
 			this._pageContent = null;
 			this._view = null;
 			this._deviceType = null;

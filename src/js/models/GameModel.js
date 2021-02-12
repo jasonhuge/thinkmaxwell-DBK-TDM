@@ -10,6 +10,9 @@
 			return this._data.contact;
 		}
 
+		this.recipeData = function() {
+			return this._data.recipe;
+		}
 		
 		this.sandwiches = function() {
 			return this._data.sandwiches;

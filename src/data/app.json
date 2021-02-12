@@ -11,52 +11,67 @@
 				"page-id": "choose-level",
 				"title": "CHOOSE YOUR<br/>DIFFICULTY",
 				"template": "templates/choose-level.html",
-				"back-title": "BACK",
-				"next-title": null
+				"back": {
+					"title": "BACK",
+					"action": "nav"
+				},
+				"next": null
 			},
 			{
 				"id": 1,
 				"page-id": "choose-sando",
 				"title": "CHOOSE YOUR<br/>SANDO MATCH",
 				"template": "templates/chooselevel.php",
-				"back-title": "BACK",
-				"next-title": null
+				"back": {
+					"title": "BACK",
+					"action": "nav"
+				},
+				"next": null
 			},
 			{
 				"id": 2,
 				"page-id": "gameplay",
 				"title": "MATCH THIS<br/>SANDO",
 				"template": "templates/game.php",
-				"back-title": "BACK",
-				"next-title": null
-			},
-			{
-				"id": 3,
-				"page-id": "recipe",
-				"title": "MATCH THIS<br/>SANDO",
-				"template": "templates/game.php",
-				"back-title": null,
-				"next-title": null
+				"back": {
+					"title": "BACK",
+					"action": "nav"
+				},
+				"next": null
 			}
 		],
 		"coupon": {
 				"page-id": "redeem-coupon",
 				"title": "PRINT YOUR<br/>COUPON",
-				"back-title": null,
-				"next-title": "CONTINUE",
+				"back": null,
+				"next": {
+					"title": "CONTINUE",
+					"action": "nav"
+				},
 				"template": "<div class='page' id='redeem-coupon'><div class='scrolling-page-content'><div id='coupon-container'> <script id='propodEmbedbc5e137110f822a6d6baa0cc48f64a507e3ae23c' src='https://banner2.promotionpod.com/frames/bc5e137110f822a6d6baa0cc48f64a507e3ae23c.js'></script> </div><p id='expiration'>COUPON EXPIRES 12/31/2021</p><h4>INSTRUCTIONS FOR PRINTING COUPON</h4><ul><li>1. Make sure that you are connected to a printer. For security measures, the coupon is set to allow only 2 print attempts per person.</li><li>2. Click the white 'Get Coupon' button in the image. It will take a minute for your coupon to load. [If you don't see an image with a 'Get Coupon' button, try the troubleshooting guide]</li><li>3. When your coupon has loaded, you will see 'Your coupon is ready to print' and a red 'Print' button. Click it to print your coupon!</li></li></ul></div></div>"
 		},
 		"contact": {
 				"page-id": "contact",
 				"title": "ENTER YOUR<br/>CONTACT INFO",
-				"back-title": null,
-				"next-title": "SUBMIT",
+				"back": null,
+				"next": {
+					"title": "SUBMIT",
+					"action": "submit_forms"
+				},
 				"template": "<div class='page' id='contact'><div class='page-content'><form action='#' method='post' id='contact-form'><div class='input-container'> <label>NAME</label> <input id='first-name' name='first_name' type='text' placeholder='FIRST'><input id='last-name' name='last_name' type='text' placeholder='LAST'></div><div class='input-container'> <label>EMAIL</label> <input id='email' name='email' type='email' placeholder='DAYMADE@DAVESKILLERBREAD>COM'></div><div class='input-container'> <label>PHONE</label> <input id='phone' name='phone' type='tel' placeholder='[503] 111-1111'></div><div class='input-container'> <label>ADDRESS</label> <input id='address' name='street_address' type='text' placeholder='STREET'><input id='city' name='city' type='text' placeholder='CITY'><select id='state' name='state'><option value='' selected='selected'>ST</option><option value='AL'>Alabama</option><option value='AZ'>Arizona</option><option value='AR'>Arkansas</option><option value='CA'>California</option><option value='CO'>Colorado</option><option value='CT'>Connecticut</option><option value='DE'>Delaware</option><option value='DC'>District Of Columbia</option><option value='FL'>Florida</option><option value='GA'>Georgia</option><option value='ID'>Idaho</option><option value='IL'>Illinois</option><option value='IN'>Indiana</option><option value='IA'>Iowa</option><option value='KS'>Kansas</option><option value='KY'>Kentucky</option><option value='LA'>Louisiana</option><option value='ME'>Maine</option><option value='MD'>Maryland</option><option value='MA'>Massachusetts</option><option value='MI'>Michigan</option><option value='MN'>Minnesota</option><option value='MS'>Mississippi</option><option value='MO'>Missouri</option><option value='MT'>Montana</option><option value='NE'>Nebraska</option><option value='NV'>Nevada</option><option value='NH'>New Hampshire</option><option value='NJ'>New Jersey</option><option value='NM'>New Mexico</option><option value='NY'>New York</option><option value='NC'>North Carolina</option><option value='ND'>North Dakota</option><option value='OH'>Ohio</option><option value='OK'>Oklahoma</option><option value='OR'>Oregon</option><option value='PA'>Pennsylvania</option><option value='RI'>Rhode Island</option><option value='SC'>South Carolina</option><option value='SD'>South Dakota</option><option value='TN'>Tennessee</option><option value='TX'>Texas</option><option value='UT'>Utah</option><option value='VT'>Vermont</option><option value='VA'>Virginia</option><option value='WA'>Washington</option><option value='WV'>West Virginia</option><option value='WI'>Wisconsin</option><option value='WY'>Wyoming</option> </select> <input id='zipcode' name='zipcode' type='text' placeholder='ZIP'></div></form><div> <input id='newsletter' name='newsletter' type='checkbox' checked='true'> <span>SIGN ME UP FOR EMAIL OFERS AND UPDATES!</span></div></div></div>"
 		},
-		"recipe_view": {
+		"recipe": {
 			"page-id": "recipe",
 			"title": "PRINT YOUR<br/>Recipe",
-			"template": "templates/contactinfo.php"
+			"back": {
+				"title": "GET RECIPE",
+				"action": "link"
+			},
+			"next": {
+				"title": "PLAY AGAIN",
+				"action": "play_again"
+			},
+			"template": "<div class='page' id='recipe'><div class='page-content'></div></div>"
 		},
 		"sandwiches": [{
 				"id": 1,

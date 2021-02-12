@@ -9,6 +9,13 @@
 		this.selectLevelListener;
 		this._hasSubmittedData = false;
 		
+		this.reset = function() {
+			this._hasSubmittedData = false;
+			
+			$(form.find("input,select")).each(function() {
+				$(this).val(""); 
+			})
+		}
 		
 		this.validateEmail = function(email) {
 			var regex = /^([a-zA-Z0-9_.+-])+\@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/; 

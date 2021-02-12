@@ -31,8 +31,10 @@
 		}
 		
 		this.intro = function(completion) {
-			this._container.css({"display": "block"})
-			TweenMax.to(this._container, 0.25, {alpha: 1});
+			console.log("winner in ", this._container);
+			TweenMax.to(this._container, 0.25, {autoAlpha: 1, onComplete: function(){
+				console.log("intro complete");
+			}});
 		}
 		
 		this.exit = function(completion) {

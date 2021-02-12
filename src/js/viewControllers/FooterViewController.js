@@ -12,20 +12,22 @@
 		this.didSelectBackButton;
 		
 		this.update = function(data) {
-			 if (data.backTitle) {
-				 $(this._backButton.find("h4")).text(data.backTitle);
-				 this._backButton.css({opacity: 1});
-			 } else {
-				 this._backButton.css({opacity: 0});
-			 }
+			var back = data.back;
+			var next = data.next;
+			
+			if (back) {
+				$(this._backButton.find("h4")).text(back.title);
+				TweenMax.to(this._backButton, 0.25, {autoAlpha: 1});
+			} else {
+				TweenMax.to(this._backButton, 0.25, {autoAlpha: 0});
+			}
 			 
-			 if (data.nextTitle) {
-				 
-				 $(this._nextButton.find("h4")).text(data.nextTitle);
-				 this._nextButton.css({opacity: 1});
-			 } else {
-				 this._nextButton.css({opacity: 0});
-			 }
+			if (next) {
+			 	$(this._nextButton.find("h4")).text(next.title);
+			 	TweenMax.to(this._nextButton, 0.25, {autoAlpha: 1});
+			} else {
+			 	TweenMax.to(this._nextButton, 0.25, {autoAlpha: 0});
+			}
 		}
 		
 		this.setup = function() {  

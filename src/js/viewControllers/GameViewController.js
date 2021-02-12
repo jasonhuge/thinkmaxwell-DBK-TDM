@@ -15,6 +15,21 @@
 		
 		this.didFinishGame;
 		
+		this.reset = function() {
+			this._game = null;
+			
+			if (this._timer !== null && this._timer !== undefined) {
+				clearInterval(this._timer);
+			}
+			
+			this._timer = null;
+			this._selectedIds = [];
+			
+			this._rows.forEach(function(row){
+				row.reset();
+			});
+		}
+		
 		this.start = function() {
 			var context = this;
 			var bottom = $("#bottom ul");
@@ -58,22 +73,14 @@
 			
 			this.start();
 		}
-		
-		this.reset = function() {
-			this._game = null;
-			if (this._timer !== null && this._timer !== undefined) {
-				clearInterval(this._timer);
-			}
-			this._timer = null;
-			this._selectedIds = [];
-		}
-		
+
 		this.finishGame = function() {
 			clearInterval(this._timer);
 			this._timer = null;
 			
 			var componentsMatch = this._selectedIds.every(id => id === this._selectedIds[0]);
 			
+			console.log(componentsMatch, this._selectedIds, this._game.sandwich.id === this._selectedIds[0]);
 			if (componentsMatch && this._game.sandwich.id === this._selectedIds[0]) {
 				this.didFinishGame(true);
 			} else {

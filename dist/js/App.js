@@ -201,6 +201,9 @@
 			return this._data.contact;
 		}
 
+		this.recipeData = function() {
+			return this._data.recipe;
+		}
 		
 		this.sandwiches = function() {
 			return this._data.sandwiches;
@@ -316,11 +319,11 @@
 		onWindowResize:function(e){
 			
 		},
-		dealloc:function(){
-			if(this._pageContent){
-				this._pageContent.remove();
-			}
+		reset: function() {
 			
+		},
+		dealloc:function(){
+			this._view.remove();			
 			this._pageContent = null;
 			this._view = null;
 			this._deviceType = null;
@@ -546,6 +549,13 @@
 		this.selectLevelListener;
 		this._hasSubmittedData = false;
 		
+		this.reset = function() {
+			this._hasSubmittedData = false;
+			
+			$(form.find("input,select")).each(function() {
+				$(this).val(""); 
+			})
+		}
 		
 		this.validateEmail = function(email) {
 			var regex = /^([a-zA-Z0-9_.+-])+\@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/; 
@@ -780,20 +790,22 @@
 		this.didSelectBackButton;
 		
 		this.update = function(data) {
-			 if (data.backTitle) {
-				 $(this._backButton.find("h4")).text(data.backTitle);
-				 this._backButton.css({opacity: 1});
-			 } else {
-				 this._backButton.css({opacity: 0});
-			 }
+			var back = data.back;
+			var next = data.next;
+			
+			if (back) {
+				$(this._backButton.find("h4")).text(back.title);
+				TweenMax.to(this._backButton, 0.25, {autoAlpha: 1});
+			} else {
+				TweenMax.to(this._backButton, 0.25, {autoAlpha: 0});
+			}
 			 
-			 if (data.nextTitle) {
-				 
-				 $(this._nextButton.find("h4")).text(data.nextTitle);
-				 this._nextButton.css({opacity: 1});
-			 } else {
-				 this._nextButton.css({opacity: 0});
-			 }
+			if (next) {
+			 	$(this._nextButton.find("h4")).text(next.title);
+			 	TweenMax.to(this._nextButton, 0.25, {autoAlpha: 1});
+			} else {
+			 	TweenMax.to(this._nextButton, 0.25, {autoAlpha: 0});
+			}
 		}
 		
 		this.setup = function() {  
@@ -873,8 +885,18 @@
 			this.presentCountdown();
 		}
 		
+		this.saveCookieForLevel = function() {
+			var level = this._game.level;
+			level.completed = true;
+			
+			var name = level.id + "_completed"
+			
+			$.cookie.set(name, true);
+		}
+		
 		this.endGamePlay = function(success) {
 			if (success) {
+				this.saveCookieForLevel();
 				this.presentSuccessMessage();
 			} else {
 				this.presentFailureMessage();
@@ -895,6 +917,8 @@
 					context.presentContactForm();
 				}
 				
+				context.goToNextScreen();
+				
 				vc.exit();
 			}
 			
@@ -902,6 +926,7 @@
 		}
 		
 		this.presentFailureMessage = function() {
+			console.log("this.presentFailureMessage()");
 			this.presentSuccessMessage();
 		}
 
@@ -912,8 +937,6 @@
 			vc.init(viewModel, this._presenter);
 			
 			this._viewControllers.push(vc);
-			
-			//this.presentNextViewController();
 		}
 		
 		this.presentContactForm = function() {
@@ -925,12 +948,11 @@
 			vc.init(viewModel, this._presenter);
 			
 			vc.didSubmitForm = function() {
-				context.presentNextViewController();
+				context.presentRecipe();
+				context.goToNextScreen();
 			}
 			
 			this._viewControllers.push(vc);
-			
-			//this.presentNextViewController();
 		}
 
 		this.presentCountdown = function() {
@@ -939,38 +961,61 @@
 			vc.init($("#game-countdown"));
 			
 			vc.onIntroComplete = function() {
-				context.presentNextViewController();
+				context.goToNextScreen();
 			}
 
 			vc.intro();
 		}
-
-		this.presentNextViewController = function() {
-			//if (this._currentStep == (this._viewControllers.length - 1)) { return; }
+		
+		this.addRecipe = function() {
+			var context = this;
+			var viewModel = this._viewModel.recipeData();
 			
-			var prevVc = this._viewControllers[this._currentStep];  
+			var vc = new RecipeViewController();
+			vc.init(viewModel, this._presenter);
 			
-			if (prevVc && prevVc instanceof ContactViewController && prevVc._hasSubmittedData === false) {
-				
-				prevVc.submit();
-				return;
-			}
-						
-			this._currentStep ++;
-			
-			console.log("current step", this._currentStep)
-			
-			var vc = this._viewControllers[this._currentStep];
-			
-			if (vc instanceof ChooseSandwichViewController) {
-				vc.update(this._game.sandwiches);
-			}
-			
-			this.navigateToStep(vc, prevVc);
+			this._viewControllers.push(vc);
 
 		}
-		
+
+		this.presentNextViewController = function() {
+			var vc = this._viewControllers[this._currentStep];
+			var model = vc._model;
+			var action = model.next.action;
+			
+			if (action === "nav") {
+				this.goToNextScreen();
+			} else if (action === "link") {
+				var link = this._game.sandwich.recipe.link;
+				window.open(link, '_blank');
+			} else if (action === "play_again") {
+				//play again
+				var context = this;
+				
+				vc.exit(function() {
+					context.reset();
+					context.intro();
+				});
+				
+			} else if (action === "submit_form") {
+				vc.submit.submit();
+			}
+		}
+	
 		this.presentPrevViewController = function() {
+			var vc = this._viewControllers[this._currentStep];
+			var model = vc._model;
+			var action = model.back.action;
+			
+			if (action === "nav") {
+				this.goToPrevScreen();
+			} else if (action === "link") {
+				var link = this._game.sandwich.recipe.link;
+				window.open(link, '_blank');
+			}
+		}
+
+		this.goToPrevScreen = function() {
 			if (this._currentStep == 0) { 
 				this.exit();
 				return; 
@@ -985,8 +1030,27 @@
 			this.navigateToStep(vc, prevVc);
 		}
 		
+		this.goToNextScreen = function() {
+			var prevVc = this._viewControllers[this._currentStep];  
+			
+			if (prevVc instanceof CouponViewController || prevVc instanceof ContactViewController) {
+				this.addRecipe();
+			}
+			
+			if (this._currentStep == (this._viewControllers.length - 1)) { return; }
+									
+			this._currentStep ++;
+						
+			var vc = this._viewControllers[this._currentStep];
+			
+			if (vc instanceof ChooseSandwichViewController) {
+				vc.update(this._game.sandwiches);
+			}
+			
+			this.navigateToStep(vc, prevVc);
+		}
+		
 		this.navigateToStep = function(currentVc, prevVc) {
-			console.log("current", currentVc);
 			var step = currentVc._model;
 			var headerImage = (currentVc instanceof GameViewController && this._game.sandwich !== null) ? this._game.sandwich.thumbnail : null;
 
@@ -996,8 +1060,8 @@
 			}
 			
 			var footerModel = {
-				backTitle: step["back-title"],
-				nextTitle: step["next-title"]
+				back: step.back,
+				next: step.next
 			}
 			
 			this.shouldNavigateToStep(headerModel, footerModel);
@@ -1014,20 +1078,30 @@
 		
 		
 		this.reset = function() {
+			var context = this;
 			
+			this._game = new Game();
+			
+			var viewControllers = this._viewControllers;
+			
+			viewControllers.forEach(function(vc) {
+				vc.reset();
+				
+				if (vc instanceof CouponViewController || vc instanceof ContactViewController || vc instanceof RecipeViewController) {
+					vc.dealloc();
+				}
+			});
+			
+			this._viewControllers = this._viewControllers.filter(vc => !(vc instanceof CouponViewController || vc instanceof ContactViewController || vc instanceof RecipeViewController));
+			
+			console.log(this._viewControllers);
+			
+			this._currentStep = 0;
 		}
 		
 		this.setup = function() {
 			var context = this;			
 			var container = this._presenter;
-			
-			
-			this.presentCoupon()
-			
-			this.presentContactForm();
-			
-
-			return;
 			
 			this._viewModel.steps().forEach(function(step) {
 				switch(step.id) {
@@ -1038,7 +1112,7 @@
 						
 						vc.didSelectLevel = function(levelId) {
 							context.selectLevel(levelId);
-							context.presentNextViewController();
+							context.goToNextScreen();
 						}
 						
 						context._viewControllers.push(vc);
@@ -1064,7 +1138,9 @@
 						context._viewControllers.push(vc);
 					break
 				}
-			});			
+			});	
+			
+					
 		}
 		
 		this.loadCookies = function() {				
@@ -1127,6 +1203,21 @@
 		
 		this.didFinishGame;
 		
+		this.reset = function() {
+			this._game = null;
+			
+			if (this._timer !== null && this._timer !== undefined) {
+				clearInterval(this._timer);
+			}
+			
+			this._timer = null;
+			this._selectedIds = [];
+			
+			this._rows.forEach(function(row){
+				row.reset();
+			});
+		}
+		
 		this.start = function() {
 			var context = this;
 			var bottom = $("#bottom ul");
@@ -1170,22 +1261,14 @@
 			
 			this.start();
 		}
-		
-		this.reset = function() {
-			this._game = null;
-			if (this._timer !== null && this._timer !== undefined) {
-				clearInterval(this._timer);
-			}
-			this._timer = null;
-			this._selectedIds = [];
-		}
-		
+
 		this.finishGame = function() {
 			clearInterval(this._timer);
 			this._timer = null;
 			
 			var componentsMatch = this._selectedIds.every(id => id === this._selectedIds[0]);
 			
+			console.log(componentsMatch, this._selectedIds, this._game.sandwich.id === this._selectedIds[0]);
 			if (componentsMatch && this._game.sandwich.id === this._selectedIds[0]) {
 				this.didFinishGame(true);
 			} else {
@@ -1735,7 +1818,42 @@
 	
 	window.PreloadViewController = PreloadViewController;
 }(window));
-
+(function(window){
+	RecipeViewController.prototype = new BaseViewController();
+	RecipeViewController.prototype.constructor = RecipeViewController;
+	
+	function RecipeViewController(){
+		this._view;
+		this._container;
+		this._model;
+		
+		this.setup = function() {
+			var pageId = this._model['page-id'];			
+			this._container.append(this._model.template);	
+			this._view = $("#" + pageId);	
+		}
+			
+		this.init = function(model, container) {
+			this._model = model;
+			this._container = container;
+			this.setup();
+		}
+		
+		this.intro = function(completion) {
+			TweenMax.to(this._view, 0.25, {autoAlpha: 1});
+		}
+		
+		this.exit = function(completion) {
+			var context = this;
+			TweenMax.to(this._view, 0.25, {autoAlpha: 0, onComplete: function() {
+				if (completion) { completion(); }
+			}});
+		}
+	}
+	
+	
+	window.RecipeViewController = RecipeViewController;
+}(window));
 /*GENERIC  VIEW CONTROLLER*/
 (function(window){
 	WinnerModalViewController.prototype = new BaseViewController();
@@ -1769,8 +1887,10 @@
 		}
 		
 		this.intro = function(completion) {
-			this._container.css({"display": "block"})
-			TweenMax.to(this._container, 0.25, {alpha: 1});
+			console.log("winner in ", this._container);
+			TweenMax.to(this._container, 0.25, {autoAlpha: 1, onComplete: function(){
+				console.log("intro complete");
+			}});
 		}
 		
 		this.exit = function(completion) {

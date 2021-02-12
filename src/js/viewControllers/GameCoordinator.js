@@ -36,8 +36,18 @@
 			this.presentCountdown();
 		}
 		
+		this.saveCookieForLevel = function() {
+			var level = this._game.level;
+			level.completed = true;
+			
+			var name = level.id + "_completed"
+			
+			$.cookie.set(name, true);
+		}
+		
 		this.endGamePlay = function(success) {
 			if (success) {
+				this.saveCookieForLevel();
 				this.presentSuccessMessage();
 			} else {
 				this.presentFailureMessage();
@@ -58,6 +68,8 @@
 					context.presentContactForm();
 				}
 				
+				context.goToNextScreen();
+				
 				vc.exit();
 			}
 			
@@ -65,6 +77,7 @@
 		}
 		
 		this.presentFailureMessage = function() {
+			console.log("this.presentFailureMessage()");
 			this.presentSuccessMessage();
 		}
 
@@ -75,8 +88,6 @@
 			vc.init(viewModel, this._presenter);
 			
 			this._viewControllers.push(vc);
-			
-			//this.presentNextViewController();
 		}
 		
 		this.presentContactForm = function() {
@@ -88,12 +99,11 @@
 			vc.init(viewModel, this._presenter);
 			
 			vc.didSubmitForm = function() {
-				context.presentNextViewController();
+				context.presentRecipe();
+				context.goToNextScreen();
 			}
 			
 			this._viewControllers.push(vc);
-			
-			//this.presentNextViewController();
 		}
 
 		this.presentCountdown = function() {
@@ -102,38 +112,61 @@
 			vc.init($("#game-countdown"));
 			
 			vc.onIntroComplete = function() {
-				context.presentNextViewController();
+				context.goToNextScreen();
 			}
 
 			vc.intro();
 		}
-
-		this.presentNextViewController = function() {
-			//if (this._currentStep == (this._viewControllers.length - 1)) { return; }
+		
+		this.addRecipe = function() {
+			var context = this;
+			var viewModel = this._viewModel.recipeData();
 			
-			var prevVc = this._viewControllers[this._currentStep];  
+			var vc = new RecipeViewController();
+			vc.init(viewModel, this._presenter);
 			
-			if (prevVc && prevVc instanceof ContactViewController && prevVc._hasSubmittedData === false) {
-				
-				prevVc.submit();
-				return;
-			}
-						
-			this._currentStep ++;
-			
-			console.log("current step", this._currentStep)
-			
-			var vc = this._viewControllers[this._currentStep];
-			
-			if (vc instanceof ChooseSandwichViewController) {
-				vc.update(this._game.sandwiches);
-			}
-			
-			this.navigateToStep(vc, prevVc);
+			this._viewControllers.push(vc);
 
 		}
-		
+
+		this.presentNextViewController = function() {
+			var vc = this._viewControllers[this._currentStep];
+			var model = vc._model;
+			var action = model.next.action;
+			
+			if (action === "nav") {
+				this.goToNextScreen();
+			} else if (action === "link") {
+				var link = this._game.sandwich.recipe.link;
+				window.open(link, '_blank');
+			} else if (action === "play_again") {
+				//play again
+				var context = this;
+				
+				vc.exit(function() {
+					context.reset();
+					context.intro();
+				});
+				
+			} else if (action === "submit_form") {
+				vc.submit.submit();
+			}
+		}
+	
 		this.presentPrevViewController = function() {
+			var vc = this._viewControllers[this._currentStep];
+			var model = vc._model;
+			var action = model.back.action;
+			
+			if (action === "nav") {
+				this.goToPrevScreen();
+			} else if (action === "link") {
+				var link = this._game.sandwich.recipe.link;
+				window.open(link, '_blank');
+			}
+		}
+
+		this.goToPrevScreen = function() {
 			if (this._currentStep == 0) { 
 				this.exit();
 				return; 
@@ -148,8 +181,27 @@
 			this.navigateToStep(vc, prevVc);
 		}
 		
+		this.goToNextScreen = function() {
+			var prevVc = this._viewControllers[this._currentStep];  
+			
+			if (prevVc instanceof CouponViewController || prevVc instanceof ContactViewController) {
+				this.addRecipe();
+			}
+			
+			if (this._currentStep == (this._viewControllers.length - 1)) { return; }
+									
+			this._currentStep ++;
+						
+			var vc = this._viewControllers[this._currentStep];
+			
+			if (vc instanceof ChooseSandwichViewController) {
+				vc.update(this._game.sandwiches);
+			}
+			
+			this.navigateToStep(vc, prevVc);
+		}
+		
 		this.navigateToStep = function(currentVc, prevVc) {
-			console.log("current", currentVc);
 			var step = currentVc._model;
 			var headerImage = (currentVc instanceof GameViewController && this._game.sandwich !== null) ? this._game.sandwich.thumbnail : null;
 
@@ -159,8 +211,8 @@
 			}
 			
 			var footerModel = {
-				backTitle: step["back-title"],
-				nextTitle: step["next-title"]
+				back: step.back,
+				next: step.next
 			}
 			
 			this.shouldNavigateToStep(headerModel, footerModel);
@@ -177,20 +229,30 @@
 		
 		
 		this.reset = function() {
+			var context = this;
 			
+			this._game = new Game();
+			
+			var viewControllers = this._viewControllers;
+			
+			viewControllers.forEach(function(vc) {
+				vc.reset();
+				
+				if (vc instanceof CouponViewController || vc instanceof ContactViewController || vc instanceof RecipeViewController) {
+					vc.dealloc();
+				}
+			});
+			
+			this._viewControllers = this._viewControllers.filter(vc => !(vc instanceof CouponViewController || vc instanceof ContactViewController || vc instanceof RecipeViewController));
+			
+			console.log(this._viewControllers);
+			
+			this._currentStep = 0;
 		}
 		
 		this.setup = function() {
 			var context = this;			
 			var container = this._presenter;
-			
-			
-			this.presentCoupon()
-			
-			this.presentContactForm();
-			
-
-			return;
 			
 			this._viewModel.steps().forEach(function(step) {
 				switch(step.id) {
@@ -201,7 +263,7 @@
 						
 						vc.didSelectLevel = function(levelId) {
 							context.selectLevel(levelId);
-							context.presentNextViewController();
+							context.goToNextScreen();
 						}
 						
 						context._viewControllers.push(vc);
@@ -227,7 +289,9 @@
 						context._viewControllers.push(vc);
 					break
 				}
-			});			
+			});	
+			
+					
 		}
 		
 		this.loadCookies = function() {				
