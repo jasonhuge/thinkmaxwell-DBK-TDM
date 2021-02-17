@@ -57,7 +57,7 @@
 			}));
 			
 			$(this._view.find(".level-button").each(function() {
-				timeline.to(this, 0.5, {right: "25px", alpha: 1}, "-=0.60");
+				timeline.to(this, 0.5, {right: "25px", alpha: 1}, "-=0.40");
 			}));
 
 			timeline.play();

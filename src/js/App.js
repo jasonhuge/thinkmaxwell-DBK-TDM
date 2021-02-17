@@ -77,7 +77,6 @@
 			}
 			
 			this._gameCoordinator.shouldNavigateToStep = function(headerData, footerData) {
-				console.log("should navigate", headerData, footerData)
 				context._header.update(headerData);
 				context._footer.update(footerData);
 			}

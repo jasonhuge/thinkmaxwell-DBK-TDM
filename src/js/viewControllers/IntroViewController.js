@@ -12,8 +12,8 @@
 		
 		this.setup = function() {
 			var context = this;
-			var pageId = this._model['page-id'];			
-			console.log(this._model);
+			var pageId = this._model['page-id'];	
+					
 			this._container.append(this._model.template);
 			
 			this._view = $("#" + pageId);
@@ -24,7 +24,7 @@
 			var logo =  $(this._view.find("#intro-logo"));
 			var termsButton = $(this._view.find("#terms-button"));
 			var playButton =  $(this._view.find("#intro-play-button"));
-			console.log(playButton);
+
 			[hero, logo, playButton, termsButton].forEach(function(view) {
 				TweenMax.to(view, 0, {scale: 0});
 			});
@@ -40,7 +40,7 @@
 		
 		this.intro = function(completion) {
 			if (this._hasIntialIntro) {
-				console.log("show it");
+
 				TweenMax.to(this._view, 0.5, {autoAlpha: 1, onComplete: function() {
 					if (completion) { completion(); }
 				}});
@@ -51,7 +51,8 @@
 				var logo =  $(this._view.find("#intro-logo"));
 				var playButton =  $(this._view.find("#intro-play-button"));
 				var termsButton = $(this._view.find("#terms-button"));
-				
+				var heroSando = $(this._view.find("#hero-sando"));
+								
 				var timeline = new TimelineMax();
 				
 				timeline.to(this._view, 0, {autoAlpha: 1});
@@ -59,9 +60,9 @@
 				timeline.to(hero, 0.5, {scale: 1, ease:Back.easeOut});
 				timeline.to(logo, 0.25, {scale: 1, ease:Back.easeOut}, "-=0.10");
 				timeline.to(playButton, 0.25, {scale: 1, ease:Back.easeOut},  "-=0.20");
+				timeline.to(heroSando, 0.25, {right: 0, opacity: 1, ease:Sine.easeOut}, "-=0.20")
 				timeline.to(termsButton, 0.25, {scale: 1, ease:Back.easeOut, onComplete: function() {
 					context._hasIntialIntro = true;
-					console.log("played");
 					if (completion) { completion(); }
 				}},  "-=0.20");
 				
@@ -112,9 +113,11 @@
 		this.exit = function() {
 			var context = this;
 			
-			TweenMax.to(this._presenter, 0.5, {autoAlpha: 0, onComplete: function() {
-				context.exitComplete();
-			}});
+			this._vc.exit(function() {
+				TweenMax.to(context._presenter, 0, {autoAlpha: 0, onComplete: function() {
+					context.exitComplete();
+				}});
+			});
 		}
 	}
 

@@ -1,12 +1,8 @@
 {
-	"fpsLimit": 60,
+	"fpsLimit": 30,
 	"particles": {
-		"color": {
-			"value": "#ffffff"
-		},
-		
 		"collisions": {
-			"enable": true
+			"enable": false
 		},
 		"move": {
 			"direction": "bottom",
@@ -19,19 +15,47 @@
 		"number": {
 			"density": {
 				"enable": true,
-				"value_area": 800
+				"value_area": 100
 			},
-			"value": 160
+			"value": 20
 		},
 		"opacity": {
-			"value": 0.5
+			"value": 1
 		},
+		"rotate": {
+	      "animation": {
+	        "enable": true,
+	        "speed": 1,
+	        "sync": false
+	      },
+	      "direction": "clockwise",
+	      "random": true,
+	      "value": 90
+	    },
 		"shape": {
-			"type": "circle"
+			"type": "images",
+			"images": [{
+				"height": 120,
+				"replaceColor": true,
+				"src": "img/content/bread.png",
+				"width": 75
+      		},
+      		{
+				"height": 120,
+				"replaceColor": true,
+				"src": "img/content/bread-red.png",
+				"width": 75
+      		},
+      		{
+				"height": 120,
+				"replaceColor": true,
+				"src": "img/content/bread-yellow.png",
+				"width": 75
+      		}]
 		},
 		"size": {
 			"random": true,
-			"value": 5
+			"value": 30
 		}
 	},
 	"detectRetina": true

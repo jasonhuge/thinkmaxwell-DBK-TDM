@@ -46,15 +46,17 @@
 			
 			this._game = game;
 			var speed = this._game.level.speed;
+			var tolerance = this._game.level.tolerance;
 			var sandwiches = this._game.sandwiches;
 			
 			this._rows.forEach(function(row){
+				var animationSpeed = speed + Math.random() * ((tolerance - 0.01) + tolerance) ;
 				switch(row._id) {
 					case "top":
 					var items = sandwiches.map(function(a){
 						return {"image": a.top, "id": a.id, "type": "sando"}
 					});
-					row.update(items, "left", speed);
+					row.update(items, "left", animationSpeed);
 					break;
 					case "middle":
 					var items = sandwiches.map(function(a){
@@ -66,7 +68,7 @@
 					var items = sandwiches.map(function(a){
 						return {"image": a.bottom, "id": a.id, "type": "sando"}
 					});
-					row.update(items, "left", speed);
+					row.update(items, "left", animationSpeed);
 					break;
 				}
 			});
@@ -80,7 +82,6 @@
 			
 			var componentsMatch = this._selectedIds.every(id => id === this._selectedIds[0]);
 			
-			console.log(componentsMatch, this._selectedIds, this._game.sandwich.id === this._selectedIds[0]);
 			if (componentsMatch && this._game.sandwich.id === this._selectedIds[0]) {
 				this.didFinishGame(true);
 			} else {
@@ -228,7 +229,6 @@
 			
 			var left = -item.position().left;
 			
-			console.log("tween did start");
 			TweenMax.to(slider, 0.25, {css:{left:left}, ease:Sine.easeIn, onComplete: function() {
 				context.didSelectItemListener(item.data("id"));
 			}});

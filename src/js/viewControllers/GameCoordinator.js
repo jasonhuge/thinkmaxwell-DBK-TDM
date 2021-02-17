@@ -46,22 +46,13 @@
 		}
 		
 		this.endGamePlay = function(success) {
-			if (success) {
-				this.saveCookieForLevel();
-				this.presentSuccessMessage();
-			} else {
-				this.presentFailureMessage();
-			}
-		}
-			
-		this.presentSuccessMessage = function() {
 			var modal = $(".modal");
 			var context = this;
 
-			var vc = new WinnerModalViewController();
-			vc.init(modal);
+			var vc = new CompletionViewController();
+			vc.init(modal, success);
 			
-			vc.selectNextListener = function() {
+			vc.didSelectNextStep = function() {
 				if (context._game.level.id === 1) {
 					context.presentCoupon();
 				} else {
@@ -73,14 +64,18 @@
 				vc.exit();
 			}
 			
+			vc.didSelectStartOver = function() {
+				context.startOver();
+			}
+			
+			vc.didSelectTryAgain = function() {
+				context.beginGamePlay();
+				context.presentCountdown();
+			}
+			
 			vc.intro();
 		}
 		
-		this.presentFailureMessage = function() {
-			console.log("this.presentFailureMessage()");
-			this.presentSuccessMessage();
-		}
-
 		this.presentCoupon = function() {
 			var viewModel = this._viewModel.couponData();
 			
@@ -123,10 +118,22 @@
 			var viewModel = this._viewModel.recipeData();
 			
 			var vc = new RecipeViewController();
+			vc.update(this._game.sandwich);
 			vc.init(viewModel, this._presenter);
 			
 			this._viewControllers.push(vc);
 
+		}
+		
+		this.startOver = function() {
+			var vc = this._viewControllers[this._currentStep];
+			
+			var context = this;
+				
+			vc.exit(function() {
+				context.reset();
+				context.intro();
+			});
 		}
 
 		this.presentNextViewController = function() {
@@ -141,13 +148,7 @@
 				window.open(link, '_blank');
 			} else if (action === "play_again") {
 				//play again
-				var context = this;
-				
-				vc.exit(function() {
-					context.reset();
-					context.intro();
-				});
-				
+				this.startOver();
 			} else if (action === "submit_form") {
 				vc.submit.submit();
 			}
@@ -222,7 +223,6 @@
 					currentVc.intro();
 				});
 			} else {
-				console.log("intro it", currentVc);
 				currentVc.intro();
 			}
 		}
@@ -253,6 +253,17 @@
 		this.setup = function() {
 			var context = this;			
 			var container = this._presenter;
+			
+			/*var context = this;
+			var viewModel = this._viewModel.recipeData();
+			
+			console.log(this._viewModel.sandwiches[0]);
+			var vc = new RecipeViewController();
+			vc.update(this._viewModel.sandwiches()[0]);
+			vc.init(viewModel, this._presenter);
+			
+			this._viewControllers.push(vc);*/
+
 			
 			this._viewModel.steps().forEach(function(step) {
 				switch(step.id) {
@@ -289,9 +300,7 @@
 						context._viewControllers.push(vc);
 					break
 				}
-			});	
-			
-					
+			});			
 		}
 		
 		this.loadCookies = function() {				
@@ -324,9 +333,13 @@
 			
 			this.exitBegan();
 			
-			TweenMax.to(this._presenter, 0.5, {autoAlpha: 0, onComplete: function() {
-				context.exitComplete();
-			}});
+			var vc = this._viewControllers[this._currentStep];
+			
+			vc.exit(function(){
+				TweenMax.to(context._presenter, 0, {autoAlpha: 0, onComplete: function() {
+					context.exitComplete();
+				}});
+			});
 		}	
 		
 				

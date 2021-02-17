@@ -17,6 +17,10 @@
 			
 			if (back) {
 				$(this._backButton.find("h4")).text(back.title);
+				var arrowDisplay = (back.arrow) ? "inline-block" : "none";
+				
+				$(this._backButton.find("img")).css({"display": arrowDisplay});
+				
 				TweenMax.to(this._backButton, 0.25, {autoAlpha: 1});
 			} else {
 				TweenMax.to(this._backButton, 0.25, {autoAlpha: 0});
@@ -24,7 +28,10 @@
 			 
 			if (next) {
 			 	$(this._nextButton.find("h4")).text(next.title);
-			 	TweenMax.to(this._nextButton, 0.25, {autoAlpha: 1});
+			 	var arrowDisplay = (next.arrow) ? "inline-block" : "none";
+				
+				$(this._nextButton.find("img")).css({"display": arrowDisplay});			 	
+				TweenMax.to(this._nextButton, 0.25, {autoAlpha: 1});
 			} else {
 			 	TweenMax.to(this._nextButton, 0.25, {autoAlpha: 0});
 			}
