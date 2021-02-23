@@ -44,13 +44,13 @@
 		
 		this.intro = function(animated) {
 			var duration = (animated === true) ? 0.25 : 0;			
-			TweenMax.to(this._view, duration, {css:{opacity:1, top: this._top, hidden: false}, ease:Sine.easeIn});
+			TweenMax.to(this._view, duration, {css:{opacity:1, top: this._top}, ease:Sine.easeIn});
 		}
 		
 		this.exit = function(animated) {
 			var duration = (animated === true) ? 0.25 : 0;
 			var top = -(this._view.height() / 4);
-			TweenMax.to(this._view, duration, {css:{opacity:0, top: top, hidden: true}, ease:Sine.easeIn});
+			TweenMax.to(this._view, duration, {css:{opacity:0, top: top}, ease:Sine.easeIn});
 		}
 		
 		this.baseSetup = function(target) {

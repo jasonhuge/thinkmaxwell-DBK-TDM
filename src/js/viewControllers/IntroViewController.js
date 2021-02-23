@@ -22,7 +22,7 @@
 			
 			var hero = $(this._view.find("#hero-image"));
 			var logo =  $(this._view.find("#intro-logo"));
-			var termsButton = $(this._view.find("#terms-button"));
+			var termsButton = $(this._view.find(".terms"));
 			var playButton =  $(this._view.find("#intro-play-button"));
 
 			[hero, logo, playButton, termsButton].forEach(function(view) {
@@ -50,7 +50,7 @@
 				var hero = $(this._view.find("#hero-image"));
 				var logo =  $(this._view.find("#intro-logo"));
 				var playButton =  $(this._view.find("#intro-play-button"));
-				var termsButton = $(this._view.find("#terms-button"));
+				var termsButton = $(this._view.find(".terms"));
 				var heroSando = $(this._view.find("#hero-sando"));
 								
 				var timeline = new TimelineMax();
@@ -100,6 +100,10 @@
 			this._vc._playButton.on("click", function() {
 				context.exit();
 			});
+			
+			$("#terms-button").on("click", function() {
+				TweenMax.to($(".terms-conditions"), 0.25, {autoAlpha: 1});
+			});
 		}
 		
 		this.intro = function() {
@@ -119,6 +123,11 @@
 				}});
 			});
 		}
+		
+		this.onOrientationChange= function(e){	
+			
+		}
+
 	}
 
 	window.IntroCoordinator = IntroCoordinator;

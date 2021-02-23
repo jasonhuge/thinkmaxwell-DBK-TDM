@@ -17,24 +17,11 @@
 		
 		this.onImageLoadProgress = function(e){	
 			
-			console.log("progress", e.loaded * 100);
 			var percentage = Math.round(e.loaded * 100);
 			
-			var loader = $(this._view.find(".preloader-sprite"));
+			var loader = $(this._view.find(".preloader-text"));
 			
 			loader.html("loading " + percentage + "%");
-			/*var percentage = Math.round(e.loaded * 100);
-			
-			var clipHeight = 282 - ( 282 * ( percentage / 100 ));
-			
-			var loaderBar = $(this._view.find(".loader-bar"));
-			var loaderPercentage = $(this._view.find(".loader-percentage"));
-			var loaderTitle = loaderPercentage.attr("data-title");
-					
-			loaderBar.css( {clip: "rect(" + clipHeight +"px 282px " + 0 + "282px 0)"});
-			
-			loaderPercentage.html(loaderTitle + " " + percentage + "%");*/
-			
 		}
 		
 		this.onExitComplete = function(){
@@ -47,21 +34,49 @@
 			this._view = target;
 		},
 		intro: function(completion) {
+			
 			var context = this;
-		
-			completion();
+			
+			var content = $(this._view.find(".preloader-content"));
+			var sprite = $(this._view.find(".preloader-sprite"));
+			var text = $(this._view.find(".preloader-text"));
+			
+			var timeline = new TimelineMax();
+			
+			timeline.to(sprite, 0, {scale: 0});
+			timeline.to(text, 0, {alpha: 0});
+			timeline.to(content, 0, {autoAlpha: 1});
+			
+			timeline.to(sprite, 0.25, {scale: 1, ease:Back.easeOut});
+			timeline.to(text, 0.25, {alpha: 1, delay: 0.25, ease:Sine.easeIn, onComplete: function() {
+				
+				completion();
+			}});
+			
+			timeline.play();
+			
 		},
 		exit: function(completion) {
 			var context = this;
-					
-			TweenMax.to(this._view, 0.25, {alpha: 0, delay:0, onComplete:function(){ 
+			
+			var content = $(this._view.find(".preloader-content"));
+			var sprite = $(this._view.find(".preloader-sprite"));
+			var text = $(this._view.find(".preloader-text"));
+			
+			var timeline = new TimelineMax();
+			
+			timeline.to(text, 0.25, {alpha: 1});
+			timeline.to(sprite, 0.25, {scale: 0, ease:Back.easeIn});
+			timeline.to(this._view, 0.25, {alpha: 0, delay: 0.10, ease:Sine.easeIn, onComplete: function() {
 				context.onExitComplete();
 				completion();
 			}});
+			
+			timeline.play();
 		},
 		loadContent: function(additionalImages, completion) {
 			var context = this;
-			
+
 			var images = $("body").find("img");
 			var imageArray = [];
 			var i;

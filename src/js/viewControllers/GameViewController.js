@@ -9,20 +9,15 @@
 		this._deviceType;
 		this._model;
 		this._game;
-		this._timer;
 		this._rows = [];
 		this._selectedIds = [];
+		this._shouldAnimate = false;
 		
 		this.didFinishGame;
 		
 		this.reset = function() {
 			this._game = null;
 			
-			if (this._timer !== null && this._timer !== undefined) {
-				clearInterval(this._timer);
-			}
-			
-			this._timer = null;
 			this._selectedIds = [];
 			
 			this._rows.forEach(function(row){
@@ -32,13 +27,21 @@
 		
 		this.start = function() {
 			var context = this;
-			var bottom = $("#bottom ul");
+			this._shouldAnimate = true;
 			
-			this._timer = setInterval(function() {
+			window.requestAnimationFrame(animate);
+			
+			function animate() {
 				context._rows.forEach(function(row){
 					row.animate();
+				
 				});
-			},1/100);
+				
+				if (context._shouldAnimate) {
+					window.requestAnimationFrame(animate);
+				}
+
+			}
 		}
 				
 		this.update = function(game) {
@@ -77,8 +80,7 @@
 		}
 
 		this.finishGame = function() {
-			clearInterval(this._timer);
-			this._timer = null;
+			this._shouldAnimate = false;
 			
 			var componentsMatch = this._selectedIds.every(id => id === this._selectedIds[0]);
 			
@@ -141,6 +143,12 @@
 				if (completion) { completion(); }
 			}});
 		}
+		
+		this.onOrientationChange = function(e){	
+			this._rows.forEach(function(row){
+				row.onOrientationChange(e);
+			});
+		}
 	}
 	
 	
@@ -171,7 +179,7 @@
 			items.forEach(function(item) {
 				switch(item.type) {
 					case "sando":
-					slider.append('<li style="width: '+context._itemWidth+'px;" class="tile" data-id="'+item.id+'"><img src="'+item.image+'"/></li><!-- -->');
+					slider.append('<li class="tile" data-id="'+item.id+'"><img src="'+item.image+'"/></li><!-- -->');
 					break;
 					case "text":
 					break;
@@ -181,12 +189,27 @@
 			});
 						
 			this._direction = direction;
+			this._items = items;
 			this._speed = speed;
-			this._contentWidth = this._itemWidth * items.length;
+			
+			this.updateLayout();
+			
+		}
+		
+		this.updateLayout = function() {
+			var context = this;
+			var slider = $(this._view.find("ul"));
+			
+			this._itemWidth = this._view.width();
+			this._contentWidth = this._itemWidth * this._items.length;
 			
 			slider.css({"width": this._contentWidth});
 			
-			if (direction === "right") {
+			slider.find("li").each(function() {
+				$(this).css({"width": context._itemWidth });
+			})
+			
+			if (this._direction === "right") {
 				slider.css({"left": -(this._contentWidth - this._itemWidth)});
 			}
 		}
@@ -236,7 +259,7 @@
 		
 		this.animate = function() {
 			if (this._hasTappedOnItem) {
-				this._speed -= 0.00245;
+				this._speed -= 0.0345;
 				if (this._speed <= 0.25) { 
 					this.animateToSelectedItem();
 					return;
@@ -286,7 +309,7 @@
 					slider.prepend(item);
 					slider.css({"left": -(maxX)});
 				}
-			})
+			});
 		}
 		
 		this.setup = function() {
@@ -297,18 +320,21 @@
 			
 			this._view = $("#" + this._id);
 			
-			this._itemWidth = this._view.width();
 			
-			$(this._view.find("ul")).on("click", function(){
+						
+			$(this._view.find("ul")).on("mouseup touchend", function(){
 				context.onItemClicked();
 			});
-
 		}
 		
 		this.init = function(container, rowId) {
 			this._container = container;
 			this._id = rowId;
 			this.setup();
+		}
+		
+		this.onOrientationChange = function(e){	
+			this.updateLayout();
 		}
 	}
 	window.GameRow = GameRow;

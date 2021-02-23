@@ -49,20 +49,19 @@
 			});
 			
 			this._nextButton.on("click", function() {
-				console.log("did select next");
 				context.didSelectNextButton();
 			});
 		}
 		
 		this.intro = function(animated) {
 			var duration = (animated === true) ? 0.25 : 0;			
-			TweenMax.to(this._view, duration, {css:{opacity:1, bottom: 0, hidden: false}, ease:Sine.easeIn});
+			TweenMax.to(this._view, duration, {css:{opacity:1, bottom: 0}, ease:Sine.easeIn});
 		}
 		
 		this.exit = function(animated) {
 			var duration = (animated === true) ? 0.25 : 0;
 			var bottom = -(this._view.height() / 4);
-			TweenMax.to(this._view, duration, {css:{opacity:0, bottom: bottom, hidden: true}, ease:Sine.easeIn});
+			TweenMax.to(this._view, duration, {css:{opacity:0, bottom: bottom}, ease:Sine.easeIn});
 		}	
 			
 		this.baseSetup = function(target, nextListener, backListener) {

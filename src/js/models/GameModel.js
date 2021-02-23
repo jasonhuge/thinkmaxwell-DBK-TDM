@@ -44,7 +44,6 @@
 		
 		this.sandwichesForLevel = function(id) {
 			var level = this.levelForId(id);	
-			console.log(level, id);		
 			var context = this;
 			var sandwichIds = level.sandwich_ids;
 			
@@ -70,6 +69,11 @@
 				images.push(sandwich.top);
 				images.push(sandwich.middle);
 				images.push(sandwich.bottom);
+				
+				var recipe = sandwich.recipe;
+				
+				images.push(recipe.hero);
+				images.push(recipe.detail);
 			});
 			
 			return images;

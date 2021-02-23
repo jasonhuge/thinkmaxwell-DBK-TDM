@@ -16,6 +16,7 @@
 	$state = $_POST['state'];
 	$zipcode = $_POST['zipcode'];
 	$phone = $_POST['phone'];
+	$shouldSubscribe = $_POST["should_subscribe"];
 	
 	if (!isset($listId)) {
 		$client->returnError(404, ['title'=>'list id required', 'status'=>404]);
@@ -43,6 +44,6 @@
 	$address->state = $state;
 	$address->zip = $zipcode;
 	
-	echo json_encode($client->addSubscriber($listId, $email, $first_name, $last_name, $phone, $address));
+	echo json_encode($client->addSubscriber($listId, $email, $first_name, $last_name, $phone, $address, $shouldSubscribe));
 	
 ?>

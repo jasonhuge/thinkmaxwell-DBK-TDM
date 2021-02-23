@@ -37,7 +37,6 @@
 				$("#particles")
 				.particles()
 				.ajax("data/particles.json", function (container) {
-					console.log("CONTAINER", container);
 					context._particles = container;
 		  		});
 			} else {
@@ -63,7 +62,7 @@
 			var timeline = new TimelineMax();
 			
 			timeline.to(content, 0.25, {scale: 1, ease:Back.easeOut});
-			timeline.to($("#particles"), 0.5, {alpha: 1, ease:Sine.easeOut, function() {
+			timeline.to($("#particles"), 0.5, {alpha: 1, ease:Sine.easeOut, onComplete: function() {
 				
 			}});
 			

@@ -50,7 +50,7 @@
 			var context = this;
 
 			var vc = new CompletionViewController();
-			vc.init(modal, success);
+			vc.init(modal, true);
 			
 			vc.didSelectNextStep = function() {
 				if (context._game.level.id === 1) {
@@ -113,13 +113,14 @@
 			vc.intro();
 		}
 		
-		this.addRecipe = function() {
+		this.presentRecipe = function() {
 			var context = this;
 			var viewModel = this._viewModel.recipeData();
 			
 			var vc = new RecipeViewController();
-			vc.update(this._game.sandwich);
 			vc.init(viewModel, this._presenter);
+			vc.update(this._game.sandwich);
+
 			
 			this._viewControllers.push(vc);
 
@@ -140,7 +141,7 @@
 			var vc = this._viewControllers[this._currentStep];
 			var model = vc._model;
 			var action = model.next.action;
-			
+
 			if (action === "nav") {
 				this.goToNextScreen();
 			} else if (action === "link") {
@@ -150,7 +151,7 @@
 				//play again
 				this.startOver();
 			} else if (action === "submit_form") {
-				vc.submit.submit();
+				vc.submit(this._game.level);
 			}
 		}
 	
@@ -186,7 +187,7 @@
 			var prevVc = this._viewControllers[this._currentStep];  
 			
 			if (prevVc instanceof CouponViewController || prevVc instanceof ContactViewController) {
-				this.addRecipe();
+				this.presentRecipe();
 			}
 			
 			if (this._currentStep == (this._viewControllers.length - 1)) { return; }
@@ -204,6 +205,7 @@
 		
 		this.navigateToStep = function(currentVc, prevVc) {
 			var step = currentVc._model;
+
 			var headerImage = (currentVc instanceof GameViewController && this._game.sandwich !== null) ? this._game.sandwich.thumbnail : null;
 
 			var headerModel = {
@@ -245,7 +247,6 @@
 			
 			this._viewControllers = this._viewControllers.filter(vc => !(vc instanceof CouponViewController || vc instanceof ContactViewController || vc instanceof RecipeViewController));
 			
-			console.log(this._viewControllers);
 			
 			this._currentStep = 0;
 		}
@@ -253,17 +254,6 @@
 		this.setup = function() {
 			var context = this;			
 			var container = this._presenter;
-			
-			/*var context = this;
-			var viewModel = this._viewModel.recipeData();
-			
-			console.log(this._viewModel.sandwiches[0]);
-			var vc = new RecipeViewController();
-			vc.update(this._viewModel.sandwiches()[0]);
-			vc.init(viewModel, this._presenter);
-			
-			this._viewControllers.push(vc);*/
-
 			
 			this._viewModel.steps().forEach(function(step) {
 				switch(step.id) {
@@ -323,7 +313,6 @@
 			var context = this;
 			
 			TweenMax.to(this._presenter, 0, {autoAlpha: 1, onComplete: function() {
-				console.log(context._viewControllers, context._currentStep);
 				context.navigateToStep(context._viewControllers[context._currentStep], null);
 			}});
 		}	
@@ -342,6 +331,11 @@
 			});
 		}	
 		
+		this.onOrientationChange = function(e){	
+			this._viewControllers.forEach(function(vc) {
+				vc.onOrientationChange(e);
+			})
+		}
 				
 		this.onWindowResize = function(e) {
 			

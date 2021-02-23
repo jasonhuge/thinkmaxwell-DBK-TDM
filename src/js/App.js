@@ -12,7 +12,6 @@
 		
 		this._introCoordinator;
 		this._gameCoordinator;
-		this._completionCoordinator;
 		
 		this.loadScripts = function(e){
 			var context = this;
@@ -57,8 +56,7 @@
 			this._footer.didSelectBackButton = function() {
 				context._gameCoordinator.presentPrevViewController();
 			}
-
-			
+		
 			this._introCoordinator = new IntroCoordinator();
 			this._introCoordinator.init(this._model.intro, $("#intro-container"));
 			
@@ -134,7 +132,16 @@
 		
 		this.onOrientationChange = function(e){	
     		var context = this;
+    		if (window.orientation === 90 || window.orientation === -90) {
+	    		$(".rotate-message").css({"display": "block"});
+    		} else {
+	    		$(".rotate-message").css({"display": "none"});
+    		}
     		
+    		if (this._introCoordinator && this._gameCoordinator) {
+	    		this._introCoordinator.onOrientationChange(orientation);
+				this._gameCoordinator.onOrientationChange(orientation);
+    		}
 		};
 				
 		this.onWindowResize = function(){
@@ -147,11 +154,17 @@
 			this._deviceType = deviceType;
 			
 			var context = this;
-	
+				
 			$(window).on("orientationchange", function(e){ context.onOrientationChange(e); });
 			$(window).on("resize", function(e){ context.onWindowResize(e); });
 																							
 			this.loadScripts();
+			
+			this.onOrientationChange();
+			
+			$(".terms-conditions .close-button").on("click", function() {
+				TweenMax.to($(".terms-conditions"), 0.25, {autoAlpha: 0});
+			});
 		}
 	};
 	

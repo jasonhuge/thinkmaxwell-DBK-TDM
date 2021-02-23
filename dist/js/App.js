@@ -12,7 +12,6 @@
 		
 		this._introCoordinator;
 		this._gameCoordinator;
-		this._completionCoordinator;
 		
 		this.loadScripts = function(e){
 			var context = this;
@@ -57,8 +56,7 @@
 			this._footer.didSelectBackButton = function() {
 				context._gameCoordinator.presentPrevViewController();
 			}
-
-			
+		
 			this._introCoordinator = new IntroCoordinator();
 			this._introCoordinator.init(this._model.intro, $("#intro-container"));
 			
@@ -134,7 +132,16 @@
 		
 		this.onOrientationChange = function(e){	
     		var context = this;
+    		if (window.orientation === 90 || window.orientation === -90) {
+	    		$(".rotate-message").css({"display": "block"});
+    		} else {
+	    		$(".rotate-message").css({"display": "none"});
+    		}
     		
+    		if (this._introCoordinator && this._gameCoordinator) {
+	    		this._introCoordinator.onOrientationChange(orientation);
+				this._gameCoordinator.onOrientationChange(orientation);
+    		}
 		};
 				
 		this.onWindowResize = function(){
@@ -147,11 +154,17 @@
 			this._deviceType = deviceType;
 			
 			var context = this;
-	
+				
 			$(window).on("orientationchange", function(e){ context.onOrientationChange(e); });
 			$(window).on("resize", function(e){ context.onWindowResize(e); });
 																							
 			this.loadScripts();
+			
+			this.onOrientationChange();
+			
+			$(".terms-conditions .close-button").on("click", function() {
+				TweenMax.to($(".terms-conditions"), 0.25, {autoAlpha: 0});
+			});
 		}
 	};
 	
@@ -11516,7 +11529,6 @@ const {
 		
 		this.sandwichesForLevel = function(id) {
 			var level = this.levelForId(id);	
-			console.log(level, id);		
 			var context = this;
 			var sandwichIds = level.sandwich_ids;
 			
@@ -11542,6 +11554,11 @@ const {
 				images.push(sandwich.top);
 				images.push(sandwich.middle);
 				images.push(sandwich.bottom);
+				
+				var recipe = sandwich.recipe;
+				
+				images.push(recipe.hero);
+				images.push(recipe.detail);
 			});
 			
 			return images;
@@ -11858,7 +11875,6 @@ const {
 				$("#particles")
 				.particles()
 				.ajax("data/particles.json", function (container) {
-					console.log("CONTAINER", container);
 					context._particles = container;
 		  		});
 			} else {
@@ -11884,7 +11900,7 @@ const {
 			var timeline = new TimelineMax();
 			
 			timeline.to(content, 0.25, {scale: 1, ease:Back.easeOut});
-			timeline.to($("#particles"), 0.5, {alpha: 1, ease:Sine.easeOut, function() {
+			timeline.to($("#particles"), 0.5, {alpha: 1, ease:Sine.easeOut, onComplete: function() {
 				
 			}});
 			
@@ -11933,10 +11949,12 @@ const {
 		this._view;
 		this._container;
 		this._model;
-		this.selectLevelListener;
+		this.didSubmitForm;
 		this._hasSubmittedData = false;
 		
 		this.reset = function() {
+			var form = $(this._view.find("form"));
+			
 			this._hasSubmittedData = false;
 			
 			$(form.find("input,select")).each(function() {
@@ -11957,6 +11975,8 @@ const {
 		this.vaildate = function(completion) {
 			var context = this;
 			var isReady = true;
+			var isValidEmail = true;
+			var isValidPhone = true;
 			var form = $(this._view.find("form"));
 			
 			$(form.find("input,select")).each(function() {
@@ -11966,24 +11986,39 @@ const {
 					}
 					isReady = false
 					$(this).addClass("error");
-					
 				} 
 				
-				if ($(this).attr("name") === "email") {
-					if (!context.validateEmail($(this).val())) {
-						isReady = false;
-						$(this).addClass("error");
+				if (isReady) {
+						if ($(this).attr("name") === "email") { 
+						if (!context.validateEmail($(this).val())) {
+							isValidEmail = false;
+							$(this).addClass("error");
+						}
 					}
-				}
-				
-				if ($(this).attr("name") === "phone") {
-					if (!context.validatePhoneNumber($(this).val())) {
-						isReady = false;
-						$(this).addClass("error");
+					
+					if ($(this).attr("name") === "phone") {
+						if (!context.validatePhoneNumber($(this).val())) {
+							isValidPhone = false;
+							$(this).addClass("error");
+						}
 					}
 				}
 			});
-		
+			
+			if (!isReady) {
+				alert("Please fill out all required fields");
+				completion(isReady);
+				return;
+			}
+			
+			if (!isValidEmail) {
+				alert("Please enter a valid email address");
+			} else if (!isValidPhone) {
+				alert("Please enter a valid phone number");
+			}
+			
+			isReady = isValidEmail = isValidPhone;
+			
 			completion(isReady);
 		}
 		
@@ -12012,32 +12047,66 @@ const {
 			this.setup();
 		}
 		
-		this.submit = function(level) {
+		this.showLoader = function(completion) {
+			var modal = $(".modal");
+			modal.html("<div id='contact-loading'><div class='lds-spinner'><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div></div>");
+			
+			TweenMax.to(modal, 0.25, {autoAlpha: 1, onComplete: function() {
+				completion();
+			}});
+		}
+		
+		this.submit = function(level) {			
 			var context = this;
+			
 			this.vaildate(function(success){
+				
 				if (success) {
-					var data = $(context._view.find("form")).serializeArray();
-					var url = "api/register/index.php";
-					
-					data.push({name: "id", value: "19f888674a"});
-	
-					$.ajax({
-						type: "POST",
-						url: url,
-						data: data,
-						success: function(data){
-							console.log(data);
-						},
-						error: function(error) {
-							console.log(error.responseText);
-						}
+					context.showLoader(function() {
+						var data = $(context._view.find("form")).serializeArray();
+						var url = "api/register/index.php";
+						
+						data.push({name: "id", value: level.list_id});
+						data.push({name:"should_subscribe", value: $("#newsletter").is(":checked") });
+						
+						$.ajax({
+							type: "POST",
+							url: url,
+							data: data,
+							success: function(data){
+								context.onSubmitSuccess();
+							},
+							error: function(error) {
+								console.log(error.responseText);
+								context.onSubmitFailire(error);
+							}
+						});
 					});
 				}
 			});
 		}
 		
+		this.onSubmitSuccess = function() {
+			var modal = $(".modal");
+			
+			TweenMax.to(modal, 0.25, {autoAlpha: 0, onComplete: function() {
+				modal.empty();
+			}});
+			
+			this.didSubmitForm();
+		}
+		
+		this.onSubmitFailire = function(error) {
+			var modal = $(".modal");
+			var errorData = JSON.parse(error.responseJSON);
+			
+			TweenMax.to(modal, 0.25, {autoAlpha: 0, onComplete: function() {
+				modal.empty();
+				alert(errorData.title + "\r\n\r\n" + errorData.detail);
+			}});
+		}
+		
 		this.intro = function(completion) {
-			console.log("contact intro", this._view);
 			TweenMax.to(this._view, 0.25, {autoAlpha: 1});
 		}
 		
@@ -12214,20 +12283,19 @@ const {
 			});
 			
 			this._nextButton.on("click", function() {
-				console.log("did select next");
 				context.didSelectNextButton();
 			});
 		}
 		
 		this.intro = function(animated) {
 			var duration = (animated === true) ? 0.25 : 0;			
-			TweenMax.to(this._view, duration, {css:{opacity:1, bottom: 0, hidden: false}, ease:Sine.easeIn});
+			TweenMax.to(this._view, duration, {css:{opacity:1, bottom: 0}, ease:Sine.easeIn});
 		}
 		
 		this.exit = function(animated) {
 			var duration = (animated === true) ? 0.25 : 0;
 			var bottom = -(this._view.height() / 4);
-			TweenMax.to(this._view, duration, {css:{opacity:0, bottom: bottom, hidden: true}, ease:Sine.easeIn});
+			TweenMax.to(this._view, duration, {css:{opacity:0, bottom: bottom}, ease:Sine.easeIn});
 		}	
 			
 		this.baseSetup = function(target, nextListener, backListener) {
@@ -12293,7 +12361,7 @@ const {
 			var context = this;
 
 			var vc = new CompletionViewController();
-			vc.init(modal, success);
+			vc.init(modal, true);
 			
 			vc.didSelectNextStep = function() {
 				if (context._game.level.id === 1) {
@@ -12356,13 +12424,14 @@ const {
 			vc.intro();
 		}
 		
-		this.addRecipe = function() {
+		this.presentRecipe = function() {
 			var context = this;
 			var viewModel = this._viewModel.recipeData();
 			
 			var vc = new RecipeViewController();
-			vc.update(this._game.sandwich);
 			vc.init(viewModel, this._presenter);
+			vc.update(this._game.sandwich);
+
 			
 			this._viewControllers.push(vc);
 
@@ -12383,7 +12452,7 @@ const {
 			var vc = this._viewControllers[this._currentStep];
 			var model = vc._model;
 			var action = model.next.action;
-			
+
 			if (action === "nav") {
 				this.goToNextScreen();
 			} else if (action === "link") {
@@ -12393,7 +12462,7 @@ const {
 				//play again
 				this.startOver();
 			} else if (action === "submit_form") {
-				vc.submit.submit();
+				vc.submit(this._game.level);
 			}
 		}
 	
@@ -12429,7 +12498,7 @@ const {
 			var prevVc = this._viewControllers[this._currentStep];  
 			
 			if (prevVc instanceof CouponViewController || prevVc instanceof ContactViewController) {
-				this.addRecipe();
+				this.presentRecipe();
 			}
 			
 			if (this._currentStep == (this._viewControllers.length - 1)) { return; }
@@ -12447,6 +12516,7 @@ const {
 		
 		this.navigateToStep = function(currentVc, prevVc) {
 			var step = currentVc._model;
+
 			var headerImage = (currentVc instanceof GameViewController && this._game.sandwich !== null) ? this._game.sandwich.thumbnail : null;
 
 			var headerModel = {
@@ -12488,7 +12558,6 @@ const {
 			
 			this._viewControllers = this._viewControllers.filter(vc => !(vc instanceof CouponViewController || vc instanceof ContactViewController || vc instanceof RecipeViewController));
 			
-			console.log(this._viewControllers);
 			
 			this._currentStep = 0;
 		}
@@ -12496,17 +12565,6 @@ const {
 		this.setup = function() {
 			var context = this;			
 			var container = this._presenter;
-			
-			/*var context = this;
-			var viewModel = this._viewModel.recipeData();
-			
-			console.log(this._viewModel.sandwiches[0]);
-			var vc = new RecipeViewController();
-			vc.update(this._viewModel.sandwiches()[0]);
-			vc.init(viewModel, this._presenter);
-			
-			this._viewControllers.push(vc);*/
-
 			
 			this._viewModel.steps().forEach(function(step) {
 				switch(step.id) {
@@ -12566,7 +12624,6 @@ const {
 			var context = this;
 			
 			TweenMax.to(this._presenter, 0, {autoAlpha: 1, onComplete: function() {
-				console.log(context._viewControllers, context._currentStep);
 				context.navigateToStep(context._viewControllers[context._currentStep], null);
 			}});
 		}	
@@ -12585,6 +12642,11 @@ const {
 			});
 		}	
 		
+		this.onOrientationChange = function(e){	
+			this._viewControllers.forEach(function(vc) {
+				vc.onOrientationChange(e);
+			})
+		}
 				
 		this.onWindowResize = function(e) {
 			
@@ -12604,20 +12666,15 @@ const {
 		this._deviceType;
 		this._model;
 		this._game;
-		this._timer;
 		this._rows = [];
 		this._selectedIds = [];
+		this._shouldAnimate = false;
 		
 		this.didFinishGame;
 		
 		this.reset = function() {
 			this._game = null;
 			
-			if (this._timer !== null && this._timer !== undefined) {
-				clearInterval(this._timer);
-			}
-			
-			this._timer = null;
 			this._selectedIds = [];
 			
 			this._rows.forEach(function(row){
@@ -12627,13 +12684,21 @@ const {
 		
 		this.start = function() {
 			var context = this;
-			var bottom = $("#bottom ul");
+			this._shouldAnimate = true;
 			
-			this._timer = setInterval(function() {
+			window.requestAnimationFrame(animate);
+			
+			function animate() {
 				context._rows.forEach(function(row){
 					row.animate();
+				
 				});
-			},1/100);
+				
+				if (context._shouldAnimate) {
+					window.requestAnimationFrame(animate);
+				}
+
+			}
 		}
 				
 		this.update = function(game) {
@@ -12672,8 +12737,7 @@ const {
 		}
 
 		this.finishGame = function() {
-			clearInterval(this._timer);
-			this._timer = null;
+			this._shouldAnimate = false;
 			
 			var componentsMatch = this._selectedIds.every(id => id === this._selectedIds[0]);
 			
@@ -12736,6 +12800,12 @@ const {
 				if (completion) { completion(); }
 			}});
 		}
+		
+		this.onOrientationChange = function(e){	
+			this._rows.forEach(function(row){
+				row.onOrientationChange(e);
+			});
+		}
 	}
 	
 	
@@ -12766,7 +12836,7 @@ const {
 			items.forEach(function(item) {
 				switch(item.type) {
 					case "sando":
-					slider.append('<li style="width: '+context._itemWidth+'px;" class="tile" data-id="'+item.id+'"><img src="'+item.image+'"/></li><!-- -->');
+					slider.append('<li class="tile" data-id="'+item.id+'"><img src="'+item.image+'"/></li><!-- -->');
 					break;
 					case "text":
 					break;
@@ -12776,12 +12846,27 @@ const {
 			});
 						
 			this._direction = direction;
+			this._items = items;
 			this._speed = speed;
-			this._contentWidth = this._itemWidth * items.length;
+			
+			this.updateLayout();
+			
+		}
+		
+		this.updateLayout = function() {
+			var context = this;
+			var slider = $(this._view.find("ul"));
+			
+			this._itemWidth = this._view.width();
+			this._contentWidth = this._itemWidth * this._items.length;
 			
 			slider.css({"width": this._contentWidth});
 			
-			if (direction === "right") {
+			slider.find("li").each(function() {
+				$(this).css({"width": context._itemWidth });
+			})
+			
+			if (this._direction === "right") {
 				slider.css({"left": -(this._contentWidth - this._itemWidth)});
 			}
 		}
@@ -12831,7 +12916,7 @@ const {
 		
 		this.animate = function() {
 			if (this._hasTappedOnItem) {
-				this._speed -= 0.00245;
+				this._speed -= 0.0345;
 				if (this._speed <= 0.25) { 
 					this.animateToSelectedItem();
 					return;
@@ -12881,7 +12966,7 @@ const {
 					slider.prepend(item);
 					slider.css({"left": -(maxX)});
 				}
-			})
+			});
 		}
 		
 		this.setup = function() {
@@ -12892,18 +12977,21 @@ const {
 			
 			this._view = $("#" + this._id);
 			
-			this._itemWidth = this._view.width();
 			
-			$(this._view.find("ul")).on("click", function(){
+						
+			$(this._view.find("ul")).on("mouseup touchend", function(){
 				context.onItemClicked();
 			});
-
 		}
 		
 		this.init = function(container, rowId) {
 			this._container = container;
 			this._id = rowId;
 			this.setup();
+		}
+		
+		this.onOrientationChange = function(e){	
+			this.updateLayout();
 		}
 	}
 	window.GameRow = GameRow;
@@ -12957,13 +13045,13 @@ const {
 		
 		this.intro = function(animated) {
 			var duration = (animated === true) ? 0.25 : 0;			
-			TweenMax.to(this._view, duration, {css:{opacity:1, top: this._top, hidden: false}, ease:Sine.easeIn});
+			TweenMax.to(this._view, duration, {css:{opacity:1, top: this._top}, ease:Sine.easeIn});
 		}
 		
 		this.exit = function(animated) {
 			var duration = (animated === true) ? 0.25 : 0;
 			var top = -(this._view.height() / 4);
-			TweenMax.to(this._view, duration, {css:{opacity:0, top: top, hidden: true}, ease:Sine.easeIn});
+			TweenMax.to(this._view, duration, {css:{opacity:0, top: top}, ease:Sine.easeIn});
 		}
 		
 		this.baseSetup = function(target) {
@@ -13001,7 +13089,7 @@ const {
 			
 			var hero = $(this._view.find("#hero-image"));
 			var logo =  $(this._view.find("#intro-logo"));
-			var termsButton = $(this._view.find("#terms-button"));
+			var termsButton = $(this._view.find(".terms"));
 			var playButton =  $(this._view.find("#intro-play-button"));
 
 			[hero, logo, playButton, termsButton].forEach(function(view) {
@@ -13029,7 +13117,7 @@ const {
 				var hero = $(this._view.find("#hero-image"));
 				var logo =  $(this._view.find("#intro-logo"));
 				var playButton =  $(this._view.find("#intro-play-button"));
-				var termsButton = $(this._view.find("#terms-button"));
+				var termsButton = $(this._view.find(".terms"));
 				var heroSando = $(this._view.find("#hero-sando"));
 								
 				var timeline = new TimelineMax();
@@ -13079,6 +13167,10 @@ const {
 			this._vc._playButton.on("click", function() {
 				context.exit();
 			});
+			
+			$("#terms-button").on("click", function() {
+				TweenMax.to($(".terms-conditions"), 0.25, {autoAlpha: 1});
+			});
 		}
 		
 		this.intro = function() {
@@ -13098,6 +13190,11 @@ const {
 				}});
 			});
 		}
+		
+		this.onOrientationChange= function(e){	
+			
+		}
+
 	}
 
 	window.IntroCoordinator = IntroCoordinator;
@@ -13123,24 +13220,11 @@ const {
 		
 		this.onImageLoadProgress = function(e){	
 			
-			console.log("progress", e.loaded * 100);
 			var percentage = Math.round(e.loaded * 100);
 			
-			var loader = $(this._view.find(".preloader-sprite"));
+			var loader = $(this._view.find(".preloader-text"));
 			
 			loader.html("loading " + percentage + "%");
-			/*var percentage = Math.round(e.loaded * 100);
-			
-			var clipHeight = 282 - ( 282 * ( percentage / 100 ));
-			
-			var loaderBar = $(this._view.find(".loader-bar"));
-			var loaderPercentage = $(this._view.find(".loader-percentage"));
-			var loaderTitle = loaderPercentage.attr("data-title");
-					
-			loaderBar.css( {clip: "rect(" + clipHeight +"px 282px " + 0 + "282px 0)"});
-			
-			loaderPercentage.html(loaderTitle + " " + percentage + "%");*/
-			
 		}
 		
 		this.onExitComplete = function(){
@@ -13153,21 +13237,49 @@ const {
 			this._view = target;
 		},
 		intro: function(completion) {
+			
 			var context = this;
-		
-			completion();
+			
+			var content = $(this._view.find(".preloader-content"));
+			var sprite = $(this._view.find(".preloader-sprite"));
+			var text = $(this._view.find(".preloader-text"));
+			
+			var timeline = new TimelineMax();
+			
+			timeline.to(sprite, 0, {scale: 0});
+			timeline.to(text, 0, {alpha: 0});
+			timeline.to(content, 0, {autoAlpha: 1});
+			
+			timeline.to(sprite, 0.25, {scale: 1, ease:Back.easeOut});
+			timeline.to(text, 0.25, {alpha: 1, delay: 0.25, ease:Sine.easeIn, onComplete: function() {
+				
+				completion();
+			}});
+			
+			timeline.play();
+			
 		},
 		exit: function(completion) {
 			var context = this;
-					
-			TweenMax.to(this._view, 0.25, {alpha: 0, delay:0, onComplete:function(){ 
+			
+			var content = $(this._view.find(".preloader-content"));
+			var sprite = $(this._view.find(".preloader-sprite"));
+			var text = $(this._view.find(".preloader-text"));
+			
+			var timeline = new TimelineMax();
+			
+			timeline.to(text, 0.25, {alpha: 1});
+			timeline.to(sprite, 0.25, {scale: 0, ease:Back.easeIn});
+			timeline.to(this._view, 0.25, {alpha: 0, delay: 0.10, ease:Sine.easeIn, onComplete: function() {
 				context.onExitComplete();
 				completion();
 			}});
+			
+			timeline.play();
 		},
 		loadContent: function(additionalImages, completion) {
 			var context = this;
-			
+
 			var images = $("body").find("img");
 			var imageArray = [];
 			var i;
@@ -13255,6 +13367,10 @@ const {
 		
 		this.update = function(sandwich) {
 			var recipe = sandwich.recipe;
+
+			$(this._view.find("#hero-image")).attr("src", recipe.hero);
+			$(this._view.find("#bread-image")).attr("src", recipe.detail);
+			$(this._view.find("#cta")).text(recipe.cta);
 			
 		}
 			
@@ -13275,7 +13391,7 @@ const {
 			
 			timeline.to(hero, 0.25, {left: 0, ease:Sine.easeOut});
 			timeline.to(bread, 0.25, {scale: 1, ease:Back.easeOut}, "-=0.10");
-			timeline.to(text, 0.25, {alpha: 1, ease:Sine.easeOut, function() {
+			timeline.to(text, 0.25, {alpha: 1, ease:Sine.easeOut, onComplete: function() {
 				if (completion) { completion(); }
 			}});
 			

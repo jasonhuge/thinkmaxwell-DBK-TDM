@@ -12,12 +12,12 @@
 				</div>
 				<div class="social">
 					<ul>
-						<li><a href=""><img src="img/content/facebook-icon.png" alt="Facebook button"/></a></li>
-						<li><a href=""><img src="img/content/twitter-icon.png" alt="Facebook button"/></a></li>
+						<li><a href="https://www.facebook.com/DavesKillerBread/" target="_blank"><img src="img/content/facebook-icon.png" alt="Facebook button"/></a></li>
+						<li><a href="https://www.instagram.com/daveskillerbread/" target="_blank"><img src="img/content/twitter-icon.png" alt="Facebook button"/></a></li>
 					</ul>
 				</div>
 				<div class="rules">
-					<a href="">OFFICIAL RULES</a>
+					<span>OFFICIAL RULES</span>
 				</div>
 			</div>
 		</div>
@@ -41,9 +41,17 @@
 		 	} else {
 			 	content.css({"margin-top": 0});
 		 	}
-		 	
 	 	}
 	 	
 	 	onWindowResize();
+	 	
+	 	$(".rules span").on("click", function() {
+			TweenMax.to($(".terms-conditions"), 0.25, {autoAlpha: 1});
+		});
+	 	
+	 	$(".terms-conditions .close-button").on("click", function() {
+			TweenMax.to($(".terms-conditions"), 0.25, {autoAlpha: 0});
+		});
+
 	});
 </script>

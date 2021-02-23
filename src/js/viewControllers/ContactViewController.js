@@ -6,10 +6,12 @@
 		this._view;
 		this._container;
 		this._model;
-		this.selectLevelListener;
+		this.didSubmitForm;
 		this._hasSubmittedData = false;
 		
 		this.reset = function() {
+			var form = $(this._view.find("form"));
+			
 			this._hasSubmittedData = false;
 			
 			$(form.find("input,select")).each(function() {
@@ -30,6 +32,8 @@
 		this.vaildate = function(completion) {
 			var context = this;
 			var isReady = true;
+			var isValidEmail = true;
+			var isValidPhone = true;
 			var form = $(this._view.find("form"));
 			
 			$(form.find("input,select")).each(function() {
@@ -39,24 +43,39 @@
 					}
 					isReady = false
 					$(this).addClass("error");
-					
 				} 
 				
-				if ($(this).attr("name") === "email") {
-					if (!context.validateEmail($(this).val())) {
-						isReady = false;
-						$(this).addClass("error");
+				if (isReady) {
+						if ($(this).attr("name") === "email") { 
+						if (!context.validateEmail($(this).val())) {
+							isValidEmail = false;
+							$(this).addClass("error");
+						}
 					}
-				}
-				
-				if ($(this).attr("name") === "phone") {
-					if (!context.validatePhoneNumber($(this).val())) {
-						isReady = false;
-						$(this).addClass("error");
+					
+					if ($(this).attr("name") === "phone") {
+						if (!context.validatePhoneNumber($(this).val())) {
+							isValidPhone = false;
+							$(this).addClass("error");
+						}
 					}
 				}
 			});
-		
+			
+			if (!isReady) {
+				alert("Please fill out all required fields");
+				completion(isReady);
+				return;
+			}
+			
+			if (!isValidEmail) {
+				alert("Please enter a valid email address");
+			} else if (!isValidPhone) {
+				alert("Please enter a valid phone number");
+			}
+			
+			isReady = isValidEmail = isValidPhone;
+			
 			completion(isReady);
 		}
 		
@@ -85,32 +104,66 @@
 			this.setup();
 		}
 		
-		this.submit = function(level) {
+		this.showLoader = function(completion) {
+			var modal = $(".modal");
+			modal.html("<div id='contact-loading'><div class='lds-spinner'><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div></div>");
+			
+			TweenMax.to(modal, 0.25, {autoAlpha: 1, onComplete: function() {
+				completion();
+			}});
+		}
+		
+		this.submit = function(level) {			
 			var context = this;
+			
 			this.vaildate(function(success){
+				
 				if (success) {
-					var data = $(context._view.find("form")).serializeArray();
-					var url = "api/register/index.php";
-					
-					data.push({name: "id", value: "19f888674a"});
-	
-					$.ajax({
-						type: "POST",
-						url: url,
-						data: data,
-						success: function(data){
-							console.log(data);
-						},
-						error: function(error) {
-							console.log(error.responseText);
-						}
+					context.showLoader(function() {
+						var data = $(context._view.find("form")).serializeArray();
+						var url = "api/register/index.php";
+						
+						data.push({name: "id", value: level.list_id});
+						data.push({name:"should_subscribe", value: $("#newsletter").is(":checked") });
+						
+						$.ajax({
+							type: "POST",
+							url: url,
+							data: data,
+							success: function(data){
+								context.onSubmitSuccess();
+							},
+							error: function(error) {
+								console.log(error.responseText);
+								context.onSubmitFailire(error);
+							}
+						});
 					});
 				}
 			});
 		}
 		
+		this.onSubmitSuccess = function() {
+			var modal = $(".modal");
+			
+			TweenMax.to(modal, 0.25, {autoAlpha: 0, onComplete: function() {
+				modal.empty();
+			}});
+			
+			this.didSubmitForm();
+		}
+		
+		this.onSubmitFailire = function(error) {
+			var modal = $(".modal");
+			var errorData = JSON.parse(error.responseJSON);
+			
+			TweenMax.to(modal, 0.25, {autoAlpha: 0, onComplete: function() {
+				modal.empty();
+				alert(errorData.title + "\r\n\r\n" + errorData.detail);
+			}});
+		}
+		
 		this.intro = function(completion) {
-			console.log("contact intro", this._view);
 			TweenMax.to(this._view, 0.25, {autoAlpha: 1});
 		}
 		

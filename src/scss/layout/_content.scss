@@ -13,6 +13,7 @@ html {
     color: #222;
     font-size: 1em;
     line-height: 1.4;
+    overflow: hidden;
 }
 
 html, body {
@@ -22,7 +23,9 @@ html, body {
 	margin: 0;
 	padding: 0;
 	overflow: hidden;
-	-webkit-overflow-scrolling:touch
+	-webkit-overflow-scrolling:touch;
+	-webkit-text-size-adjust: none;
+	touch-action: none;
 	
 }
 

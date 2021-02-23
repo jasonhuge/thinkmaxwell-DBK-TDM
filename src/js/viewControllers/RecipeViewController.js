@@ -25,6 +25,10 @@
 		
 		this.update = function(sandwich) {
 			var recipe = sandwich.recipe;
+
+			$(this._view.find("#hero-image")).attr("src", recipe.hero);
+			$(this._view.find("#bread-image")).attr("src", recipe.detail);
+			$(this._view.find("#cta")).text(recipe.cta);
 			
 		}
 			
@@ -45,7 +49,7 @@
 			
 			timeline.to(hero, 0.25, {left: 0, ease:Sine.easeOut});
 			timeline.to(bread, 0.25, {scale: 1, ease:Back.easeOut}, "-=0.10");
-			timeline.to(text, 0.25, {alpha: 1, ease:Sine.easeOut, function() {
+			timeline.to(text, 0.25, {alpha: 1, ease:Sine.easeOut, onComplete: function() {
 				if (completion) { completion(); }
 			}});
 			

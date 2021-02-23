@@ -17,18 +17,15 @@
 			overflow: hidden;
 			
 			#top {
-				height: 75px;
-				background: red;
+				min-height: 75px;
 			}
 			
 			#middle {
-				height: 120px;
-				background: blue;
+				min-height: 120px;
 			}
 			
 			#bottom {
-				height: 60px;
-				background: green;
+				min-height: 60px;
 			}
 			
 			
@@ -47,6 +44,7 @@
 			
 			.divider {
 				background: white;
+				position: relative;
 				width: 100%;
 				display: block;
 				height: 8px;
