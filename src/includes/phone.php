@@ -54,10 +54,12 @@
 	</div>
 	
 	<div id="game-countdown" class="countdown">
+		
 	    <ul>
-	        <li id="count-one"><img src="img/content/one.png" alt="one"/></li>
-	        <li id="count-two"><img src="img/content/two.png" alt="one"/></li>
-	        <li id="count-three"><img src="img/content/three.png" alt="one"/></li>
+		    <li>GET BREADY TO ROCK!</li>
+	        <li id="count-one"><img src="img/content/Number1.gif" alt="one"/></li>
+	        <li id="count-two"><img src="img/content/Number2.gif" alt="two"/></li>
+	        <li id="count-three"><img src="img/content/Number3.gif" alt="three"/></li>
 	    </ul>
 	</div>
 	

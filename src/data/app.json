@@ -51,7 +51,7 @@
 				"action": "nav",
 				"arrow": true
 			},
-			"template": "<div class='page' id='redeem-coupon'><div class='scrolling-page-content'><div id='coupon-container'> <script id='propodEmbedbc5e137110f822a6d6baa0cc48f64a507e3ae23c' src='https://banner2.promotionpod.com/frames/bc5e137110f822a6d6baa0cc48f64a507e3ae23c.js'></script> </div><p id='expiration'>COUPON EXPIRES 12/31/2021</p><h4>INSTRUCTIONS FOR PRINTING COUPON</h4><ul><li>1. Make sure that you are connected to a printer. For security measures, the coupon is set to allow only 2 print attempts per person.</li><li>2. Click the white 'Get Coupon' button in the image. It will take a minute for your coupon to load. [If you don't see an image with a 'Get Coupon' button, try the troubleshooting guide]</li><li>3. When your coupon has loaded, you will see 'Your coupon is ready to print' and a red 'Print' button. Click it to print your coupon!</li></li></ul></div></div>"
+			"template": "<div class='page' id='redeem-coupon'><div class='scrolling-page-content'><div id='coupon-container'> <script id='propodEmbedbc82f95c71e17d1fbc16daf1f6d421df61212d09' src='https://banner2.promotionpod.com/frames/bc82f95c71e17d1fbc16daf1f6d421df61212d09.js'></script></div><p id='expiration'>COUPON EXPIRES 12/31/2021</p><h4>INSTRUCTIONS FOR PRINTING COUPON</h4><ul><li>1. Make sure that you are connected to a printer. For security measures, the coupon is set to allow only 2 print attempts per person.</li><li>2. Click the white 'Get Coupon' button in the image. It will take a minute for your coupon to load. [If you don't see an image with a 'Get Coupon' button, try the troubleshooting guide]</li><li>3. When your coupon has loaded, you will see 'Your coupon is ready to print' and a red 'Print' button. Click it to print your coupon!</li></li></ul></div></div>"
 		},
 		"contact": {
 			"page-id": "contact",
@@ -66,7 +66,7 @@
 		},
 		"recipe": {
 			"page-id": "recipe",
-			"title": "PRINT YOUR<br/>RECIPE",
+			"title": "YOUR SANDO<br/>RECIPE",
 			"back": {
 				"title": "GET RECIPE",
 				"action": "link",
@@ -81,65 +81,128 @@
 		},
 		"sandwiches": [{
 				"id": 1,
-				"name": "Bombtastic Breakfast Bagel",
-				"hero": "img/content/sando-1-hero.jpg",
-				"thumbnail": "img/content/sand-1-header.png",
-				"top": "img/content/sando-1-top.jpg",
-				"middle": "img/content/sando-1-middle.jpg",
-				"bottom": "img/content/sando-1-bottom.jpg",
+				"name": "BAGEL SO EGGSTRA",
+				"hero": "img/content/sando-1/button.jpg",
+				"thumbnail": "img/content/sando-1/header.png",
+				"top": "img/content/sando-1/top.jpg",
+				"middle": "img/content/sando-1/middle.jpg",
+				"bottom": "img/content/sando-1/bottom.jpg",
 				"recipe": {
 					"cta": "Stacks and stacks of veggies and sprouts on Good Seed© sThin-sliced make us want to shout!",
 					"link": "https://www.daveskillerbread.com",
-					"hero": "img/content/sando-1-hero.png",
-					"detail": "img/content/sando-1-bread.png"
+					"hero": "img/content/sando-1/recipe.jpg",
+					"detail": "img/content/sando-1/bread.png"
 					
 				}
 			},
 			{
 				"id": 2,
-				"name": "Eggcelent English Muffin",
-				"hero": "img/content/sando-2-hero.jpg",
-				"thumbnail": "img/content/sand-1-header.png",
-				"top": "img/content/sando-2-top.jpg",
-				"middle": "img/content/sando-2-middle.jpg",
-				"bottom": "img/content/sando-2-bottom.jpg",
+				"name": "BANANNAS FOR PEANUT BUTTER",
+				"hero": "img/content/sando-2/button.jpg",
+				"thumbnail": "img/content/sando-3/header.png",
+				"top": "img/content/sando-2/top.jpg",
+				"middle": "img/content/sando-2/middle.jpg",
+				"bottom": "img/content/sando-2/bottom.jpg",
 				"recipe": {
 					"cta": "Stacks and stacks of veggies and sprouts on Good Seed© sThin-sliced make us want to shout!",
 					"link": "https://www.daveskillerbread.com",
-					"hero": "img/content/sando-1-hero.png",
-					"detail": "img/content/sando-1-bread.png"
-					
+					"hero": "img/content/sando-2/recipe.jpg",
+					"detail": "img/content/sando-2/bread.png"
 				}
 			},
 			{
 				"id": 3,
-				"name": "Bold Burger",
-				"hero": "img/content/sando-3-hero.jpg",
-				"thumbnail": "img/content/sand-1-header.png",
-				"top": "img/content/sando-3-top.jpg",
-				"middle": "img/content/sando-3-middle.jpg",
-				"bottom": "img/content/sando-3-bottom.jpg",
+				"name": "EGGCELENT ENGLISH MUFFIN",
+				"hero": "img/content/sando-3/button.jpg",
+				"thumbnail": "img/content/sando-3/header.png",
+				"top": "img/content/sando-3/top.jpg",
+				"middle": "img/content/sando-3/middle.jpg",
+				"bottom": "img/content/sando-3/bottom.jpg",
 				"recipe": {
 					"cta": "Stacks and stacks of veggies and sprouts on Good Seed© sThin-sliced make us want to shout!",
 					"link": "https://www.daveskillerbread.com",
-					"hero": "img/content/sando-1-hero.png",
-					"detail": "img/content/sando-1-bread.png"
+					"hero": "img/content/sando-3/recipe.jpg",
+					"detail": "img/content/sando-3/bread.png"
 					
 				}
 			},
 			{
 				"id": 4,
-				"name": "Classic Club Sando",
-				"hero": "img/content/sando-4-hero.jpg",
-				"thumbnail": "img/content/sand-1-header.png",
-				"top": "img/content/sando-4-top.jpg",
-				"middle": "img/content/sando-4-middle.jpg",
-				"bottom": "img/content/sando-4-bottom.jpg",
+				"name": "KICK IT UP A BEET BURGER",
+				"hero": "img/content/sando-4/button.jpg",
+				"thumbnail": "img/content/sando-4/header.png",
+				"top": "img/content/sando-4/top.jpg",
+				"middle": "img/content/sando-4/middle.jpg",
+				"bottom": "img/content/sando-4/bottom.jpg",
 				"recipe": {
 					"cta": "Stacks and stacks of veggies and sprouts on Good Seed© sThin-sliced make us want to shout!",
 					"link": "https://www.daveskillerbread.com",
-					"hero": "img/content/sando-1-hero.png",
-					"detail": "img/content/sando-1-bread.png"
+					"hero": "img/content/sando-4/recipe.jpg",
+					"detail": "img/content/sando-4/bread.png"
+					
+				}
+			},
+			{
+				"id": 5,
+				"name": "KILLER CLASSIC CLUB",
+				"hero": "img/content/sando-5/button.jpg",
+				"thumbnail": "img/content/sando-5/header.png",
+				"top": "img/content/sando-5/top.jpg",
+				"middle": "img/content/sando-5/middle.jpg",
+				"bottom": "img/content/sando-5/bottom.jpg",
+				"recipe": {
+					"cta": "Stacks and stacks of veggies and sprouts on Good Seed© sThin-sliced make us want to shout!",
+					"link": "https://www.daveskillerbread.com",
+					"hero": "img/content/sando-5/recipe.jpg",
+					"detail": "img/content/sando-5/bread.png"
+					
+				}
+			},
+			{
+				"id": 6,
+				"name": "NOT-YO-BASIC BURGER",
+				"hero": "img/content/sando-6/button.jpg",
+				"thumbnail": "img/content/sando-6/header.png",
+				"top": "img/content/sando-6/top.jpg",
+				"middle": "img/content/sando-6/middle.jpg",
+				"bottom": "img/content/sando-6/bottom.jpg",
+				"recipe": {
+					"cta": "Stacks and stacks of veggies and sprouts on Good Seed© sThin-sliced make us want to shout!",
+					"link": "https://www.daveskillerbread.com",
+					"hero": "img/content/sando-6/recipe.jpg",
+					"detail": "img/content/sando-6/bread.png"
+					
+				}
+			},
+			{
+				"id": 7,
+				"name": "VEGGIE TO THE MAX",
+				"hero": "img/content/sando-7/button.jpg",
+				"thumbnail": "img/content/sando-7/header.png",
+				"top": "img/content/sando-7/top.jpg",
+				"middle": "img/content/sando-7/middle.jpg",
+				"bottom": "img/content/sando-7/bottom.jpg",
+				"recipe": {
+					"cta": "Stacks and stacks of veggies and sprouts on Good Seed© sThin-sliced make us want to shout!",
+					"link": "https://www.daveskillerbread.com",
+					"hero": "img/content/sando-7/recipe.jpg",
+					"detail": "img/content/sando-7/bread.png"
+					
+				}
+			},
+			{
+				"id": 8,
+				"name": "VERY BLTA ENGLISH MUFFIN",
+				"hero": "img/content/sando-8/button.jpg",
+				"thumbnail": "img/content/sando-8/header.png",
+				"top": "img/content/sando-8/top.jpg",
+				"middle": "img/content/sando-8/middle.jpg",
+				"bottom": "img/content/sando-8/bottom.jpg",
+				"recipe": {
+					"cta": "Stacks and stacks of veggies and sprouts on Good Seed© sThin-sliced make us want to shout!",
+					"link": "https://www.daveskillerbread.com",
+					"hero": "img/content/sando-8/recipe.jpg",
+					"detail": "img/content/sando-8/bread.png"
 					
 				}
 			}
@@ -173,37 +236,58 @@
 			"WHAT ARE YOUR OTHER SUPERPOWERS?"
 			
 		],
+		"colors": [
+			"#c8102e",
+			"#ff4438",
+			"#f68b1f",
+			"#ffdd00",
+			"#ffc845",
+			"#008445",
+			"#00b140",
+			"#93d500",
+			"#00ae81",
+			"#00cfb4",
+			"#0077be",
+			"#00aeef",
+			"#ac4fc6",
+			"#c964cf",
+			"#d7a9e3"
+			
+		],
 		"levels": [{
 				"id": 1,
 				"title": "NOVICE",
 				"desc": "Win your favorite bread!",
+				"completion_message": "Coupon already claimed,<br/>but play again for fun!",
 				"speed": 3,
 				"tolerance": 1.25,
 				"list_id": null,
 				"sandwich_ids": [
-					1, 4, 3, 2
+					7, 1, 6, 8
 				]
 			},
 			{
 				"id": 2,
 				"title": "SKILLED",
 				"desc": "A chance to win<br/>a year's supply!",
+				"completion_message": "Prize entry already claimed,<br/>but play again for fun!",
 				"speed": 3.5,
 				"tolerance": 1.25,
 				"list_id": "19f888674a",
 				"sandwich_ids": [
-					2, 3, 1, 4
+					5, 2, 4, 3
 				]
 			},
 			{
 				"id": 3,
 				"title": "EXPERT",
 				"desc": "A chance to win $5,000<br/>(the other kind of bread)",
+				"completion_message": "Prize entry already claimed,<br/>but play again for fun!",
 				"speed": 4,
 				"tolerance": 1.25,
 				"list_id": "19f888674a",
 				"sandwich_ids": [
-					4, 3, 2, 1
+					5, 2, 6, 3
 				]
 			}
 		]

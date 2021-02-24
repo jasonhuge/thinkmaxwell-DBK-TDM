@@ -28,6 +28,18 @@
 				content.append(template);
 			});
 			
+			var buttonWidth = 0;
+			
+			$(this._view.find(".level-button")).each(function() {
+				buttonWidth = ($(this).width() > buttonWidth) ? $(this).width() : buttonWidth;
+			});
+			
+			$(this._view.find(".level-button")).each(function() {
+				$(this).css({"width": buttonWidth});
+			});
+			
+			console.log("buttonWidth", buttonWidth);
+			
 			$(this._view.find(".level-button")).on("click", function() {
 				context.didSelectLevel($(this).data("id"));
 			});

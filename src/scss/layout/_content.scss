@@ -132,28 +132,32 @@ ul {
 	z-index: 8000;
 	
 	ul {
+		text-align: center;
 		list-style: none;
 		margin: 0;
 		padding: 0;
+		top: 50%;
+		transform: translate(0,-50%);
+		position: absolute;
+		font-size: 1.5em;
+		
+		li:first-child {
+			opacity: 1;
+			position: relative;
+		}
+		
+		li:last-child {
+			position: relative;
+		}
 		
 		li {
 			position: absolute;
 			opacity: 0;
-			left: 50%;
-			top: 50%;
-			transform: translate(-50%,-50%);
+			left: 0;
+			
 			img {
 				width: 100%;
 			}
-		}
-		#count-one {
-			width: 91px;
-		}
-		#count-two {
-			width: 135px;
-		}
-		#count-three {
-			width: 132px;
 		}
 	}
 }

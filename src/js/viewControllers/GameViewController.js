@@ -15,11 +15,13 @@
 		
 		this.didFinishGame;
 		
-		this.reset = function() {
+		this.reset = function() {	
+			this._shouldAnimate = false;
+			
 			this._game = null;
 			
 			this._selectedIds = [];
-			
+	
 			this._rows.forEach(function(row){
 				row.reset();
 			});
@@ -32,15 +34,13 @@
 			window.requestAnimationFrame(animate);
 			
 			function animate() {
-				context._rows.forEach(function(row){
-					row.animate();
-				
-				});
-				
 				if (context._shouldAnimate) {
+					context._rows.forEach(function(row){
+						row.animate();
+				
+					});
 					window.requestAnimationFrame(animate);
 				}
-
 			}
 		}
 				
@@ -48,9 +48,11 @@
 			this.reset();
 			
 			this._game = game;
+			
 			var speed = this._game.level.speed;
 			var tolerance = this._game.level.tolerance;
 			var sandwiches = this._game.sandwiches;
+			var affirmations = this._game.affirmations;
 			
 			this._rows.forEach(function(row){
 				var animationSpeed = speed + Math.random() * ((tolerance - 0.01) + tolerance) ;
@@ -59,19 +61,26 @@
 					var items = sandwiches.map(function(a){
 						return {"image": a.top, "id": a.id, "type": "sando"}
 					});
-					row.update(items, "left", animationSpeed);
+					row.update(items, "left", animationSpeed, 0.234275);
 					break;
 					case "middle":
 					var items = sandwiches.map(function(a){
 						return {"image": a.middle, "id": a.id, "type": "sando"}
 					});
-					row.update(items, "right", speed);
+					
+					affirmations.forEach(function(affirmation) {
+						items.push(affirmation);
+					});
+					
+					items = items.sort(function(a, b){return 0.5 - Math.random()});
+
+					row.update(items, "right", speed, 0.375);
 					break;
 					case "bottom":
 					var items = sandwiches.map(function(a){
 						return {"image": a.bottom, "id": a.id, "type": "sando"}
 					});
-					row.update(items, "left", animationSpeed);
+					row.update(items, "left", animationSpeed,  0.1875);
 					break;
 				}
 			});
@@ -96,7 +105,7 @@
 			
 			var pageId = this._model['page-id'];
 			
-			var template = '<div class="page" id="' + pageId + '"><div class="page-content"><p>tap any tile to stop. No Match, no worries! Play again!</p><div id="game-carousel" class="carousel"></div></div></div>';
+			var template = '<div class="page" id="' + pageId + '"><div class="page-content"><p>Tap each row to stop the sliding. Time your taps to land on the correct pieces. No match? No worries — play again!</p><div id="game-carousel" class="carousel"></div></div></div>';
 			
 			this._container.append(template);
 			
@@ -167,10 +176,11 @@
 		this._itemWidth;
 		this._hasTappedOnItem;
 		this._selectedItem;
+		this._heightMultiplier;
 		
 		this.didSelectItemListener;
 		
-		this.update = function(items, direction, speed) {
+		this.update = function(items, direction, speed, heightMultiplier) {
 			this.reset();
 			
 			var context = this;
@@ -182,6 +192,7 @@
 					slider.append('<li class="tile" data-id="'+item.id+'"><img src="'+item.image+'"/></li><!-- -->');
 					break;
 					case "text":
+					slider.append('<li style="background: ' + item.color + ';" class="tile affirmation"><span>' + item.text + '</span></li><!-- -->');
 					break;
 					case "sticker":
 					break
@@ -191,7 +202,8 @@
 			this._direction = direction;
 			this._items = items;
 			this._speed = speed;
-			
+			this._heightMultiplier = heightMultiplier
+						
 			this.updateLayout();
 			
 		}
@@ -203,10 +215,14 @@
 			this._itemWidth = this._view.width();
 			this._contentWidth = this._itemWidth * this._items.length;
 			
+			var height = this._itemWidth * this._heightMultiplier;
+			
+			this._view.css({"height": height});
+		
 			slider.css({"width": this._contentWidth});
 			
 			slider.find("li").each(function() {
-				$(this).css({"width": context._itemWidth });
+				$(this).css({"width": context._itemWidth, "height": height });
 			})
 			
 			if (this._direction === "right") {
@@ -220,6 +236,7 @@
 			this._contentWidth = null;
 			this._hasTappedOnItem = false;
 			this._selectedItem = null;
+			this._heightMultiplier = null;
 			
 			var slider = $(this._view.find("ul"));
 			slider.empty();
@@ -265,7 +282,7 @@
 					return;
 				}
 			}
-					
+								
 			switch(this._direction) {
 				case "left":
 				this.animateLeft();

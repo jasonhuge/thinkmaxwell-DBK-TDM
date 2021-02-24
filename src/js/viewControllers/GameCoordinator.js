@@ -27,8 +27,8 @@
 			var context = this;
 			
 			var gameVc = this._viewControllers.find(vc => { return vc instanceof GameViewController});
-			// need to populate random tops middles and bottoms
-			
+		
+			this._game.affirmations = this._viewModel.randomAffirmations(3);
 			var sandwichId = this._game.sandwich.id;
 									
 			gameVc.update(this._game);

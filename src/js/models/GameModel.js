@@ -18,6 +18,39 @@
 			return this._data.sandwiches;
 		}
 		
+		this.affirmations = function() {
+			return this._data.affirmations;
+		}
+		
+		this.colors = function() {
+			return this._data.colors;
+		}
+		
+		this.randomAffirmations = function(count) {
+			var aff = [];
+			var colors = []
+			
+			while (count > aff.length) {
+				var item = this.affirmations()[Math.floor(Math.random() * this.affirmations().length)];
+				var color = this.colors()[Math.floor(Math.random() * this.colors().length)];
+				
+				if (!aff.includes(item) && !colors.includes(color)) {
+					aff.push(item);
+					colors.push(color);
+				}
+			}	
+			
+			var itemsToReturn = [];
+			
+			for (var i = 0; i < aff.length; i++) {
+				var item = aff[i];
+				var color = colors[i];
+				itemsToReturn.push({"text": item, "type": "text", "color": color});
+			}
+						
+			return itemsToReturn;
+		}
+		
 		this.levels = function() {
 			return this._data.levels;
 		}
