@@ -10,6 +10,7 @@
 		
 		this.didSelectNextButton;
 		this.didSelectBackButton;
+		this.didSelectHomeButton;
 		
 		this.update = function(data) {
 			var back = data.back;
@@ -17,9 +18,15 @@
 			
 			if (back) {
 				$(this._backButton.find("h4")).text(back.title);
-				var arrowDisplay = (back.arrow) ? "inline-block" : "none";
+				var arrowDisplay = (back.icon) ? "inline-block" : "none";
 				
-				$(this._backButton.find("img")).css({"display": arrowDisplay});
+				var image = $(this._backButton.find("img"));
+				if (back.icon) {
+					image.attr("src", back.icon);
+				}
+				
+				image.css({"display": arrowDisplay});
+				
 				
 				TweenMax.to(this._backButton, 0.25, {autoAlpha: 1});
 			} else {
@@ -28,9 +35,15 @@
 			 
 			if (next) {
 			 	$(this._nextButton.find("h4")).text(next.title);
-			 	var arrowDisplay = (next.arrow) ? "inline-block" : "none";
+			 	var arrowDisplay = (next.icon) ? "inline-block" : "none";
 				
-				$(this._nextButton.find("img")).css({"display": arrowDisplay});			 	
+				var image = $(this._nextButton.find("img"));
+				
+				if (next.icon) {
+					image.attr("src", next.icon);
+				}
+				
+				image.css({"display": arrowDisplay});			 	
 				TweenMax.to(this._nextButton, 0.25, {autoAlpha: 1});
 			} else {
 			 	TweenMax.to(this._nextButton, 0.25, {autoAlpha: 0});
@@ -50,6 +63,10 @@
 			
 			this._nextButton.on("click", function() {
 				context.didSelectNextButton();
+			});
+			
+			$("#nav-divider").on("click", function() {
+				context.didSelectHomeButton();
 			});
 		}
 		

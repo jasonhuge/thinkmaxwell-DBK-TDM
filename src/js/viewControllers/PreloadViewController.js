@@ -21,7 +21,7 @@
 			
 			var loader = $(this._view.find(".preloader-text"));
 			
-			loader.html("loading " + percentage + "%");
+			loader.html("Loading " + percentage + "%");
 		}
 		
 		this.onExitComplete = function(){

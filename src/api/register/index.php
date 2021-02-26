@@ -16,8 +16,8 @@
 	$state = $_POST['state'];
 	$zipcode = $_POST['zipcode'];
 	$phone = $_POST['phone'];
-	$shouldSubscribe = $_POST["should_subscribe"];
-	
+	$shouldSubscribe = boolVal($_POST["should_subscribe"]);
+		
 	if (!isset($listId)) {
 		$client->returnError(404, ['title'=>'list id required', 'status'=>404]);
 	} else if (!isset($email)) {

@@ -23,7 +23,7 @@ html, body {
 	margin: 0;
 	padding: 0;
 	overflow: hidden;
-	-webkit-overflow-scrolling:touch;
+	-webkit-overflow-scrolling: touch;
 	-webkit-text-size-adjust: none;
 	touch-action: none;
 	
@@ -33,6 +33,10 @@ html, body, a, {
     font-family: "bebas-neue-pro", sans-serif;
 	font-weight: 600;
 	font-style: italic;
+}
+
+body {
+	position: fixed;
 }
 
 ::-moz-selection {
@@ -156,7 +160,7 @@ ul {
 			left: 0;
 			
 			img {
-				width: 100%;
+				width: 50%;
 			}
 		}
 	}

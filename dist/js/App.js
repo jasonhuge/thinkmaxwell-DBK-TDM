@@ -56,6 +56,10 @@
 			this._footer.didSelectBackButton = function() {
 				context._gameCoordinator.presentPrevViewController();
 			}
+			
+			this._footer.didSelectHomeButton = function() {
+				context._gameCoordinator.exit();
+			}
 		
 			this._introCoordinator = new IntroCoordinator();
 			this._introCoordinator.init(this._model.intro, $("#intro-container"));
@@ -71,6 +75,7 @@
 			}
 			
 			this._gameCoordinator.exitComplete = function() {
+				context._gameCoordinator.reset();
 				context._introCoordinator.intro();
 			}
 			
@@ -151,6 +156,7 @@
 	
 	App.prototype = {
 		init:function(deviceType){
+			
 			this._deviceType = deviceType;
 			
 			var context = this;
@@ -11511,6 +11517,18 @@ const {
 			return this._data.colors;
 		}
 		
+		this.completionMessage = function(success) {
+			return (success) ? this.randomWinnerMessage() : this.randomLoseMessage();
+		}
+		
+		this.randomWinnerMessage = function() {
+			return this._data.win_messaging[Math.floor(Math.random() * this._data.win_messaging.length)];
+		}
+		
+		this.randomLoseMessage = function() {
+			return this._data.lose_messaging[Math.floor(Math.random() * this._data.lose_messaging.length)];
+		}
+		
 		this.randomAffirmations = function(count) {
 			var aff = [];
 			var colors = []
@@ -11716,12 +11734,21 @@ const {
 			this._view = $("#" + pageId);
 		}
 		
+		this.reset = function() {
+			var context = this;
+			var content = $(this._view.find("ul"));
+			
+			content.empty();
+		}
+		
 		this.setupLevels = function(levels) {
 			var context = this;
 			var content = $(this._view.find("ul"));
 			
 			levels.forEach(function(level) {
-				var template = '<li class="level"><div class="level-content"><h3>' + level.desc + '</h3><div class="level-button button" data-id="' + level.id + '">' + level.title + '<img src="img/content/level-select-arrow.png" alt=""/></div></div></li>';
+				var completedClass = (level.completed) ? "completed" : "";
+				var desc = (level.completed) ? level.completion_message : level.desc;
+				var template = '<li class="level ' + completedClass + '"><div class="level-content"><h3>' + desc + '</h3><div class="level-button button" data-id="' + level.id + '">' + level.title + '<img src="img/content/level-select-arrow.png" alt=""/></div></div></li>';
 				content.append(template);
 			});
 			
@@ -11890,6 +11917,7 @@ const {
 		this._view;
 		this._container;
 		this._isWinner;
+		this._message;
 		this._particles;
 		this.didSelectNextStep;
 		this.didSelectStartOver;
@@ -11925,6 +11953,7 @@ const {
 			} else {
 				this._view = $(this._container.find(".loser"));
 				
+				
 				this._view.find("#loser-tryagain-button").on("click", function() {
 					context.didSelectTryAgain();
 					context.exit();
@@ -11935,6 +11964,8 @@ const {
 					context.exit();
 				});
 			}
+							
+			$(this._view.find("#inner-title")).html(this._message);
 			
 			var content = $(this._view).find(".modal-content");
 			
@@ -11960,9 +11991,10 @@ const {
 			}
 		}
 			
-		this.init = function(container, isWinner) {
+		this.init = function(container, isWinner, message) {
 			this._container = container;
 			this._isWinner = isWinner;
+			this._message = message;
 			this.setup();
 		}
 		
@@ -12081,7 +12113,8 @@ const {
 				
 				$(this).change(function() {
 					$(this).removeClass("error");
-				})
+				});
+			
 			});
 					
 		}
@@ -12204,11 +12237,11 @@ const {
 			}});
 
 			tl.to($("#count-three"), 0.25, {alpha: 1});
-			tl.to($("#count-three"), 0.25, {alpha: 0},"+=1");
+			tl.to($("#count-three"), 0.25, {alpha: 0},"+=0.75");
 			tl.to($("#count-two"), 0.25, {alpha: 1});
-			tl.to($("#count-two"), 0.25, {alpha: 0},"+=1");
+			tl.to($("#count-two"), 0.25, {alpha: 0},"+=0.75");
 			tl.to($("#count-one"), 0.25, {alpha: 1});
-			tl.to($("#count-one"), 0.25, {alpha: 0},"+=1");
+			tl.to($("#count-one"), 0.25, {alpha: 0},"+=0.75");
 		}	
 		
 		this.setup = function() {
@@ -12289,6 +12322,7 @@ const {
 		
 		this.didSelectNextButton;
 		this.didSelectBackButton;
+		this.didSelectHomeButton;
 		
 		this.update = function(data) {
 			var back = data.back;
@@ -12296,9 +12330,15 @@ const {
 			
 			if (back) {
 				$(this._backButton.find("h4")).text(back.title);
-				var arrowDisplay = (back.arrow) ? "inline-block" : "none";
+				var arrowDisplay = (back.icon) ? "inline-block" : "none";
 				
-				$(this._backButton.find("img")).css({"display": arrowDisplay});
+				var image = $(this._backButton.find("img"));
+				if (back.icon) {
+					image.attr("src", back.icon);
+				}
+				
+				image.css({"display": arrowDisplay});
+				
 				
 				TweenMax.to(this._backButton, 0.25, {autoAlpha: 1});
 			} else {
@@ -12307,9 +12347,15 @@ const {
 			 
 			if (next) {
 			 	$(this._nextButton.find("h4")).text(next.title);
-			 	var arrowDisplay = (next.arrow) ? "inline-block" : "none";
+			 	var arrowDisplay = (next.icon) ? "inline-block" : "none";
 				
-				$(this._nextButton.find("img")).css({"display": arrowDisplay});			 	
+				var image = $(this._nextButton.find("img"));
+				
+				if (next.icon) {
+					image.attr("src", next.icon);
+				}
+				
+				image.css({"display": arrowDisplay});			 	
 				TweenMax.to(this._nextButton, 0.25, {autoAlpha: 1});
 			} else {
 			 	TweenMax.to(this._nextButton, 0.25, {autoAlpha: 0});
@@ -12329,6 +12375,10 @@ const {
 			
 			this._nextButton.on("click", function() {
 				context.didSelectNextButton();
+			});
+			
+			$("#nav-divider").on("click", function() {
+				context.didSelectHomeButton();
 			});
 		}
 		
@@ -12383,8 +12433,8 @@ const {
 			var context = this;
 			
 			var gameVc = this._viewControllers.find(vc => { return vc instanceof GameViewController});
-		
-			this._game.affirmations = this._viewModel.randomAffirmations(3);
+					
+			this._game.affirmations = this._viewModel.randomAffirmations(this._game.level.affirmation_count);
 			var sandwichId = this._game.sandwich.id;
 									
 			gameVc.update(this._game);
@@ -12398,21 +12448,26 @@ const {
 			
 			var name = level.id + "_completed"
 			
-			$.cookie.set(name, true);
+			$.cookie(name, true);
 		}
 		
 		this.endGamePlay = function(success) {
 			var modal = $(".modal");
 			var context = this;
+			var message = this._viewModel.completionMessage(success);
 
 			var vc = new CompletionViewController();
-			vc.init(modal, true);
+			vc.init(modal, success, message);
 			
 			vc.didSelectNextStep = function() {
 				if (context._game.level.id === 1) {
 					context.presentCoupon();
 				} else {
-					context.presentContactForm();
+					if (context._game.level.completed) {
+						context.presentRecipe();
+					} else {
+						context.presentContactForm();
+					}
 				}
 				
 				context.goToNextScreen();
@@ -12425,6 +12480,8 @@ const {
 			}
 			
 			vc.didSelectTryAgain = function() {
+				var gameVc = context._viewControllers.filter(vc => (vc instanceof GameViewController))[0];
+				gameVc.reset();
 				context.beginGamePlay();
 				context.presentCountdown();
 			}
@@ -12439,6 +12496,8 @@ const {
 			vc.init(viewModel, this._presenter);
 			
 			this._viewControllers.push(vc);
+			
+			this.saveCookieForLevel();
 		}
 		
 		this.presentContactForm = function() {
@@ -12452,6 +12511,7 @@ const {
 			vc.didSubmitForm = function() {
 				context.presentRecipe();
 				context.goToNextScreen();
+				context.saveCookieForLevel();
 			}
 			
 			this._viewControllers.push(vc);
@@ -12599,6 +12659,10 @@ const {
 				if (vc instanceof CouponViewController || vc instanceof ContactViewController || vc instanceof RecipeViewController) {
 					vc.dealloc();
 				}
+				
+				if (vc instanceof ChooseLevelViewController) {
+					vc.setupLevels(context._viewModel.levels());
+				}
 			});
 			
 			this._viewControllers = this._viewControllers.filter(vc => !(vc instanceof CouponViewController || vc instanceof ContactViewController || vc instanceof RecipeViewController));
@@ -12610,6 +12674,8 @@ const {
 		this.setup = function() {
 			var context = this;			
 			var container = this._presenter;
+			
+			this.presentContactForm();
 			
 			this._viewModel.steps().forEach(function(step) {
 				switch(step.id) {
@@ -12649,9 +12715,11 @@ const {
 			});			
 		}
 		
-		this.loadCookies = function() {				
+		this.loadCookies = function() {		
+					
 			this._viewModel.levels().forEach(function(level) {
 				var name = level.id + "_completed";
+				//$.removeCookie(name);
 				level.completed = $.cookie(name) ?? false;
 			});
 			
@@ -12879,6 +12947,7 @@ const {
 		this._hasTappedOnItem;
 		this._selectedItem;
 		this._heightMultiplier;
+		this._isStopping;
 		
 		this.didSelectItemListener;
 		
@@ -12939,6 +13008,7 @@ const {
 			this._hasTappedOnItem = false;
 			this._selectedItem = null;
 			this._heightMultiplier = null;
+			this._isStopping = false;
 			
 			var slider = $(this._view.find("ul"));
 			slider.empty();
@@ -12970,7 +13040,7 @@ const {
 			this._selectedItem = item;
 			
 			var left = -item.position().left;
-			
+						
 			TweenMax.to(slider, 0.25, {css:{left:left}, ease:Sine.easeIn, onComplete: function() {
 				context.didSelectItemListener(item.data("id"));
 			}});
@@ -12979,11 +13049,14 @@ const {
 		this.animate = function() {
 			if (this._hasTappedOnItem) {
 				this._speed -= 0.0345;
-				if (this._speed <= 0.25) { 
+				if (this._speed <= 0.25 && !this._isStopping) { 
+					this._isStopping = true;
 					this.animateToSelectedItem();
 					return;
 				}
 			}
+			
+			if (this._isStopping) { return; }
 								
 			switch(this._direction) {
 				case "left":
@@ -13286,7 +13359,7 @@ const {
 			
 			var loader = $(this._view.find(".preloader-text"));
 			
-			loader.html("loading " + percentage + "%");
+			loader.html("Loading " + percentage + "%");
 		}
 		
 		this.onExitComplete = function(){

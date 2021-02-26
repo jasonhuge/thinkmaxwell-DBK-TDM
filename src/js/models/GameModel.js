@@ -26,6 +26,18 @@
 			return this._data.colors;
 		}
 		
+		this.completionMessage = function(success) {
+			return (success) ? this.randomWinnerMessage() : this.randomLoseMessage();
+		}
+		
+		this.randomWinnerMessage = function() {
+			return this._data.win_messaging[Math.floor(Math.random() * this._data.win_messaging.length)];
+		}
+		
+		this.randomLoseMessage = function() {
+			return this._data.lose_messaging[Math.floor(Math.random() * this._data.lose_messaging.length)];
+		}
+		
 		this.randomAffirmations = function(count) {
 			var aff = [];
 			var colors = []

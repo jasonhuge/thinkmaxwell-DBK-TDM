@@ -19,12 +19,21 @@
 			this._view = $("#" + pageId);
 		}
 		
+		this.reset = function() {
+			var context = this;
+			var content = $(this._view.find("ul"));
+			
+			content.empty();
+		}
+		
 		this.setupLevels = function(levels) {
 			var context = this;
 			var content = $(this._view.find("ul"));
 			
 			levels.forEach(function(level) {
-				var template = '<li class="level"><div class="level-content"><h3>' + level.desc + '</h3><div class="level-button button" data-id="' + level.id + '">' + level.title + '<img src="img/content/level-select-arrow.png" alt=""/></div></div></li>';
+				var completedClass = (level.completed) ? "completed" : "";
+				var desc = (level.completed) ? level.completion_message : level.desc;
+				var template = '<li class="level ' + completedClass + '"><div class="level-content"><h3>' + desc + '</h3><div class="level-button button" data-id="' + level.id + '">' + level.title + '<img src="img/content/level-select-arrow.png" alt=""/></div></div></li>';
 				content.append(template);
 			});
 			

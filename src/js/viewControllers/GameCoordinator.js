@@ -27,8 +27,8 @@
 			var context = this;
 			
 			var gameVc = this._viewControllers.find(vc => { return vc instanceof GameViewController});
-		
-			this._game.affirmations = this._viewModel.randomAffirmations(3);
+					
+			this._game.affirmations = this._viewModel.randomAffirmations(this._game.level.affirmation_count);
 			var sandwichId = this._game.sandwich.id;
 									
 			gameVc.update(this._game);
@@ -42,21 +42,26 @@
 			
 			var name = level.id + "_completed"
 			
-			$.cookie.set(name, true);
+			$.cookie(name, true);
 		}
 		
 		this.endGamePlay = function(success) {
 			var modal = $(".modal");
 			var context = this;
+			var message = this._viewModel.completionMessage(success);
 
 			var vc = new CompletionViewController();
-			vc.init(modal, true);
+			vc.init(modal, success, message);
 			
 			vc.didSelectNextStep = function() {
 				if (context._game.level.id === 1) {
 					context.presentCoupon();
 				} else {
-					context.presentContactForm();
+					if (context._game.level.completed) {
+						context.presentRecipe();
+					} else {
+						context.presentContactForm();
+					}
 				}
 				
 				context.goToNextScreen();
@@ -69,6 +74,8 @@
 			}
 			
 			vc.didSelectTryAgain = function() {
+				var gameVc = context._viewControllers.filter(vc => (vc instanceof GameViewController))[0];
+				gameVc.reset();
 				context.beginGamePlay();
 				context.presentCountdown();
 			}
@@ -83,6 +90,8 @@
 			vc.init(viewModel, this._presenter);
 			
 			this._viewControllers.push(vc);
+			
+			this.saveCookieForLevel();
 		}
 		
 		this.presentContactForm = function() {
@@ -96,6 +105,7 @@
 			vc.didSubmitForm = function() {
 				context.presentRecipe();
 				context.goToNextScreen();
+				context.saveCookieForLevel();
 			}
 			
 			this._viewControllers.push(vc);
@@ -243,6 +253,10 @@
 				if (vc instanceof CouponViewController || vc instanceof ContactViewController || vc instanceof RecipeViewController) {
 					vc.dealloc();
 				}
+				
+				if (vc instanceof ChooseLevelViewController) {
+					vc.setupLevels(context._viewModel.levels());
+				}
 			});
 			
 			this._viewControllers = this._viewControllers.filter(vc => !(vc instanceof CouponViewController || vc instanceof ContactViewController || vc instanceof RecipeViewController));
@@ -254,6 +268,8 @@
 		this.setup = function() {
 			var context = this;			
 			var container = this._presenter;
+			
+			this.presentContactForm();
 			
 			this._viewModel.steps().forEach(function(step) {
 				switch(step.id) {
@@ -293,9 +309,11 @@
 			});			
 		}
 		
-		this.loadCookies = function() {				
+		this.loadCookies = function() {		
+					
 			this._viewModel.levels().forEach(function(level) {
 				var name = level.id + "_completed";
+				//$.removeCookie(name);
 				level.completed = $.cookie(name) ?? false;
 			});
 			

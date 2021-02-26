@@ -56,6 +56,10 @@
 			this._footer.didSelectBackButton = function() {
 				context._gameCoordinator.presentPrevViewController();
 			}
+			
+			this._footer.didSelectHomeButton = function() {
+				context._gameCoordinator.exit();
+			}
 		
 			this._introCoordinator = new IntroCoordinator();
 			this._introCoordinator.init(this._model.intro, $("#intro-container"));
@@ -71,6 +75,7 @@
 			}
 			
 			this._gameCoordinator.exitComplete = function() {
+				context._gameCoordinator.reset();
 				context._introCoordinator.intro();
 			}
 			
@@ -151,6 +156,7 @@
 	
 	App.prototype = {
 		init:function(deviceType){
+			
 			this._deviceType = deviceType;
 			
 			var context = this;

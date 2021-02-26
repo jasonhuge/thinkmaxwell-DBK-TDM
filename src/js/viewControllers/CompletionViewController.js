@@ -7,6 +7,7 @@
 		this._view;
 		this._container;
 		this._isWinner;
+		this._message;
 		this._particles;
 		this.didSelectNextStep;
 		this.didSelectStartOver;
@@ -42,6 +43,7 @@
 			} else {
 				this._view = $(this._container.find(".loser"));
 				
+				
 				this._view.find("#loser-tryagain-button").on("click", function() {
 					context.didSelectTryAgain();
 					context.exit();
@@ -52,6 +54,8 @@
 					context.exit();
 				});
 			}
+							
+			$(this._view.find("#inner-title")).html(this._message);
 			
 			var content = $(this._view).find(".modal-content");
 			
@@ -77,9 +81,10 @@
 			}
 		}
 			
-		this.init = function(container, isWinner) {
+		this.init = function(container, isWinner, message) {
 			this._container = container;
 			this._isWinner = isWinner;
+			this._message = message;
 			this.setup();
 		}
 		

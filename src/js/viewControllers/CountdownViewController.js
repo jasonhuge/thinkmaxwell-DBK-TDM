@@ -36,11 +36,11 @@
 			}});
 
 			tl.to($("#count-three"), 0.25, {alpha: 1});
-			tl.to($("#count-three"), 0.25, {alpha: 0},"+=1");
+			tl.to($("#count-three"), 0.25, {alpha: 0},"+=0.75");
 			tl.to($("#count-two"), 0.25, {alpha: 1});
-			tl.to($("#count-two"), 0.25, {alpha: 0},"+=1");
+			tl.to($("#count-two"), 0.25, {alpha: 0},"+=0.75");
 			tl.to($("#count-one"), 0.25, {alpha: 1});
-			tl.to($("#count-one"), 0.25, {alpha: 0},"+=1");
+			tl.to($("#count-one"), 0.25, {alpha: 0},"+=0.75");
 		}	
 		
 		this.setup = function() {

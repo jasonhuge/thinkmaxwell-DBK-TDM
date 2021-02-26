@@ -93,7 +93,8 @@
 				
 				$(this).change(function() {
 					$(this).removeClass("error");
-				})
+				});
+			
 			});
 					
 		}

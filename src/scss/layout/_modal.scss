@@ -60,6 +60,15 @@
 	}
 }
 
+#loser-tryagain-button {
+	.button-content {
+		img {
+			width: 15px ;
+			margin-left: 5px;
+		}
+	}
+}
+
 .winner, .loser {
 	width: 100%;
 	height: 100%;
@@ -100,7 +109,7 @@
 	}
 	
 	.modal-button {
-		color: white;
+		color: black;
 		display: inline-block;
 	}
 	
@@ -136,7 +145,6 @@
 }
 
 .loser {
-	
 	.button-background {
 		background: white;
 		border: 2px solid $yellow;

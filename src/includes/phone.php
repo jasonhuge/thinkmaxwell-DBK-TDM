@@ -28,7 +28,7 @@
 		<footer id="app-footer">
 	    	<nav id="game-nav">
 	        	<div class="nav-button button" id="back-button" data-action="">
-		        	<img src="img/content/nav-back-arrow.png" alt="back-arrow"/>
+		        	<img id="back-icon" src="img/content/left_arrow_white.png" alt="back-arrow"/>
 		        	<h4>BACK</h4>
 	        	</div>
 	        	<div id="nav-divider">
@@ -36,7 +36,7 @@
 	        	</div>
 		        <div class="nav-button button" id="spacer-button" data-action="">
 		        	<h4></h4>
-		        	<img src="img/content/next-arrow.png" alt="next-arrow"/>
+		        	<img id="next-icon" src="img/content/right_arrow_white.png" alt="next-arrow"/>
 	        	</div>
 	    	</nav>
 		</footer>

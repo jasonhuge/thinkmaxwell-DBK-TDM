@@ -177,6 +177,7 @@
 		this._hasTappedOnItem;
 		this._selectedItem;
 		this._heightMultiplier;
+		this._isStopping;
 		
 		this.didSelectItemListener;
 		
@@ -237,6 +238,7 @@
 			this._hasTappedOnItem = false;
 			this._selectedItem = null;
 			this._heightMultiplier = null;
+			this._isStopping = false;
 			
 			var slider = $(this._view.find("ul"));
 			slider.empty();
@@ -268,7 +270,7 @@
 			this._selectedItem = item;
 			
 			var left = -item.position().left;
-			
+						
 			TweenMax.to(slider, 0.25, {css:{left:left}, ease:Sine.easeIn, onComplete: function() {
 				context.didSelectItemListener(item.data("id"));
 			}});
@@ -277,11 +279,14 @@
 		this.animate = function() {
 			if (this._hasTappedOnItem) {
 				this._speed -= 0.0345;
-				if (this._speed <= 0.25) { 
+				if (this._speed <= 0.25 && !this._isStopping) { 
+					this._isStopping = true;
 					this.animateToSelectedItem();
 					return;
 				}
 			}
+			
+			if (this._isStopping) { return; }
 								
 			switch(this._direction) {
 				case "left":
