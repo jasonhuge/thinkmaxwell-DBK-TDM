@@ -88,7 +88,7 @@
 				"middle": "img/content/sando-1/middle.jpg",
 				"bottom": "img/content/sando-1/bottom.jpg",
 				"recipe": {
-					"cta": "Ain’t no party like an egg salad party cuz and egg salad party don’t STOP. Especially if Epic Awesome bagels are the dance floor.",
+					"cta": "Ain’t no party like an egg salad party cuz and egg salad party don’t STOP. Especially if Epic Everything bagels are the dance floor.",
 					"link": "https://www.daveskillerbread.com/recipes/bagel-so-eggstra",
 					"hero": "img/content/sando-1/recipe.jpg",
 					"detail": "img/content/sando-1/bread.png"
@@ -104,7 +104,7 @@
 				"middle": "img/content/sando-2/middle.jpg",
 				"bottom": "img/content/sando-2/bottom.jpg",
 				"recipe": {
-					"cta": "Some people say if you eat bananas with peanut butter on DKB, you’ll have good luck for life. We don’t know who said it, but just in case, you better get some of this remixed PB+B ‘which on Cinnamon Rasin Remix.",
+					"cta": "Some people say if you eat bananas with peanut butter on DKB, you’ll have good luck for life. We don’t know who said it, but just in case, you better get some of this remixed PB+B ‘which on Cinnamon Raisin Remix.",
 					"link": "https://www.daveskillerbread.com/recipes/bananas-for-peanut-butter-sando",
 					"hero": "img/content/sando-2/recipe.jpg",
 					"detail": "img/content/sando-2/bread.png"
@@ -135,7 +135,7 @@
 				"middle": "img/content/sando-4/middle.jpg",
 				"bottom": "img/content/sando-4/bottom.jpg",
 				"recipe": {
-					"cta": "You can’t Beet a burger on Epic Everything with a wallop of whole grains and a heckuva a lot of awesome. Boom!",
+					"cta": "You can’t Beet a burger on 21 Whole Grains and Seeds Burger Buns with a wallop of whole grains and a heckuva a lot of awesome. Boom!",
 					"link": "https://www.daveskillerbread.com/recipes/kick-it-up-a-beet-burger",
 					"hero": "img/content/sando-4/recipe.jpg",
 					"detail": "img/content/sando-6/bread.png"
@@ -183,7 +183,7 @@
 				"middle": "img/content/sando-7/middle.jpg",
 				"bottom": "img/content/sando-7/bottom.jpg",
 				"recipe": {
-					"cta": "Stacks and stacks of veggies and sprouts on 21 Whole Grains and Seeds Thin-Slice make us want to shout!",
+					"cta": "Stacks and stacks of veggies and sprouts on 21 Whole Grains and Seeds Thin-Sliced make us want to shout!",
 					"link": "https://www.daveskillerbread.com/recipes/veggie-to-the-max",
 					"hero": "img/content/sando-7/recipe.jpg",
 					"detail": "img/content/sando-7/bread.png"
@@ -239,16 +239,16 @@
 		"win_messaging": [
 			"NAILED IT!<br/>THIS DAY JUST GOT<br/>BREADER!",
 			"DING DING DING<br/>BREADWINNER!",
-			"DAY MADE!<br/>YOU + DBK = GREATNESS.",
+			"DAY MADE!<br/>YOU + DKB = GREATNESS.",
 			"LOOK AT YOU!<br/>YOU'RE<br/>KILLIN' IT!",
 			"YOU ROCK!<br/>STRUT YOUR STUFF!",
-			"BOOM!<br/>FROM ALRIGHT<br/>TO ALLRIGHT!",
+			"BOOM!<br/>FROM ALRIGHT<br/>TO ALL RIGHT!",
 			"TWIST & SPROUT!<br/>WINNING LOOKS<br/>GOOD ON YOU!"
 		],
 		"lose_messaging": [
-			"SORRY,<br/>THAT DIDN'T<br/>STACK UP",
+			"SORRY,<br/>THAT DIDN'T<br/>STACK UP.",
 			"BUMMER, DUDE.<br/>BETTER LUCK<br/>NEXT TIME.",
-			"SO DANG CLOSE.<br/>READ TO ROCK<br/>ALL OVER AGAIN?",
+			"SO DANG CLOSE.<br/>READY TO ROCK<br/>ALL OVER AGAIN?",
 			"DOH!,<br/>THE RIGHT MATCH<br/>IS STILL OUT THERE.",
 			"DANG!<br/>WE BELIEVE<br/>IN YOU."
 		],
@@ -280,7 +280,7 @@
 				"completion_message": "Prize entry already claimed,<br/>but play again for fun!",
 				"speed": 3.5,
 				"tolerance": 1.25,
-				"list_id": "19f888674a",
+				"list_id": "31f07e52b2",
 				"affirmation_count": 2,
 				"sandwich_ids": [
 					5, 2, 4, 3
@@ -293,7 +293,7 @@
 				"completion_message": "Prize entry already claimed,<br/>but play again for fun!",
 				"speed": 4,
 				"tolerance": 1.25,
-				"list_id": "19f888674a",
+				"list_id": "0e96f2164f",
 				"affirmation_count": 3,
 				"sandwich_ids": [
 					5, 2, 6, 3

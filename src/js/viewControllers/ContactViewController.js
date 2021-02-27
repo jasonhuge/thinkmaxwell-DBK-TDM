@@ -93,10 +93,8 @@
 				
 				$(this).change(function() {
 					$(this).removeClass("error");
-				});
-			
-			});
-					
+				});			
+			});					
 		}
 			
 		this.init = function(model, container) {
@@ -173,6 +171,27 @@
 			TweenMax.to(this._view, 0.25, {autoAlpha: 0, onComplete: function() {
 				if (completion) { completion(); }
 			}});
+		}
+		
+		this.onWindowResize = function(e) {
+			
+		}
+		
+		this.onKeyboardChange = function(show, screenSize) {
+			var pageContent = $(this._view.find(".page-content"));
+			if (show) {
+				var header = $("#app-header");
+				var footer = $("footer");
+				
+				var headerHeight = header.height() + 18;
+				var footerHeight = footer.height();
+				
+				pageContent.addClass("with-keyboard");
+				pageContent.css({"top": headerHeight, height: screenSize - headerHeight - footerHeight})
+			} else {
+				pageContent.removeClass("with-keyboard");
+				pageContent.css({"top": "50%", height: "auto"})
+			}
 		}
 	}
 	

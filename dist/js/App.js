@@ -149,20 +149,23 @@
     		}
 		};
 				
-		this.onWindowResize = function(){
-			
+		this.onWindowResize = function(e){
+			console.log("resize");
+			this._gameCoordinator.onWindowResize(e);
    		}
 	}
 	
 	App.prototype = {
 		init:function(deviceType){
-			
+			console.log(deviceType);
 			this._deviceType = deviceType;
 			
 			var context = this;
 				
 			$(window).on("orientationchange", function(e){ context.onOrientationChange(e); });
 			$(window).on("resize", function(e){ context.onWindowResize(e); });
+			
+			
 																							
 			this.loadScripts();
 			
@@ -171,6 +174,18 @@
 			$(".terms-conditions .close-button").on("click", function() {
 				TweenMax.to($(".terms-conditions"), 0.25, {autoAlpha: 0});
 			});
+			
+			if (deviceType !== "ios") {
+				var windowHeight = $(window).innerHeight();
+				$('body').css({'height':windowHeight});
+			
+				if('visualViewport' in window) {
+					window.visualViewport.addEventListener('resize', function(event) {
+						var keyboardShowing = (event.target.height < $(document).height()) ? true : false
+						context._gameCoordinator.onKeyboardChange(keyboardShowing, event.target.height);
+					});
+				}
+			}
 		}
 	};
 	
@@ -12113,10 +12128,8 @@ const {
 				
 				$(this).change(function() {
 					$(this).removeClass("error");
-				});
-			
-			});
-					
+				});			
+			});					
 		}
 			
 		this.init = function(model, container) {
@@ -12193,6 +12206,27 @@ const {
 			TweenMax.to(this._view, 0.25, {autoAlpha: 0, onComplete: function() {
 				if (completion) { completion(); }
 			}});
+		}
+		
+		this.onWindowResize = function(e) {
+			
+		}
+		
+		this.onKeyboardChange = function(show, screenSize) {
+			var pageContent = $(this._view.find(".page-content"));
+			if (show) {
+				var header = $("#app-header");
+				var footer = $("footer");
+				
+				var headerHeight = header.height() + 18;
+				var footerHeight = footer.height();
+				
+				pageContent.addClass("with-keyboard");
+				pageContent.css({"top": headerHeight, height: screenSize - headerHeight - footerHeight})
+			} else {
+				pageContent.removeClass("with-keyboard");
+				pageContent.css({"top": "50%", height: "auto"})
+			}
 		}
 	}
 	
@@ -12463,11 +12497,11 @@ const {
 				if (context._game.level.id === 1) {
 					context.presentCoupon();
 				} else {
-					if (context._game.level.completed) {
-						context.presentRecipe();
-					} else {
+					//if (context._game.level.completed) {
+					//	context.presentRecipe();
+					//} else {
 						context.presentContactForm();
-					}
+					//}
 				}
 				
 				context.goToNextScreen();
@@ -12675,7 +12709,7 @@ const {
 			var context = this;			
 			var container = this._presenter;
 			
-			this.presentContactForm();
+			//this.presentContactForm();
 			
 			this._viewModel.steps().forEach(function(step) {
 				switch(step.id) {
@@ -12763,6 +12797,14 @@ const {
 				
 		this.onWindowResize = function(e) {
 			
+		}
+		
+		this.onKeyboardChange = function(show, screenSize) {
+			var vc = this._viewControllers.filter(vc => (vc instanceof ContactViewController))[0];
+			
+			if (vc) {
+				vc.onKeyboardChange(show, screenSize);
+			}
 		}
 	}
 		

@@ -57,11 +57,11 @@
 				if (context._game.level.id === 1) {
 					context.presentCoupon();
 				} else {
-					if (context._game.level.completed) {
-						context.presentRecipe();
-					} else {
+					//if (context._game.level.completed) {
+					//	context.presentRecipe();
+					//} else {
 						context.presentContactForm();
-					}
+					//}
 				}
 				
 				context.goToNextScreen();
@@ -269,7 +269,7 @@
 			var context = this;			
 			var container = this._presenter;
 			
-			this.presentContactForm();
+			//this.presentContactForm();
 			
 			this._viewModel.steps().forEach(function(step) {
 				switch(step.id) {
@@ -357,6 +357,14 @@
 				
 		this.onWindowResize = function(e) {
 			
+		}
+		
+		this.onKeyboardChange = function(show, screenSize) {
+			var vc = this._viewControllers.filter(vc => (vc instanceof ContactViewController))[0];
+			
+			if (vc) {
+				vc.onKeyboardChange(show, screenSize);
+			}
 		}
 	}
 		

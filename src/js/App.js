@@ -149,20 +149,23 @@
     		}
 		};
 				
-		this.onWindowResize = function(){
-			
+		this.onWindowResize = function(e){
+			console.log("resize");
+			this._gameCoordinator.onWindowResize(e);
    		}
 	}
 	
 	App.prototype = {
 		init:function(deviceType){
-			
+			console.log(deviceType);
 			this._deviceType = deviceType;
 			
 			var context = this;
 				
 			$(window).on("orientationchange", function(e){ context.onOrientationChange(e); });
 			$(window).on("resize", function(e){ context.onWindowResize(e); });
+			
+			
 																							
 			this.loadScripts();
 			
@@ -171,6 +174,18 @@
 			$(".terms-conditions .close-button").on("click", function() {
 				TweenMax.to($(".terms-conditions"), 0.25, {autoAlpha: 0});
 			});
+			
+			if (deviceType !== "ios") {
+				var windowHeight = $(window).innerHeight();
+				$('body').css({'height':windowHeight});
+			
+				if('visualViewport' in window) {
+					window.visualViewport.addEventListener('resize', function(event) {
+						var keyboardShowing = (event.target.height < $(document).height()) ? true : false
+						context._gameCoordinator.onKeyboardChange(keyboardShowing, event.target.height);
+					});
+				}
+			}
 		}
 	};
 	

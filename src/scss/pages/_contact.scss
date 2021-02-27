@@ -3,12 +3,18 @@
 	outline-style: solid;
 }
 
+.with-keyboard {
+	transform: translate(0, 0) !important;
+	overflow: scroll;
+	padding: 20px !important;
+}
+
 #contact {
 	.required {
 		outline: red;
 		outline-style: solid;
 	}
-
+	
 	.page-content {
 		margin: 0;
 		padding: 0;
@@ -16,6 +22,7 @@
 		top: 50%;
 		transform: translate(0,-50%);
 		width: 100%;
+		overflow: scroll;
 		
 		padding: 0 20px 0 20px;
 		box-sizing: border-box;

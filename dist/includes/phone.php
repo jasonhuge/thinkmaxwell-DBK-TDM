@@ -1,7 +1,9 @@
 <?php
 	$file = file_get_contents("data/app.json");
-	$json = json_decode($file, true);	
+	$json = json_decode($file, true);
+		
 ?>
+
 <div class="wrapper">
 	<div class="content">
 		<header id="app-header">
@@ -87,7 +89,16 @@
 <script type="text/javascript">
 
     $(document).ready(function(){
+	    <?php
+		    if ($detect->isiOS()) {
+			    echo 'var deviceType = "ios";';
+		    } else {
+			    echo 'var deviceType = "android";';
+
+			}
+		?>
+	    
 		var app = new App();
-		app.init("phone");
+		app.init(deviceType);
 	});
 </script>
