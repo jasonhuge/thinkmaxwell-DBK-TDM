@@ -7,6 +7,7 @@
 		this._container;
 		this._model;
 		this.didSubmitForm;
+		this.skipForm;
 		this._hasSubmittedData = false;
 		
 		this.reset = function() {
@@ -80,6 +81,7 @@
 		}
 		
 		this.setup = function() {
+			var context = this;
 			var pageId = this._model['page-id'];			
 			this._container.append(this._model.template);	
 			this._view = $("#" + pageId);	
@@ -94,12 +96,19 @@
 				$(this).change(function() {
 					$(this).removeClass("error");
 				});			
-			});					
+			});	
+			
+			$(this._view.find("#skip-button")).on("click", function() {
+				context.skipForm();
+			});
+			
+			$(this._view.find("p")).html(this._level.form_message);		
 		}
 			
-		this.init = function(model, container) {
+		this.init = function(model, container, level) {
 			this._model = model;
 			this._container = container;
+			this._level = level;
 			this.setup();
 		}
 		
@@ -112,8 +121,9 @@
 			}});
 		}
 		
-		this.submit = function(level) {			
+		this.submit = function() {			
 			var context = this;
+			var level = this._level;
 			
 			this.vaildate(function(success){
 				
@@ -121,9 +131,10 @@
 					context.showLoader(function() {
 						var data = $(context._view.find("form")).serializeArray();
 						var url = "api/register/index.php";
+						var shouldSubscribe = ($("#newsletter").is(":checked")) ? "subscribed" : "unsubscribed";
 						
 						data.push({name: "id", value: level.list_id});
-						data.push({name:"should_subscribe", value: $("#newsletter").is(":checked") });
+						data.push({name:"should_subscribe", shouldSubscribe });
 						
 						$.ajax({
 							type: "POST",
@@ -133,7 +144,6 @@
 								context.onSubmitSuccess();
 							},
 							error: function(error) {
-								console.log(error.responseText);
 								context.onSubmitFailire(error);
 							}
 						});

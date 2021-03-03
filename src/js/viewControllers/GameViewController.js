@@ -6,22 +6,21 @@
 	function GameViewController(){
 		this._view;
 		this._pageContent;
-		this._deviceType;
 		this._model;
 		this._game;
 		this._rows = [];
 		this._selectedIds = [];
 		this._shouldAnimate = false;
+		this._reqId;
 		
 		this.didFinishGame;
 		
 		this.reset = function() {	
+			cancelAnimationFrame(this._reqId);
+			this._reqId = null;
 			this._shouldAnimate = false;
-			
 			this._game = null;
-			
 			this._selectedIds = [];
-	
 			this._rows.forEach(function(row){
 				row.reset();
 			});
@@ -32,14 +31,14 @@
 			this._shouldAnimate = true;
 			
 			window.requestAnimationFrame(animate);
-			
+			console.log("start");
 			function animate() {
 				if (context._shouldAnimate) {
 					context._rows.forEach(function(row){
 						row.animate();
-				
+						
 					});
-					window.requestAnimationFrame(animate);
+					context._reqId = window.requestAnimationFrame(animate);
 				}
 			}
 		}
@@ -50,37 +49,39 @@
 			this._game = game;
 			
 			var speed = this._game.level.speed;
-			var tolerance = this._game.level.tolerance;
 			var sandwiches = this._game.sandwiches;
 			var affirmations = this._game.affirmations;
 			
 			this._rows.forEach(function(row){
-				var animationSpeed = speed + Math.random() * ((tolerance - 0.01) + tolerance) ;
 				switch(row._id) {
 					case "top":
 					var items = sandwiches.map(function(a){
 						return {"image": a.top, "id": a.id, "type": "sando"}
 					});
-					row.update(items, "left", animationSpeed, 0.234275);
+					row.update(items, "left", speed.top, 0.234275);
 					break;
 					case "middle":
 					var items = sandwiches.map(function(a){
 						return {"image": a.middle, "id": a.id, "type": "sando"}
 					});
 					
+					var index = 1;
 					affirmations.forEach(function(affirmation) {
-						items.push(affirmation);
+						items.splice(index, 0, affirmation);
+						index += 2;
 					});
 					
-					items = items.sort(function(a, b){return 0.5 - Math.random()});
+					console.log(items);
+					
+					///items = items.sort(function(a, b){return 0.5 - Math.random()});
 
-					row.update(items, "right", speed, 0.375);
+					row.update(items, "right", speed.middle, 0.375);
 					break;
 					case "bottom":
 					var items = sandwiches.map(function(a){
 						return {"image": a.bottom, "id": a.id, "type": "sando"}
 					});
-					row.update(items, "left", animationSpeed,  0.1875);
+					row.update(items, "left", speed.bottom,  0.1875);
 					break;
 				}
 			});

@@ -157,7 +157,6 @@
 	
 	App.prototype = {
 		init:function(deviceType){
-			console.log(deviceType);
 			this._deviceType = deviceType;
 			
 			var context = this;

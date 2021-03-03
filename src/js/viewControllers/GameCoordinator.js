@@ -57,11 +57,11 @@
 				if (context._game.level.id === 1) {
 					context.presentCoupon();
 				} else {
-					//if (context._game.level.completed) {
-					//	context.presentRecipe();
-					//} else {
+					if (context._game.level.completed) {
+						context.presentRecipe();
+					} else {
 						context.presentContactForm();
-					//}
+					}
 				}
 				
 				context.goToNextScreen();
@@ -74,13 +74,16 @@
 			}
 			
 			vc.didSelectTryAgain = function() {
-				var gameVc = context._viewControllers.filter(vc => (vc instanceof GameViewController))[0];
-				gameVc.reset();
-				context.beginGamePlay();
-				context.presentCountdown();
+				context.tryAgain();
 			}
 			
 			vc.intro();
+		}
+		
+		this.tryAgain = function() {
+			var gameVc = this._viewControllers.filter(vc => (vc instanceof GameViewController))[0];
+			gameVc.reset();
+			this.beginGamePlay();
 		}
 		
 		this.presentCoupon = function() {
@@ -100,12 +103,17 @@
 			var viewModel = this._viewModel.contactData();
 			
 			var vc = new ContactViewController();
-			vc.init(viewModel, this._presenter);
+			vc.init(viewModel, this._presenter, this._game.level);
 			
 			vc.didSubmitForm = function() {
 				context.presentRecipe();
 				context.goToNextScreen();
 				context.saveCookieForLevel();
+			}
+			
+			vc.skipForm = function() {
+				context.presentRecipe();
+				context.goToNextScreen();
 			}
 			
 			this._viewControllers.push(vc);
@@ -161,7 +169,9 @@
 				//play again
 				this.startOver();
 			} else if (action === "submit_form") {
-				vc.submit(this._game.level);
+				vc.submit();
+			} else if (action === "retry") {
+				this.tryAgain();
 			}
 		}
 	
@@ -198,6 +208,8 @@
 			
 			if (prevVc instanceof CouponViewController || prevVc instanceof ContactViewController) {
 				this.presentRecipe();
+			} else if (prevVc instanceof InstructionsViewController) {
+				this.beginGamePlay();
 			}
 			
 			if (this._currentStep == (this._viewControllers.length - 1)) { return; }
@@ -215,7 +227,7 @@
 		
 		this.navigateToStep = function(currentVc, prevVc) {
 			var step = currentVc._model;
-
+			
 			var headerImage = (currentVc instanceof GameViewController && this._game.sandwich !== null) ? this._game.sandwich.thumbnail : null;
 
 			var headerModel = {
@@ -284,18 +296,25 @@
 						}
 						
 						context._viewControllers.push(vc);
-						break;
+						break
 					case 1:
 						var vc = new ChooseSandwichViewController();
 						vc.init(step, container);
 						
 						vc.didSelectSandwich = function(sandwichId) {
 							context.selectSandwich(sandwichId);
-							context.beginGamePlay();
+							context.goToNextScreen();
+							//context.beginGamePlay();
 						}
 						context._viewControllers.push(vc);
-						break;
+						break
 					case 2:
+						var vc = new InstructionsViewController();
+						vc.init(step, container);
+						
+						context._viewControllers.push(vc);
+						break
+					case 3:
 						var vc = new GameViewController();
 						vc.init(step, container);
 						
@@ -304,6 +323,7 @@
 						}
 						
 						context._viewControllers.push(vc);
+						break
 					break
 				}
 			});			

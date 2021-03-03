@@ -157,7 +157,6 @@
 	
 	App.prototype = {
 		init:function(deviceType){
-			console.log(deviceType);
 			this._deviceType = deviceType;
 			
 			var context = this;
@@ -11620,13 +11619,14 @@ const {
 				images.push(sandwich.top);
 				images.push(sandwich.middle);
 				images.push(sandwich.bottom);
+				images.push(sandwich.hero);
 				
 				var recipe = sandwich.recipe;
 				
 				images.push(recipe.hero);
 				images.push(recipe.detail);
 			});
-			
+
 			return images;
 		}
 		
@@ -12042,6 +12042,7 @@ const {
 		this._container;
 		this._model;
 		this.didSubmitForm;
+		this.skipForm;
 		this._hasSubmittedData = false;
 		
 		this.reset = function() {
@@ -12115,6 +12116,7 @@ const {
 		}
 		
 		this.setup = function() {
+			var context = this;
 			var pageId = this._model['page-id'];			
 			this._container.append(this._model.template);	
 			this._view = $("#" + pageId);	
@@ -12129,12 +12131,19 @@ const {
 				$(this).change(function() {
 					$(this).removeClass("error");
 				});			
-			});					
+			});	
+			
+			$(this._view.find("#skip-button")).on("click", function() {
+				context.skipForm();
+			});
+			
+			$(this._view.find("p")).html(this._level.form_message);		
 		}
 			
-		this.init = function(model, container) {
+		this.init = function(model, container, level) {
 			this._model = model;
 			this._container = container;
+			this._level = level;
 			this.setup();
 		}
 		
@@ -12147,8 +12156,9 @@ const {
 			}});
 		}
 		
-		this.submit = function(level) {			
+		this.submit = function() {			
 			var context = this;
+			var level = this._level;
 			
 			this.vaildate(function(success){
 				
@@ -12156,9 +12166,10 @@ const {
 					context.showLoader(function() {
 						var data = $(context._view.find("form")).serializeArray();
 						var url = "api/register/index.php";
+						var shouldSubscribe = ($("#newsletter").is(":checked")) ? "subscribed" : "unsubscribed";
 						
 						data.push({name: "id", value: level.list_id});
-						data.push({name:"should_subscribe", value: $("#newsletter").is(":checked") });
+						data.push({name:"should_subscribe", shouldSubscribe });
 						
 						$.ajax({
 							type: "POST",
@@ -12168,7 +12179,6 @@ const {
 								context.onSubmitSuccess();
 							},
 							error: function(error) {
-								console.log(error.responseText);
 								context.onSubmitFailire(error);
 							}
 						});
@@ -12368,6 +12378,7 @@ const {
 				
 				var image = $(this._backButton.find("img"));
 				if (back.icon) {
+					image.css({"width": back.img_width});
 					image.attr("src", back.icon);
 				}
 				
@@ -12388,6 +12399,8 @@ const {
 				if (next.icon) {
 					image.attr("src", next.icon);
 				}
+				
+				image.css({"width": next.img_width});
 				
 				image.css({"display": arrowDisplay});			 	
 				TweenMax.to(this._nextButton, 0.25, {autoAlpha: 1});
@@ -12497,11 +12510,11 @@ const {
 				if (context._game.level.id === 1) {
 					context.presentCoupon();
 				} else {
-					//if (context._game.level.completed) {
-					//	context.presentRecipe();
-					//} else {
+					if (context._game.level.completed) {
+						context.presentRecipe();
+					} else {
 						context.presentContactForm();
-					//}
+					}
 				}
 				
 				context.goToNextScreen();
@@ -12514,13 +12527,16 @@ const {
 			}
 			
 			vc.didSelectTryAgain = function() {
-				var gameVc = context._viewControllers.filter(vc => (vc instanceof GameViewController))[0];
-				gameVc.reset();
-				context.beginGamePlay();
-				context.presentCountdown();
+				context.tryAgain();
 			}
 			
 			vc.intro();
+		}
+		
+		this.tryAgain = function() {
+			var gameVc = this._viewControllers.filter(vc => (vc instanceof GameViewController))[0];
+			gameVc.reset();
+			this.beginGamePlay();
 		}
 		
 		this.presentCoupon = function() {
@@ -12540,12 +12556,17 @@ const {
 			var viewModel = this._viewModel.contactData();
 			
 			var vc = new ContactViewController();
-			vc.init(viewModel, this._presenter);
+			vc.init(viewModel, this._presenter, this._game.level);
 			
 			vc.didSubmitForm = function() {
 				context.presentRecipe();
 				context.goToNextScreen();
 				context.saveCookieForLevel();
+			}
+			
+			vc.skipForm = function() {
+				context.presentRecipe();
+				context.goToNextScreen();
 			}
 			
 			this._viewControllers.push(vc);
@@ -12601,7 +12622,9 @@ const {
 				//play again
 				this.startOver();
 			} else if (action === "submit_form") {
-				vc.submit(this._game.level);
+				vc.submit();
+			} else if (action === "retry") {
+				this.tryAgain();
 			}
 		}
 	
@@ -12638,6 +12661,8 @@ const {
 			
 			if (prevVc instanceof CouponViewController || prevVc instanceof ContactViewController) {
 				this.presentRecipe();
+			} else if (prevVc instanceof InstructionsViewController) {
+				this.beginGamePlay();
 			}
 			
 			if (this._currentStep == (this._viewControllers.length - 1)) { return; }
@@ -12655,7 +12680,7 @@ const {
 		
 		this.navigateToStep = function(currentVc, prevVc) {
 			var step = currentVc._model;
-
+			
 			var headerImage = (currentVc instanceof GameViewController && this._game.sandwich !== null) ? this._game.sandwich.thumbnail : null;
 
 			var headerModel = {
@@ -12724,18 +12749,25 @@ const {
 						}
 						
 						context._viewControllers.push(vc);
-						break;
+						break
 					case 1:
 						var vc = new ChooseSandwichViewController();
 						vc.init(step, container);
 						
 						vc.didSelectSandwich = function(sandwichId) {
 							context.selectSandwich(sandwichId);
-							context.beginGamePlay();
+							context.goToNextScreen();
+							//context.beginGamePlay();
 						}
 						context._viewControllers.push(vc);
-						break;
+						break
 					case 2:
+						var vc = new InstructionsViewController();
+						vc.init(step, container);
+						
+						context._viewControllers.push(vc);
+						break
+					case 3:
 						var vc = new GameViewController();
 						vc.init(step, container);
 						
@@ -12744,6 +12776,7 @@ const {
 						}
 						
 						context._viewControllers.push(vc);
+						break
 					break
 				}
 			});			
@@ -12818,22 +12851,21 @@ const {
 	function GameViewController(){
 		this._view;
 		this._pageContent;
-		this._deviceType;
 		this._model;
 		this._game;
 		this._rows = [];
 		this._selectedIds = [];
 		this._shouldAnimate = false;
+		this._reqId;
 		
 		this.didFinishGame;
 		
 		this.reset = function() {	
+			cancelAnimationFrame(this._reqId);
+			this._reqId = null;
 			this._shouldAnimate = false;
-			
 			this._game = null;
-			
 			this._selectedIds = [];
-	
 			this._rows.forEach(function(row){
 				row.reset();
 			});
@@ -12844,14 +12876,14 @@ const {
 			this._shouldAnimate = true;
 			
 			window.requestAnimationFrame(animate);
-			
+			console.log("start");
 			function animate() {
 				if (context._shouldAnimate) {
 					context._rows.forEach(function(row){
 						row.animate();
-				
+						
 					});
-					window.requestAnimationFrame(animate);
+					context._reqId = window.requestAnimationFrame(animate);
 				}
 			}
 		}
@@ -12862,37 +12894,39 @@ const {
 			this._game = game;
 			
 			var speed = this._game.level.speed;
-			var tolerance = this._game.level.tolerance;
 			var sandwiches = this._game.sandwiches;
 			var affirmations = this._game.affirmations;
 			
 			this._rows.forEach(function(row){
-				var animationSpeed = speed + Math.random() * ((tolerance - 0.01) + tolerance) ;
 				switch(row._id) {
 					case "top":
 					var items = sandwiches.map(function(a){
 						return {"image": a.top, "id": a.id, "type": "sando"}
 					});
-					row.update(items, "left", animationSpeed, 0.234275);
+					row.update(items, "left", speed.top, 0.234275);
 					break;
 					case "middle":
 					var items = sandwiches.map(function(a){
 						return {"image": a.middle, "id": a.id, "type": "sando"}
 					});
 					
+					var index = 1;
 					affirmations.forEach(function(affirmation) {
-						items.push(affirmation);
+						items.splice(index, 0, affirmation);
+						index += 2;
 					});
 					
-					items = items.sort(function(a, b){return 0.5 - Math.random()});
+					console.log(items);
+					
+					///items = items.sort(function(a, b){return 0.5 - Math.random()});
 
-					row.update(items, "right", speed, 0.375);
+					row.update(items, "right", speed.middle, 0.375);
 					break;
 					case "bottom":
 					var items = sandwiches.map(function(a){
 						return {"image": a.bottom, "id": a.id, "type": "sando"}
 					});
-					row.update(items, "left", animationSpeed,  0.1875);
+					row.update(items, "left", speed.bottom,  0.1875);
 					break;
 				}
 			});
@@ -13242,6 +13276,53 @@ const {
 }(window));
 
 
+(function(window){
+	InstructionsViewController.prototype = new BaseViewController();
+	InstructionsViewController.prototype.constructor = InstructionsViewController;
+	
+	function InstructionsViewController(){
+		this._view;
+		this._container;
+		this._model;
+		
+		this.setup = function() {
+			var pageId = this._model['page-id'];			
+			this._container.append(this._model.template);	
+			this._view = $("#" + pageId);	
+			
+			/*var header = $("header");
+			var footer = $("footer");
+			
+			var headerHeight = header.outerHeight() + Math.abs(header.position().top);
+			var footerHeight = footer.outerHeight();
+			var contentHeight = $(window).innerHeight() - (headerHeight + footerHeight);
+			
+			this._view.css({"top": headerHeight, "height": contentHeight});*/
+			
+		}
+			
+		this.init = function(model, container) {
+			this._model = model;
+			this._container = container;
+			this.setup();
+		}
+		
+		this.intro = function(completion) {
+			console.log("this. intro", this._view);
+			TweenMax.to(this._view, 0.25, {autoAlpha: 1});
+		}
+		
+		this.exit = function(completion) {
+			var context = this;
+			TweenMax.to(this._view, 0.25, {autoAlpha: 0, onComplete: function() {
+				if (completion) { completion(); }
+			}});
+		}
+	}
+	
+	
+	window.InstructionsViewController = InstructionsViewController;
+}(window));
 /*GENERIC  VIEW CONTROLLER*/
 (function(window){
 	IntroViewController.prototype = new BaseViewController();
@@ -13460,9 +13541,7 @@ const {
 			var images = $("body").find("img");
 			var imageArray = [];
 			var i;
-			
-			imageArray.concat(additionalImages);
-		
+					
 			for(i = 0; i < images.length; i++){
 				var image = images[i];
 				
@@ -13491,7 +13570,6 @@ const {
 							}
 						}
 					}
-					
 				}
 			});
 						
@@ -13499,11 +13577,13 @@ const {
 				return element !== undefined;
 			});
 			
+			imageArray = imageArray.concat(additionalImages);
+			
 			if (imageArray.length === 0) {
 				completion();
 				return;
-			}								
-			
+			}	
+						
 			this._loader = new createjs.LoadQueue(false);
 			
 			this._loader.addEventListener("complete",function(e){ completion(e) });

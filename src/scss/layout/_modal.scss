@@ -224,9 +224,19 @@
 	}
 }
 
+#terms-button {
+	cursor: pointer;
+}
+
 .terms-conditions {
 	visibility: hidden;
 	opacity: 0;
+	
+	.terms-container {
+		max-width: 600px;
+		margin: 0 auto;
+	}
+	
 	.close-button {
 		font-size: 1.5em;
 		padding: 15px;

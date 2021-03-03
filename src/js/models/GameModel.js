@@ -114,13 +114,14 @@
 				images.push(sandwich.top);
 				images.push(sandwich.middle);
 				images.push(sandwich.bottom);
+				images.push(sandwich.hero);
 				
 				var recipe = sandwich.recipe;
 				
 				images.push(recipe.hero);
 				images.push(recipe.detail);
 			});
-			
+
 			return images;
 		}
 		

@@ -22,3 +22,22 @@
 		top: 0;
 	}
 }
+
+#instructions {
+	.page-content {	
+		position: relative;
+		top: 50%;
+		transform: translate(0,-50%);
+		text-align: center;
+		
+		li:first-child {
+			font-size: 2em;
+		}
+		
+		li:last-child {
+			font-size: 1em;
+			padding: 0 15px 10px 15px;
+			box-sizing: border-box;
+		}
+	}
+}

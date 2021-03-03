@@ -27,6 +27,21 @@
 		padding: 0 20px 0 20px;
 		box-sizing: border-box;
 		
+		.skip-container {
+			text-align: center;
+			width: 100%;
+			padding: 20px 0;
+			
+			span {
+				color: #A98C00;
+				font-size: 16px;
+				font-weight: bold;
+				text-decoration: none;
+				border-bottom: 1.5px solid #A98C00;
+				cursor: pointer;
+			}
+		}
+		
 		form {
 			margin-bottom: 20px;
 		}

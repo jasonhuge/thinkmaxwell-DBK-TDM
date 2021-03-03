@@ -80,9 +80,7 @@
 			var images = $("body").find("img");
 			var imageArray = [];
 			var i;
-			
-			imageArray.concat(additionalImages);
-		
+					
 			for(i = 0; i < images.length; i++){
 				var image = images[i];
 				
@@ -111,7 +109,6 @@
 							}
 						}
 					}
-					
 				}
 			});
 						
@@ -119,11 +116,13 @@
 				return element !== undefined;
 			});
 			
+			imageArray = imageArray.concat(additionalImages);
+			
 			if (imageArray.length === 0) {
 				completion();
 				return;
-			}								
-			
+			}	
+						
 			this._loader = new createjs.LoadQueue(false);
 			
 			this._loader.addEventListener("complete",function(e){ completion(e) });

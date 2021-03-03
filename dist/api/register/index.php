@@ -7,16 +7,15 @@
 		$client->returnError(405, ['title'=>'method not allowed', 'status'=>405]);
 	}
 	
+	echo json_encode(($_POST));
+	
 	$listId = $_POST['id'];
 	$email = $_POST['email'];
 	$first_name = $_POST['first_name'];
 	$last_name = $_POST['last_name'];
-	$street_address = $_POST['street_address'];
-	$city = $_POST['city'];
-	$state = $_POST['state'];
-	$zipcode = $_POST['zipcode'];
 	$phone = $_POST['phone'];
-	$shouldSubscribe = boolVal($_POST["should_subscribe"]);
+	
+	$shouldSubscribe = $_POST["should_subscribe"];
 		
 	if (!isset($listId)) {
 		$client->returnError(404, ['title'=>'list id required', 'status'=>404]);
@@ -26,24 +25,10 @@
 		$client->returnError(404, ['title'=>'first name required', 'status'=>404]);
 	} else if (!isset($last_name)) {
 		$client->returnError(404, ['title'=>'last name required', 'status'=>404]);
-	} else if (!isset($street_address)) {
-		$client->returnError(404, ['title'=>'address required', 'status'=>404]);
 	} else if (!isset($phone)) {
 		$client->returnError(404, ['title'=>'phone# required', 'status'=>404]);
-	} else if (!isset($city)) {
-		$client->returnError(404, ['title'=>'city required', 'status'=>404]);
-	} else if (!isset($state)) {
-		$client->returnError(404, ['title'=>'state required', 'status'=>404]);
-	} else if (!isset($zipcode)) {
-		$client->returnError(404, ['title'=>'zipcode required', 'status'=>404]);
 	}
-	
-	$address = new stdClass();
-	$address->addr1 = $street_address;
-	$address->city = $city;
-	$address->state = $state;
-	$address->zip = $zipcode;
-	
-	echo json_encode($client->addSubscriber($listId, $email, $first_name, $last_name, $phone, $address, $shouldSubscribe));
+		
+	echo json_encode($client->addSubscriber($listId, $email, $first_name, $last_name, $phone, $shouldSubscribe));
 	
 ?>

@@ -22,6 +22,7 @@
 				
 				var image = $(this._backButton.find("img"));
 				if (back.icon) {
+					image.css({"width": back.img_width});
 					image.attr("src", back.icon);
 				}
 				
@@ -42,6 +43,8 @@
 				if (next.icon) {
 					image.attr("src", next.icon);
 				}
+				
+				image.css({"width": next.img_width});
 				
 				image.css({"display": arrowDisplay});			 	
 				TweenMax.to(this._nextButton, 0.25, {autoAlpha: 1});
