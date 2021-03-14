@@ -31,7 +31,7 @@
 			this._shouldAnimate = true;
 			
 			window.requestAnimationFrame(animate);
-			console.log("start");
+
 			function animate() {
 				if (context._shouldAnimate) {
 					context._rows.forEach(function(row){
@@ -50,8 +50,7 @@
 			
 			var speed = this._game.level.speed;
 			var sandwiches = this._game.sandwiches;
-			var affirmations = this._game.affirmations;
-			
+			//var affirmations = this._game.affirmations;
 			this._rows.forEach(function(row){
 				switch(row._id) {
 					case "top":
@@ -66,15 +65,13 @@
 					});
 					
 					var index = 1;
-					affirmations.forEach(function(affirmation) {
+					/*affirmations.forEach(function(affirmation) {
 						items.splice(index, 0, affirmation);
 						index += 2;
-					});
-					
-					console.log(items);
-					
+					});*/
+										
 					///items = items.sort(function(a, b){return 0.5 - Math.random()});
-
+					
 					row.update(items, "right", speed.middle, 0.375);
 					break;
 					case "bottom":
@@ -106,7 +103,7 @@
 			
 			var pageId = this._model['page-id'];
 			
-			var template = '<div class="page" id="' + pageId + '"><div class="page-content"><p>Tap each row to stop the sliding. Time your taps to land on the correct pieces. No match? No worries — play again!</p><div id="game-carousel" class="carousel"></div></div></div>';
+			var template = '<div class="page" id="' + pageId + '"><div class="page-content"><div id="game-carousel" class="carousel"></div></div></div>';
 			
 			this._container.append(template);
 			
@@ -179,6 +176,7 @@
 		this._selectedItem;
 		this._heightMultiplier;
 		this._isStopping;
+		this._deceleration;
 		
 		this.didSelectItemListener;
 		
@@ -197,15 +195,17 @@
 					slider.append('<li style="background: ' + item.color + ';" class="tile affirmation"><span>' + item.text + '</span></li><!-- -->');
 					break;
 					case "sticker":
-					break
+					break;
 				}
 			});
+			
 						
 			this._direction = direction;
 			this._items = items;
 			this._speed = speed;
-			this._heightMultiplier = heightMultiplier
-						
+			this._deceleration = (this._speed / 4.2) * 0.0999;
+			this._heightMultiplier = heightMultiplier;
+									
 			this.updateLayout();
 			
 		}
@@ -250,37 +250,21 @@
 		}
 		
 		this.animateToSelectedItem = function() {
-			if (this._selectedItem !== null) return
-			
+			//this._selectedItem = item;
 			var context = this;
-			
 			var slider = $(this._view.find("ul"));
-			var item = null;
 			
-			slider.find("li").each(function(){
-				if (item === null) {
-					item = $(this);
-				} else {
-					prev = item.offset().left;
-					current = $(this).offset().left;
-					
-					item = (Math.abs(current - 0) < Math.abs(prev - 0) ? $(this) : item);
-				}
-			});
-			
-			this._selectedItem = item;
-			
-			var left = -item.position().left;
+			var left = -this._selectedItem.position().left;
 						
 			TweenMax.to(slider, 0.25, {css:{left:left}, ease:Sine.easeIn, onComplete: function() {
-				context.didSelectItemListener(item.data("id"));
+				context.didSelectItemListener(context._selectedItem.data("id"));
 			}});
 		}
 		
 		this.animate = function() {
 			if (this._hasTappedOnItem) {
-				this._speed -= 0.0345;
-				if (this._speed <= 0.25 && !this._isStopping) { 
+				this._speed -= this._deceleration;//0.0999;
+				if (this._speed <= 0.75 && !this._isStopping) { 
 					this._isStopping = true;
 					this.animateToSelectedItem();
 					return;
@@ -342,11 +326,12 @@
 			this._container.append(template);
 			
 			this._view = $("#" + this._id);
-			
-			
 						
-			$(this._view.find("ul")).on("mouseup touchend", function(){
-				context.onItemClicked();
+			$(this._view.find("ul")).on("mouseup touchend", function(e){
+				if (!context._selectedItem) {
+					context._selectedItem = $(e.target).parent();
+					context.onItemClicked();
+				}
 			});
 		}
 		

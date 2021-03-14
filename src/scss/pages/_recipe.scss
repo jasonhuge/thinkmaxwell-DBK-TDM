@@ -36,8 +36,18 @@
 		
 		li:last-child {
 			font-size: 1em;
-			padding: 0 15px 10px 15px;
+			//padding: 0 15px 10px 15px;
 			box-sizing: border-box;
+		}
+		
+		span {
+			width: 100%;
+			font-size: 2.5em;
+			display: block;
+		}
+		
+		#inst-top, #inst-middle {
+			border-bottom: 10px solid white;
 		}
 	}
 }

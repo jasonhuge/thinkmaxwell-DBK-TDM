@@ -30,7 +30,6 @@
 		}
 		
 		this.intro = function(completion) {
-			console.log("this. intro", this._view);
 			TweenMax.to(this._view, 0.25, {autoAlpha: 1});
 		}
 		

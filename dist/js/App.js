@@ -150,7 +150,6 @@
 		};
 				
 		this.onWindowResize = function(e){
-			console.log("resize");
 			this._gameCoordinator.onWindowResize(e);
    		}
 	}
@@ -11776,9 +11775,7 @@ const {
 			$(this._view.find(".level-button")).each(function() {
 				$(this).css({"width": buttonWidth});
 			});
-			
-			console.log("buttonWidth", buttonWidth);
-			
+						
 			$(this._view.find(".level-button")).on("click", function() {
 				context.didSelectLevel($(this).data("id"));
 			});
@@ -11887,6 +11884,7 @@ const {
 		}
 		
 		this.intro = function(completion) {
+		
 			var context = this;
 			var timeline = new TimelineMax();
 			var list = $(this._view.find("ul"));
@@ -12169,7 +12167,7 @@ const {
 						var shouldSubscribe = ($("#newsletter").is(":checked")) ? "subscribed" : "unsubscribed";
 						
 						data.push({name: "id", value: level.list_id});
-						data.push({name:"should_subscribe", shouldSubscribe });
+						data.push({name:"status", value: shouldSubscribe});
 						
 						$.ajax({
 							type: "POST",
@@ -12179,7 +12177,7 @@ const {
 								context.onSubmitSuccess();
 							},
 							error: function(error) {
-								context.onSubmitFailire(error);
+								context.onSubmitFailure(error);
 							}
 						});
 					});
@@ -12197,7 +12195,7 @@ const {
 			this.didSubmitForm();
 		}
 		
-		this.onSubmitFailire = function(error) {
+		this.onSubmitFailure = function(error) {
 			var modal = $(".modal");
 			var errorData = JSON.parse(error.responseJSON);
 			
@@ -12339,7 +12337,6 @@ const {
 		}
 		
 		this.intro = function(completion) {
-			console.log("this. intro", this._view);
 			TweenMax.to(this._view, 0.25, {autoAlpha: 1});
 		}
 		
@@ -12431,13 +12428,13 @@ const {
 		
 		this.intro = function(animated) {
 			var duration = (animated === true) ? 0.25 : 0;			
-			TweenMax.to(this._view, duration, {css:{opacity:1, bottom: 0}, ease:Sine.easeIn});
+			TweenMax.to(this._view, duration, {css:{autoAlpha:1, bottom: 0}, ease:Sine.easeIn});
 		}
 		
 		this.exit = function(animated) {
 			var duration = (animated === true) ? 0.25 : 0;
 			var bottom = -(this._view.height() / 4);
-			TweenMax.to(this._view, duration, {css:{opacity:0, bottom: bottom}, ease:Sine.easeIn});
+			TweenMax.to(this._view, duration, {css:{autoAlpha:0, bottom: bottom}, ease:Sine.easeIn});
 		}	
 			
 		this.baseSetup = function(target, nextListener, backListener) {
@@ -12481,7 +12478,7 @@ const {
 			
 			var gameVc = this._viewControllers.find(vc => { return vc instanceof GameViewController});
 					
-			this._game.affirmations = this._viewModel.randomAffirmations(this._game.level.affirmation_count);
+			//this._game.affirmations = this._viewModel.randomAffirmations(this._game.level.affirmation_count);
 			var sandwichId = this._game.sandwich.id;
 									
 			gameVc.update(this._game);
@@ -12612,18 +12609,27 @@ const {
 			var vc = this._viewControllers[this._currentStep];
 			var model = vc._model;
 			var action = model.next.action;
-
+			
 			if (action === "nav") {
 				this.goToNextScreen();
 			} else if (action === "link") {
 				var link = this._game.sandwich.recipe.link;
+				gtag("event", "link_out", {
+					"link_url": link,
+					"sandwich_name": this._game.sandwich.name
+				})
 				window.open(link, '_blank');
 			} else if (action === "play_again") {
-				//play again
+				gtag("event", "start_over", {
+					"from_page": this.currentPagePath()
+				});
 				this.startOver();
 			} else if (action === "submit_form") {
 				vc.submit();
 			} else if (action === "retry") {
+				gtag("event", "retry", {
+					"from_page": this.currentPagePath()
+				});
 				this.tryAgain();
 			}
 		}
@@ -12637,6 +12643,10 @@ const {
 				this.goToPrevScreen();
 			} else if (action === "link") {
 				var link = this._game.sandwich.recipe.link;
+				gtag("event", "link_out", {
+					"link_url": link,
+					"sandwich_name": this._game.sandwich.name
+				});
 				window.open(link, '_blank');
 			}
 		}
@@ -12681,7 +12691,7 @@ const {
 		this.navigateToStep = function(currentVc, prevVc) {
 			var step = currentVc._model;
 			
-			var headerImage = (currentVc instanceof GameViewController && this._game.sandwich !== null) ? this._game.sandwich.thumbnail : null;
+			var headerImage = (currentVc instanceof GameViewController || currentVc instanceof InstructionsViewController && this._game.sandwich !== null) ? this._game.sandwich.thumbnail : null;
 
 			var headerModel = {
 				title: step.title,
@@ -12702,6 +12712,38 @@ const {
 			} else {
 				currentVc.intro();
 			}
+			
+			var title = currentVc._model.slug;
+			
+			gtag('event', 'screen_view', {
+				'screen_name' : title
+			});
+			
+			gtag('event', 'page_view', {
+				'page_title': title,
+				'page_path': this.currentPagePath()
+			});
+			
+			gtag('event', 'action', {
+				'action_screen': title,
+				'action_path': this.currentPagePath()
+			});
+		}
+		
+		this.currentPagePath = function() {
+			var currentVc = this._viewControllers[this._currentStep];
+			
+			var pagePath = "/" + currentVc._model["page-id"];
+			
+			if (this._game.level) {
+				pagePath += "/" + this._game.level.slug;
+			}
+			
+			if (this._game.sandwich) {
+				pagePath += "/" + this._game.sandwich.slug;
+			}
+			
+			return pagePath;
 		}
 		
 		
@@ -12876,7 +12918,7 @@ const {
 			this._shouldAnimate = true;
 			
 			window.requestAnimationFrame(animate);
-			console.log("start");
+
 			function animate() {
 				if (context._shouldAnimate) {
 					context._rows.forEach(function(row){
@@ -12895,8 +12937,7 @@ const {
 			
 			var speed = this._game.level.speed;
 			var sandwiches = this._game.sandwiches;
-			var affirmations = this._game.affirmations;
-			
+			//var affirmations = this._game.affirmations;
 			this._rows.forEach(function(row){
 				switch(row._id) {
 					case "top":
@@ -12911,15 +12952,13 @@ const {
 					});
 					
 					var index = 1;
-					affirmations.forEach(function(affirmation) {
+					/*affirmations.forEach(function(affirmation) {
 						items.splice(index, 0, affirmation);
 						index += 2;
-					});
-					
-					console.log(items);
-					
+					});*/
+										
 					///items = items.sort(function(a, b){return 0.5 - Math.random()});
-
+					
 					row.update(items, "right", speed.middle, 0.375);
 					break;
 					case "bottom":
@@ -12951,7 +12990,7 @@ const {
 			
 			var pageId = this._model['page-id'];
 			
-			var template = '<div class="page" id="' + pageId + '"><div class="page-content"><p>Tap each row to stop the sliding. Time your taps to land on the correct pieces. No match? No worries — play again!</p><div id="game-carousel" class="carousel"></div></div></div>';
+			var template = '<div class="page" id="' + pageId + '"><div class="page-content"><div id="game-carousel" class="carousel"></div></div></div>';
 			
 			this._container.append(template);
 			
@@ -13024,6 +13063,7 @@ const {
 		this._selectedItem;
 		this._heightMultiplier;
 		this._isStopping;
+		this._deceleration;
 		
 		this.didSelectItemListener;
 		
@@ -13042,15 +13082,17 @@ const {
 					slider.append('<li style="background: ' + item.color + ';" class="tile affirmation"><span>' + item.text + '</span></li><!-- -->');
 					break;
 					case "sticker":
-					break
+					break;
 				}
 			});
+			
 						
 			this._direction = direction;
 			this._items = items;
 			this._speed = speed;
-			this._heightMultiplier = heightMultiplier
-						
+			this._deceleration = (this._speed / 4.2) * 0.0999;
+			this._heightMultiplier = heightMultiplier;
+									
 			this.updateLayout();
 			
 		}
@@ -13095,37 +13137,21 @@ const {
 		}
 		
 		this.animateToSelectedItem = function() {
-			if (this._selectedItem !== null) return
-			
+			//this._selectedItem = item;
 			var context = this;
-			
 			var slider = $(this._view.find("ul"));
-			var item = null;
 			
-			slider.find("li").each(function(){
-				if (item === null) {
-					item = $(this);
-				} else {
-					prev = item.offset().left;
-					current = $(this).offset().left;
-					
-					item = (Math.abs(current - 0) < Math.abs(prev - 0) ? $(this) : item);
-				}
-			});
-			
-			this._selectedItem = item;
-			
-			var left = -item.position().left;
+			var left = -this._selectedItem.position().left;
 						
 			TweenMax.to(slider, 0.25, {css:{left:left}, ease:Sine.easeIn, onComplete: function() {
-				context.didSelectItemListener(item.data("id"));
+				context.didSelectItemListener(context._selectedItem.data("id"));
 			}});
 		}
 		
 		this.animate = function() {
 			if (this._hasTappedOnItem) {
-				this._speed -= 0.0345;
-				if (this._speed <= 0.25 && !this._isStopping) { 
+				this._speed -= this._deceleration;//0.0999;
+				if (this._speed <= 0.75 && !this._isStopping) { 
 					this._isStopping = true;
 					this.animateToSelectedItem();
 					return;
@@ -13187,11 +13213,12 @@ const {
 			this._container.append(template);
 			
 			this._view = $("#" + this._id);
-			
-			
 						
-			$(this._view.find("ul")).on("mouseup touchend", function(){
-				context.onItemClicked();
+			$(this._view.find("ul")).on("mouseup touchend", function(e){
+				if (!context._selectedItem) {
+					context._selectedItem = $(e.target).parent();
+					context.onItemClicked();
+				}
 			});
 		}
 		
@@ -13289,16 +13316,6 @@ const {
 			var pageId = this._model['page-id'];			
 			this._container.append(this._model.template);	
 			this._view = $("#" + pageId);	
-			
-			/*var header = $("header");
-			var footer = $("footer");
-			
-			var headerHeight = header.outerHeight() + Math.abs(header.position().top);
-			var footerHeight = footer.outerHeight();
-			var contentHeight = $(window).innerHeight() - (headerHeight + footerHeight);
-			
-			this._view.css({"top": headerHeight, "height": contentHeight});*/
-			
 		}
 			
 		this.init = function(model, container) {
@@ -13308,7 +13325,6 @@ const {
 		}
 		
 		this.intro = function(completion) {
-			console.log("this. intro", this._view);
 			TweenMax.to(this._view, 0.25, {autoAlpha: 1});
 		}
 		
@@ -13364,6 +13380,20 @@ const {
 		}
 		
 		this.intro = function(completion) {
+			gtag('event', 'screen_view', {
+				'screen_name' : "Intro"
+			});
+			
+			gtag('event', 'page_view', {
+				'page_title': "Intro",
+				'page_path': "/"
+			});
+			
+			gtag('event', 'action', {
+				'action_screen': "Intro",
+				'action_path': "/"
+			});
+
 			if (this._hasIntialIntro) {
 
 				TweenMax.to(this._view, 0.5, {autoAlpha: 1, onComplete: function() {
@@ -13427,6 +13457,13 @@ const {
 			});
 			
 			$("#terms-button").on("click", function() {
+				/*gtag("event", "page_view", {
+					"page_title": "Terms and Conditions",
+					"page_path": "/terms"
+				})*/
+				
+				gtag('config', 'G-4Q4LVK7PJD', {'page_path': '/terms', 'page_title': 'Terms and Conditions'});
+				
 				TweenMax.to($(".terms-conditions"), 0.25, {autoAlpha: 1});
 			});
 		}
@@ -13583,6 +13620,10 @@ const {
 				completion();
 				return;
 			}	
+			
+			imageArray.push("img/content/bread-red.png");
+			imageArray.push("img/content/bread-yellow.png");
+			imageArray.push("img/content/bread.png");
 						
 			this._loader = new createjs.LoadQueue(false);
 			

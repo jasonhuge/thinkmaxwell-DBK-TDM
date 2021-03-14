@@ -150,7 +150,6 @@
 		};
 				
 		this.onWindowResize = function(e){
-			console.log("resize");
 			this._gameCoordinator.onWindowResize(e);
    		}
 	}

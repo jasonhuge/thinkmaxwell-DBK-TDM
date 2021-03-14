@@ -39,6 +39,25 @@
         <link rel="stylesheet" href="css/style.min.css">
 
     </head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-4Q4LVK7PJD"></script>
+	<script>
+	  window.dataLayer = window.dataLayer || [];
+	  function gtag(){dataLayer.push(arguments);}
+	  	gtag('js', new Date());
+	  	gtag('config', 'G-4Q4LVK7PJD', { 
+		  'send_page_view': false,
+		  'app_name' : 'Total Day Maker',
+		  'custom_map': {
+				'dimension1': 'from_page',
+				'dimension2': 'link_url',
+				'dimension3': 'sandwich_name',
+				'dimension4': 'action_screen',
+				'dimension5': 'action_path'
+				
+	  		}
+		});
+	</script>
     <body>
 	    <?php 
 	        if( $detect->isMobile() && !$detect->isTablet() ){

@@ -134,7 +134,7 @@
 						var shouldSubscribe = ($("#newsletter").is(":checked")) ? "subscribed" : "unsubscribed";
 						
 						data.push({name: "id", value: level.list_id});
-						data.push({name:"should_subscribe", shouldSubscribe });
+						data.push({name:"status", value: shouldSubscribe});
 						
 						$.ajax({
 							type: "POST",
@@ -144,7 +144,7 @@
 								context.onSubmitSuccess();
 							},
 							error: function(error) {
-								context.onSubmitFailire(error);
+								context.onSubmitFailure(error);
 							}
 						});
 					});
@@ -162,7 +162,7 @@
 			this.didSubmitForm();
 		}
 		
-		this.onSubmitFailire = function(error) {
+		this.onSubmitFailure = function(error) {
 			var modal = $(".modal");
 			var errorData = JSON.parse(error.responseJSON);
 			

@@ -28,7 +28,7 @@
 			
 			var gameVc = this._viewControllers.find(vc => { return vc instanceof GameViewController});
 					
-			this._game.affirmations = this._viewModel.randomAffirmations(this._game.level.affirmation_count);
+			//this._game.affirmations = this._viewModel.randomAffirmations(this._game.level.affirmation_count);
 			var sandwichId = this._game.sandwich.id;
 									
 			gameVc.update(this._game);
@@ -159,18 +159,27 @@
 			var vc = this._viewControllers[this._currentStep];
 			var model = vc._model;
 			var action = model.next.action;
-
+			
 			if (action === "nav") {
 				this.goToNextScreen();
 			} else if (action === "link") {
 				var link = this._game.sandwich.recipe.link;
+				gtag("event", "link_out", {
+					"link_url": link,
+					"sandwich_name": this._game.sandwich.name
+				})
 				window.open(link, '_blank');
 			} else if (action === "play_again") {
-				//play again
+				gtag("event", "start_over", {
+					"from_page": this.currentPagePath()
+				});
 				this.startOver();
 			} else if (action === "submit_form") {
 				vc.submit();
 			} else if (action === "retry") {
+				gtag("event", "retry", {
+					"from_page": this.currentPagePath()
+				});
 				this.tryAgain();
 			}
 		}
@@ -184,6 +193,10 @@
 				this.goToPrevScreen();
 			} else if (action === "link") {
 				var link = this._game.sandwich.recipe.link;
+				gtag("event", "link_out", {
+					"link_url": link,
+					"sandwich_name": this._game.sandwich.name
+				});
 				window.open(link, '_blank');
 			}
 		}
@@ -228,7 +241,7 @@
 		this.navigateToStep = function(currentVc, prevVc) {
 			var step = currentVc._model;
 			
-			var headerImage = (currentVc instanceof GameViewController && this._game.sandwich !== null) ? this._game.sandwich.thumbnail : null;
+			var headerImage = (currentVc instanceof GameViewController || currentVc instanceof InstructionsViewController && this._game.sandwich !== null) ? this._game.sandwich.thumbnail : null;
 
 			var headerModel = {
 				title: step.title,
@@ -249,6 +262,38 @@
 			} else {
 				currentVc.intro();
 			}
+			
+			var title = currentVc._model.slug;
+			
+			gtag('event', 'screen_view', {
+				'screen_name' : title
+			});
+			
+			gtag('event', 'page_view', {
+				'page_title': title,
+				'page_path': this.currentPagePath()
+			});
+			
+			gtag('event', 'action', {
+				'action_screen': title,
+				'action_path': this.currentPagePath()
+			});
+		}
+		
+		this.currentPagePath = function() {
+			var currentVc = this._viewControllers[this._currentStep];
+			
+			var pagePath = "/" + currentVc._model["page-id"];
+			
+			if (this._game.level) {
+				pagePath += "/" + this._game.level.slug;
+			}
+			
+			if (this._game.sandwich) {
+				pagePath += "/" + this._game.sandwich.slug;
+			}
+			
+			return pagePath;
 		}
 		
 		

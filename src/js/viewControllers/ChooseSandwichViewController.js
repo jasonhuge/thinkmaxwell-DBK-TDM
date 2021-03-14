@@ -48,6 +48,7 @@
 		}
 		
 		this.intro = function(completion) {
+		
 			var context = this;
 			var timeline = new TimelineMax();
 			var list = $(this._view.find("ul"));

@@ -122,6 +122,10 @@
 				completion();
 				return;
 			}	
+			
+			imageArray.push("img/content/bread-red.png");
+			imageArray.push("img/content/bread-yellow.png");
+			imageArray.push("img/content/bread.png");
 						
 			this._loader = new createjs.LoadQueue(false);
 			

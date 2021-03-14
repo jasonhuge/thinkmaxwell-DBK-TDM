@@ -12,8 +12,8 @@
 				</div>
 				<div class="social">
 					<ul>
-						<li><a href="https://www.facebook.com/DavesKillerBread/" target="_blank"><img src="img/content/facebook-icon-Black.png" alt="Facebook button"/></a></li>
-						<li><a href="https://www.instagram.com/daveskillerbread/" target="_blank"><img src="img/content/instagram-icon-Black.png" alt="Facebook button"/></a></li>
+						<li><a href="https://www.facebook.com/DavesKillerBread/" target="_blank"><img src="img/content/Facebook-Icon-Black.png" alt="Facebook button"/></a></li>
+						<li><a href="https://www.instagram.com/daveskillerbread/" target="_blank"><img src="img/content/Instagram-Icon-Black.png" alt="Facebook button"/></a></li>
 					</ul>
 				</div>
 				<div class="rules">

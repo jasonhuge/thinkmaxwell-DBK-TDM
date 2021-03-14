@@ -1,6 +1,7 @@
 {
 	"intro": {
 		"page-id": "intro",
+		"slug": "Total day maker",
 		"title": "TOTAL DAY MAKER",
 		"template": "<div class='page' id='intro'><div class='page-content'><div class='hero-title'><img id='hero-image' src='img/content/home-title.png' alt='Total Day Maker'/></div><div id='hero-sando'><img src='img/content/home-sando.jpg' alt='Total Day Maker'/></div><div class='hero-content'><div id='intro-logo' class='logo'><img src='img/content/daves-logo.png' alt='Daves Bread'/></div><!------><div id='intro-play-button' class='play-button'><img src='img/content/home-play-btn.png' alt='Play for Bread'/></div></div><div class='terms'><span id='terms-button'>TERMS AND CONDITIONS</span></div></div></div>"
 	},
@@ -8,6 +9,7 @@
 		"steps": [{
 				"id": 0,
 				"page-id": "choose-level",
+				"slug": "Choose your difficulty",
 				"title": "CHOOSE YOUR<br/>DIFFICULTY",
 				"template": "templates/choose-level.html",
 				"back": {
@@ -21,6 +23,7 @@
 			{
 				"id": 1,
 				"page-id": "choose-sando",
+				"slug": "Choose your sando match",
 				"title": "CHOOSE YOUR<br/>SANDO MATCH",
 				"template": "templates/chooselevel.php",
 				"back": {
@@ -34,8 +37,9 @@
 			{
 				"id": 2,
 				"page-id": "instructions",
-				"title": "INSTRUCTIONS",
-				"template": "<div class='page' id='instructions'><div class='page-content'><ul><li>GET BREADY TO ROCK!</li><li><span>This is a game of timing</span> — memorize the order of pieces scrolling by, and tap each row early to stop the scroll on the correct sandwich. No match? No worries! Keep trying until you get the timing down.</li></ul></div></div>",
+				"slug": "How to play",
+				"title": "MATCH THIS<br/>SANDO",
+				"template": "<div class='page' id='instructions'><div class='page-content'><ul><li>Great choice! When the game starts, your challenge<br/>is to match the sandwich above. Tap on the<br/><span id='inst-top'>TOP</span><span id='inst-middle'>MIDDLE &</span><span id='inst-bottom'>BOTTOM</span>parts of the correct sandwich to stop each row and<br/>make a match. No match? No problem - try again!</li></ul></div></div>",
 				"back": {
 					"title": "BACK",
 					"action": "nav",
@@ -43,7 +47,7 @@
 					"icon": "img/content/left_arrow_white.png"
 				},
 				"next": {
-					"title": "NEXT",
+					"title": "START",
 					"action": "nav",
 					"img_width": 23,
 					"icon": "img/content/right_arrow_white.png"
@@ -52,6 +56,7 @@
 			{
 				"id": 3,
 				"page-id": "gameplay",
+				"slug": "Match this sando",
 				"title": "MATCH THIS<br/>SANDO",
 				"template": "templates/game.php",
 				"back": {
@@ -70,6 +75,7 @@
 		],
 		"coupon": {
 			"page-id": "redeem-coupon",
+			"slug": "Print your coupon",
 			"title": "PRINT YOUR<br/>COUPON",
 			"back": null,
 			"next": {
@@ -82,6 +88,7 @@
 		},
 		"contact": {
 			"page-id": "contact",
+			"slug": "Enter your contact info",
 			"title": "ENTER YOUR<br/>CONTACT INFO",
 			"back": null,
 			"next": {
@@ -94,6 +101,7 @@
 		},
 		"recipe": {
 			"page-id": "recipe",
+			"slug": "Your sando recipe",
 			"title": "YOUR SANDO<br/>RECIPE",
 			"back": {
 				"title": "GET RECIPE",
@@ -111,7 +119,8 @@
 		},
 		"sandwiches": [{
 				"id": 1,
-				"name": "BAGEL SO EGGSTRA",
+				"name": "EGGSTREME BAGELWICH",
+				"slug": "eggstreme-bagelwich",
 				"hero": "img/content/sando-1/button.jpg",
 				"thumbnail": "img/content/sando-1/header.png",
 				"top": "img/content/sando-1/top.jpg",
@@ -119,7 +128,7 @@
 				"bottom": "img/content/sando-1/bottom.jpg",
 				"recipe": {
 					"cta": "Ain’t no party like an egg salad party cuz and egg salad party don’t STOP. Especially if Epic Everything bagels are the dance floor.",
-					"link": "https://www.daveskillerbread.com/recipes/bagel-so-eggstra",
+					"link": "https://www.daveskillerbread.com/recipes/eggstreme-bagelwich",
 					"hero": "img/content/sando-1/recipe.jpg",
 					"detail": "img/content/sando-1/bread.png"
 
@@ -128,6 +137,7 @@
 			{
 				"id": 2,
 				"name": "BANANNAS FOR PEANUT BUTTER",
+				"slug": "banannas-for-penut-butter",
 				"hero": "img/content/sando-2/button.jpg",
 				"thumbnail": "img/content/sando-2/header.png",
 				"top": "img/content/sando-2/top.jpg",
@@ -143,6 +153,7 @@
 			{
 				"id": 3,
 				"name": "EGGCELENT ENGLISH MUFFIN",
+				"slug": "eggcelent-english-muffin",
 				"hero": "img/content/sando-3/button.jpg",
 				"thumbnail": "img/content/sando-3/header.png",
 				"top": "img/content/sando-3/top.jpg",
@@ -159,6 +170,7 @@
 			{
 				"id": 4,
 				"name": "KICK IT UP A BEET BURGER",
+				"slug": "kick-it-up-a-beet-burger",
 				"hero": "img/content/sando-4/button.jpg",
 				"thumbnail": "img/content/sando-4/header.png",
 				"top": "img/content/sando-4/top.jpg",
@@ -175,6 +187,7 @@
 			{
 				"id": 5,
 				"name": "KILLER CLASSIC CLUB",
+				"slug": "killer-classic-club",
 				"hero": "img/content/sando-5/button.jpg",
 				"thumbnail": "img/content/sando-5/header.png",
 				"top": "img/content/sando-5/top.jpg",
@@ -190,7 +203,8 @@
 			},
 			{
 				"id": 6,
-				"name": "NOT-YO-BASIC BURGER",
+				"name": "NOT YOUR BASIC BURGER",
+				"slug": "not-your-basic-burger",
 				"hero": "img/content/sando-6/button.jpg",
 				"thumbnail": "img/content/sando-6/header.png",
 				"top": "img/content/sando-6/top.jpg",
@@ -198,7 +212,7 @@
 				"bottom": "img/content/sando-6/bottom.jpg",
 				"recipe": {
 					"cta": "BreadHeads love this rockin’ cheeseburger on 21 Whole Grains and Seeds Burger Buns with snappy lettuce and grilled onions. Killer flavor from top to bottom!",
-					"link": "https://www.daveskillerbread.com/recipes/not-yo-basic-burger",
+					"link": "https://www.daveskillerbread.com/recipes/not-your-basic-burger",
 					"hero": "img/content/sando-6/recipe.jpg",
 					"detail": "img/content/sando-6/bread.png"
 
@@ -207,6 +221,7 @@
 			{
 				"id": 7,
 				"name": "VEGGIE TO THE MAX",
+				"slug": "veggie-to-the-max",
 				"hero": "img/content/sando-7/button.jpg",
 				"thumbnail": "img/content/sando-7/header.png",
 				"top": "img/content/sando-7/top.jpg",
@@ -223,6 +238,7 @@
 			{
 				"id": 8,
 				"name": "VERY BLTA ENGLISH MUFFIN",
+				"slug": "very-blta-english-muffin",
 				"hero": "img/content/sando-8/button.jpg",
 				"thumbnail": "img/content/sando-8/header.png",
 				"top": "img/content/sando-8/top.jpg",
@@ -292,13 +308,14 @@
 		],
 		"levels": [{
 				"id": 1,
+				"slug": "novice",
 				"title": "NOVICE",
 				"desc": "Win your favorite bread!",
 				"completion_message": "Coupon already claimed,<br/>but play again for fun!",
 				"speed": {
-					"top": 3.75,
-					"middle": 3.2,
-					"bottom": 4.25
+					"top": 4.75,
+					"middle": 4.2,
+					"bottom": 6.25
 				},
 				"list_id": null,
 				"affirmation_count": 1,
@@ -308,14 +325,15 @@
 			},
 			{
 				"id": 2,
+				"slug": "skilled",
 				"title": "SKILLED",
 				"desc": "A chance to win a<br/>year's supply of bread!",
 				"completion_message": "Prize entry already claimed,<br/>but play again for fun!",
 				"form_message": "Enter your information for a chance to win a year's supply of bread!",
 				"speed": {
-					"top": 4,
-					"middle": 3.5,
-					"bottom": 4.5
+					"top": 5.75,
+					"middle": 5.5,
+					"bottom": 6.5
 				},
 				"tolerance": 1.25,
 				"list_id": "31f07e52b2",
@@ -326,14 +344,15 @@
 			},
 			{
 				"id": 3,
+				"slug": "expert",
 				"title": "EXPERT",
 				"desc": "A chance to win $5,000<br/>(the other kind of bread)",
 				"completion_message": "Prize entry already claimed,<br/>but play again for fun!",
 				"form_message": "Enter your information for a chance to win $5,000!",
 				"speed": {
-					"top": 4.5,
-					"middle": 4,
-					"bottom": 5
+					"top": 9.5,
+					"middle": 8,
+					"bottom": 10
 				},
 				"tolerance": 1.25,
 				"list_id": "0e96f2164f",

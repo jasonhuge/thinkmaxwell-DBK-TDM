@@ -39,6 +39,20 @@
 		}
 		
 		this.intro = function(completion) {
+			gtag('event', 'screen_view', {
+				'screen_name' : "Intro"
+			});
+			
+			gtag('event', 'page_view', {
+				'page_title': "Intro",
+				'page_path': "/"
+			});
+			
+			gtag('event', 'action', {
+				'action_screen': "Intro",
+				'action_path': "/"
+			});
+
 			if (this._hasIntialIntro) {
 
 				TweenMax.to(this._view, 0.5, {autoAlpha: 1, onComplete: function() {
@@ -102,6 +116,13 @@
 			});
 			
 			$("#terms-button").on("click", function() {
+				/*gtag("event", "page_view", {
+					"page_title": "Terms and Conditions",
+					"page_path": "/terms"
+				})*/
+				
+				gtag('config', 'G-4Q4LVK7PJD', {'page_path': '/terms', 'page_title': 'Terms and Conditions'});
+				
 				TweenMax.to($(".terms-conditions"), 0.25, {autoAlpha: 1});
 			});
 		}

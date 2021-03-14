@@ -46,9 +46,7 @@
 			$(this._view.find(".level-button")).each(function() {
 				$(this).css({"width": buttonWidth});
 			});
-			
-			console.log("buttonWidth", buttonWidth);
-			
+						
 			$(this._view.find(".level-button")).on("click", function() {
 				context.didSelectLevel($(this).data("id"));
 			});

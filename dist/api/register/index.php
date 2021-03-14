@@ -6,16 +6,14 @@
 	if ($_SERVER['REQUEST_METHOD'] != 'POST') {
 		$client->returnError(405, ['title'=>'method not allowed', 'status'=>405]);
 	}
-	
-	echo json_encode(($_POST));
-	
+		
 	$listId = $_POST['id'];
 	$email = $_POST['email'];
 	$first_name = $_POST['first_name'];
 	$last_name = $_POST['last_name'];
 	$phone = $_POST['phone'];
 	
-	$shouldSubscribe = $_POST["should_subscribe"];
+	$status = $_POST['status'];
 		
 	if (!isset($listId)) {
 		$client->returnError(404, ['title'=>'list id required', 'status'=>404]);
@@ -28,7 +26,17 @@
 	} else if (!isset($phone)) {
 		$client->returnError(404, ['title'=>'phone# required', 'status'=>404]);
 	}
-		
-	echo json_encode($client->addSubscriber($listId, $email, $first_name, $last_name, $phone, $shouldSubscribe));
+	
+	$properties = [
+		'email_address' => $email,
+		'merge_fields' => [
+			'FNAME' => $first_name,
+			'LNAME' => $last_name,
+			'PHONE' => $phone
+		],
+		'status' => $status
+	];
+			
+	echo json_encode($client->addSubscriber($listId, $properties));
 	
 ?>
